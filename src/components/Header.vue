@@ -24,7 +24,7 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 20px 40px;
-    box-shadow: var(--shadow);
+    // box-shadow: var(--shadow);
     .logo {
         a {
             display: flex;

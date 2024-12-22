@@ -16,5 +16,7 @@ footer {
     height: 60px;
     background-color: var(--primary-color);
     color: var(--white-color);
+    top: 60px;
+    position: relative;
 }
 </style>

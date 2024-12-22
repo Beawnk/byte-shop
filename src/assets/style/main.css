@@ -146,6 +146,7 @@ button {
 /* Track */
 ::-webkit-scrollbar-track {
   background: var(--gray-color);
+  border-radius: var(--border-radius);
 }
 
 /* Handle */
@@ -153,6 +154,7 @@ button {
   background: var(--primary-color);
   border-radius: var(--border-radius);
   transition: var(--transition);
+  border: 2px solid var(--gray-color);
 }
 
 /* Handle on hover */
