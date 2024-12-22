@@ -1,0 +1,193 @@
+@font-face { font-family:'Outfit-Regular'; src: url('@/assets/fonts/Outfit-Regular.ttf'); }
+@font-face { font-family:'Outfit-Light'; src: url('@/assets/fonts/Outfit-Light.ttf'); }
+@font-face { font-family:'Outfit-Bold'; src: url('@/assets/fonts/Outfit-Bold.ttf'); }
+@font-face { font-family:'Outfit-SemiBold'; src: url('@/assets/fonts/Outfit-SemiBold.ttf'); }
+@font-face { font-family:'RobotoMono-Regular'; src: url('@/assets/fonts/RobotoMono-Regular.ttf'); }
+@font-face { font-family:'RobotoMono-SemiBold'; src: url('@/assets/fonts/RobotoMono-SemiBold.ttf'); }
+
+:root {
+    /* colors  */
+    --primary-color: #50c19f;
+    --secondary-color: #f5b4b0;
+    --background-color: #edf3ff;
+    --text-color: #5f5380;
+    --highlight-color: #ff3da8;
+    --success-color: #2ce27e;
+    --info-color: #667dff;
+    --warning-color: #FAC975;
+    --danger-color: #FA7575;
+    --light-color: #FAF9F5;
+    --gray-color: #f5f5f5;
+    --white-color: #ffffff;
+    --dark-color: #1c1c1c;
+    --light-dark-color: #404243;
+    --black-color: #0a0a0a;
+    --shadow-color: #00000036;
+
+    --shadow: 0px 2px 10px 0px var(--shadow-color);
+
+    /* Fonts  */
+    --ff-primary: 'Outfit-Regular', sans-serif;
+    --ff-primary-light: 'Outfit-Light', sans-serif;
+    --ff-primary-bold: 'Outfit-Bold', sans-serif;
+    --ff-primary-semibold: 'Outfit-SemiBold', sans-serif;
+    --ff-secondary: 'RobotoMono-Regular', monospace;
+    --ff-secondary-semibold: 'RobotoMono-SemiBold', monospace;
+
+    /* font sizes */
+    --title-big: 36px;
+    --title-medium: 32px;
+    --title-small: 28px;
+  
+    --subtitle-big: 24px;
+    --subtitle-medium: 20px;
+    --subtitle-small: 18px;
+  
+    --text-big: 18px;
+    --text-medium: 16px;
+    --text-small: 14px;
+
+    --header-height: 60px;
+
+    --transition: all 0.3s;
+    --border-radius: 10px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    height: 100%;
+    min-height: 100vh;
+}
+
+/* Typography */
+h1, h2, h3 {
+    font-family: var(--ff-secondary-semibold);
+    margin: 0;
+}
+
+h4, h5, h6 {
+    font-family: var(--ff-primary-semibold);
+    margin: 0;
+}
+
+h1 {
+    font-size: var(--title-big);
+}
+
+h2 {
+    font-size: var(--title-medium);
+}
+
+h3 {
+    font-size: var(--title-small);
+}
+
+h4 {
+    font-size: var(--subtitle-big);
+}
+
+h5 {
+    font-size: var(--subtitle-medium);
+}
+
+h6 {
+    font-size: var(--subtitle-small);
+}
+
+a, p, label {
+    font-family: var(--ff-primary);
+}
+
+p {
+    font-size: var(--text-medium);
+    margin: 0;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+span {
+    font-size: var(--text-small);
+    font-family: var(--ff-primary-light);
+}
+
+ul { 
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    list-style: none;
+}
+
+button {
+    font-family: var(--ff-primary);
+    cursor: pointer;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    padding: 0;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--gray-color);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: var(--border-radius);
+  transition: var(--transition);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color);
+}
+
+#app {
+    background-color: var(--background-color);
+    height: 100%;
+    min-height: 100vh;
+}
+
+@media only screen and (max-width: 800px) {
+    :root {
+        --title-big: 30px;
+    }
+}
+
+@media only screen and (max-width: 540px) {
+    :root {
+        /* font sizes */
+        --title-big: 24px;
+        --title-medium: 22px;
+        --title-small: 20px;
+
+        --subtitle-big: 20px;
+        --subtitle-medium: 18px;
+        --subtitle-small: 16px;
+
+        --text-big: 16px;
+        --text-medium: 14px;
+        --text-small: 12px;
+    }
+    body:has(.side-bar.open),
+    body:has(.classes-list.open) {
+        overflow: hidden;
+    }
+}
