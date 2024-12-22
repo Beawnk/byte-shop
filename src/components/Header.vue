@@ -22,7 +22,9 @@
 header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 20px 40px;
+    box-shadow: var(--shadow);
     .logo {
         a {
             display: flex;
@@ -31,6 +33,7 @@ header {
             color: var(--primary-color);
             font-size: var(--subtitle-big);
             position: relative;
+            padding-bottom: 3px;
             &::after {
                 //gradient border bottom
                 content: '';
