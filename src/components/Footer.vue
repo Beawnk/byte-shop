@@ -16,7 +16,11 @@ footer {
     height: 60px;
     background-color: var(--primary-color);
     color: var(--white-color);
-    top: 60px;
     position: relative;
+    top: 60px;
+    .home-route & {
+      background-color: var(--secondary-color);
+      top: 0;
+    }
 }
 </style>

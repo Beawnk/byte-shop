@@ -20,7 +20,7 @@
     --dark-color: #1c1c1c;
     --light-dark-color: #404243;
     --black-color: #0a0a0a;
-    --shadow-color: #00000036;
+    --shadow-color: #66666636;
 
     --shadow: 0px 2px 10px 0px var(--shadow-color);
 
@@ -31,6 +31,7 @@
     --ff-primary-semiBold: 'Quicksand-SemiBold';
 
     /* font sizes */
+    --title-super: 48px;
     --title-big: 36px;
     --title-medium: 32px;
     --title-small: 28px;
@@ -43,10 +44,12 @@
     --text-medium: 16px;
     --text-small: 14px;
 
-    --header-height: 60px;
+    --header-height: 90px;
+    --section: 80px;
+    --side: 100px;
 
     --transition: all 0.3s;
-    --border-radius: 10px;
+    --border-radius: 5px;
 }
 
 * {
@@ -130,7 +133,6 @@ li {
 }
 
 button {
-    font-family: var(--ff-primary);
     cursor: pointer;
     border: none;
     outline: none;

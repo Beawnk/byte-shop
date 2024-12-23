@@ -1,12 +1,12 @@
 <template>
-    <header>
+    <header v-if="logo">
         <div class="logo">
-            <router-link to="/" exact><img src="../assets/img/logo.png" alt="Byte" />byte</router-link>
+            <router-link to="/" exact><img :src="logo" alt="Byte" />byte</router-link>
         </div>
         <nav>
             <router-link to="/" exact>Home</router-link>
-            <router-link to="/about">About</router-link>
-            <router-link to="/contact">Contact</router-link>
+            <router-link to="/produtos">Produtos</router-link>
+            <router-link to="/contact">Contato</router-link>
         </nav>
         <div class="user">
             <router-link to="/login">Login</router-link>
@@ -15,7 +15,30 @@
 </template>
 
 <script setup>
+import { ref, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 
+const route = useRoute();
+const logo = ref('');
+
+const logoWhite = new URL('@/assets/img/logo-white.png', import.meta.url).href;
+const logoDefault = new URL('@/assets/img/logo.png', import.meta.url).href;
+
+const updateLogo = () => {
+    if (route.path === '/') {
+        logo.value = logoWhite;
+    } else {
+        logo.value = logoDefault;
+    }
+};
+
+onMounted(() => {
+    updateLogo();
+});
+
+watch(route, () => {
+    updateLogo();
+});
 </script>
 
 <style lang="scss" scoped>
@@ -24,7 +47,15 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 20px 40px;
-    // box-shadow: var(--shadow);
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: var(--header-height);
+    width: 100%;
+    box-shadow: var(--shadow);
+    .home-route & {
+        box-shadow: none;
+    }
     .logo {
         a {
             display: flex;
@@ -34,6 +65,9 @@ header {
             font-size: var(--subtitle-big);
             position: relative;
             padding-bottom: 3px;
+            .home-route & {
+                color: var(--white-color);
+            }
             &::after {
                 //gradient border bottom
                 content: '';
@@ -48,6 +82,10 @@ header {
                 transition-property: overlay, display, width;
                 transition-duration: 0.3s;
                 transition-behavior: allow-discrete;
+            }
+            .home-route &::after {
+                background-color: var(--white-color);
+                background-image: none;
             }
             &:hover {
                 &::after {
@@ -70,6 +108,10 @@ header {
         padding: 3px;
         background-color: var(--white-color);
         border-radius: 30px;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
         a {
             margin-right: 10px;
             font-family: var(--ff-primary-Medium);
@@ -84,7 +126,7 @@ header {
             &:hover {
                 color: var(--secondary-color);
             }
-            &.router-link-exact-active {
+            &.router-link-active {
                 color: var(--white-color);
                 background-color: var(--primary-color);
             }

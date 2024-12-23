@@ -1,0 +1,59 @@
+{
+    "users": [
+      {
+        "id": 1,
+        "email": "user1@example.com",
+        "name": "John Doe",
+        "password": "password123",
+        "address": {
+          "street": "123 Main St",
+          "city": "Anytown",
+          "zip": "12345",
+          "state": "CA",
+          "country": "USA"
+        }
+      },
+      {
+        "id": 2,
+        "email": "user2@example.com",
+        "name": "Jane Smith",
+        "password": "password456",
+        "address": {
+          "street": "456 Elm St",
+          "city": "Othertown",
+          "zip": "67890",
+          "state": "NY",
+          "country": "USA"
+        }
+      }
+    ],
+    "products": [
+      {
+        "id": "notebook",
+        "name": "Notebook",
+        "vendor_id": 1,
+        "price": 999.99,
+        "sold": false,
+        "description": "A high-performance notebook for all your needs.",
+        "pictures": []
+      },
+      {
+        "id": "smartwatch",
+        "name": "Smartwatch",
+        "vendor_id": 2,
+        "price": 199.99,
+        "sold": false,
+        "description": "A stylish smartwatch with multiple features.",
+        "pictures": []
+      },
+      {
+        "id": "tablet",
+        "name": "Tablet",
+        "vendor_id": 1,
+        "price": 499.99,
+        "sold": false,
+        "description": "A versatile tablet for work and play.",
+        "pictures": []
+      }
+    ]
+}
