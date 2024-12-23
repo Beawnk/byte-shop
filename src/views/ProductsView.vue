@@ -1,29 +1,33 @@
 <template>
-  <section id="products-list" class="container" v-if="products.length">
+  <section id="products-list" class="container" v-if="!loading">
     <ProductsSearch @emit-search-products="onSearchProducts" />
     <div class="grid" v-if="products.length">
-      <div class="product" v-for="product in products" :key="product.id">
-        <div class="img">
-          <img :src="product.image_url" :alt="product.name" />
-        </div>
-        <h2>{{ product.name }}</h2>
-        <p>{{ formatCurrency(product.price) }}</p>
-        <div class="actions">
-          <button class="btn secondary add-to-cart">+ Carrinho</button>
-          <button class="btn primary  buy-now">Comprar</button>
-        </div>
-      </div>
+      <router-link to="/" custom v-slot="{ navigate }" >
+        <TransitionGroup name="grid" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave">
+          <div class="product" v-for="(product, index) in products" :key="product.id" :data-index="index" @click="navigate" @keypress.enter="navigate" role="link">
+            <div class="img">
+              <img :src="product.image_url" :alt="product.name" />
+            </div>
+            <h2>{{ product.name }}</h2>
+            <p>{{ formatCurrency(product.price) }}</p>
+            <div class="actions">
+              <button class="btn secondary add-to-cart">+ Carrinho</button>
+              <button class="btn primary  buy-now">Comprar</button>
+            </div>
+          </div>
+        </TransitionGroup>
+      </router-link>
     </div>
-    <div class="no-products" v-else>
+    <div class="no-products" v-else-if="products === null">
       <h4>Nenhum produto encontrado</h4>
     </div>
-    <div class="pagination" v-if="products">
+    <div class="pagination" v-if="products.length">
       <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
       <span>Page {{ currentPage }} of {{ totalPages }}</span>
       <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
     </div>
   </section>
-  <Loader v-else/>
+  <Loader v-if="loading"/>
 </template>
 
 <script setup>
@@ -31,13 +35,16 @@ import { ref, onMounted } from 'vue'
 import ProductsSearch from '@/components/ProductsSearch.vue';
 import { supabase } from '@/lib/supabaseClient'
 import { formatCurrency } from '@/composables/formatCurrency';
+import { gsap } from "gsap";
 
 const products = ref({})
 const currentPage = ref(1)
 const itemsPerPage = 10
 const totalPages = ref(1)
+const loading = ref(false)
 
 const fetchProducts = async (page = 1) => {
+  loading.value = true
   const from = (page - 1) * itemsPerPage
   const to = from + itemsPerPage - 1
 
@@ -48,9 +55,14 @@ const fetchProducts = async (page = 1) => {
 
   if (error) {
     console.error(error)
+  } else if (data.length === 0) {
+    products.value = null
   } else {
     products.value = data
     totalPages.value = Math.ceil(count / itemsPerPage)
+    setTimeout(() => {
+      loading.value = false
+    }, 500)
   }
 }
 
@@ -60,6 +72,7 @@ const cleanSearchValue = (value) => {
 
 const onSearchProducts = async (search) => {
   const cleanedSearch = cleanSearchValue(search);
+
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -69,8 +82,7 @@ const onSearchProducts = async (search) => {
     console.error(error)
   } else {
     products.value = data
-    console.log(data)
-    totalPages.value = 1 // Reset pagination for search results
+    totalPages.value = 1
   }
 }
 
@@ -88,10 +100,39 @@ const nextPage = () => {
   }
 }
 
+// GSAP Hooks
+function onBeforeEnter(el) {
+  el.style.opacity = 0;
+  el.style.transform = "translateY(30px)";
+}
+
+function onEnter(el, done) {
+  gsap.fromTo(
+    el,
+    { opacity: 0, y: 30 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: 0.5,
+      delay: parseInt(el.dataset.index) * 0.15, // Stagger based on index
+      clearProps: "transform",
+      onComplete: done,
+    }
+  );
+}
+
+function onLeave(el, done) {
+  gsap.to(el, {
+    opacity: 0,
+    y: -30,
+    duration: 0.5,
+    delay: parseInt(el.dataset.index) * 0.15, // Stagger based on index
+    onComplete: done,
+  });
+}
+
 onMounted(() => {
-  setTimeout(() => {
-    fetchProducts()
-  }, 500)
+  fetchProducts()
 })
 </script>
 

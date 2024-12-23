@@ -94,4 +94,8 @@ input, textarea {
 input:focus, textarea:focus {
   border-color: var(--primary-color);
 }
+
+// transition-property: overlay, display, opacity, transform;
+// transition-duration: 0.3s;
+// transition-behavior: allow-discrete;
 </style>
