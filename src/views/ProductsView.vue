@@ -2,9 +2,9 @@
   <section id="products-list" class="container" v-if="!loading">
     <ProductsSearch @emit-search-products="onSearchProducts" />
     <div class="grid" v-if="products.length">
-      <router-link to="/" custom v-slot="{ navigate }" >
-        <TransitionGroup name="grid" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave">
-          <div class="product" v-for="(product, index) in products" :key="product.id" :data-index="index" @click="navigate" @keypress.enter="navigate" role="link">
+      <TransitionGroup name="grid" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave">
+        <div class="product" v-for="(product, index) in products" :key="product.id" :data-index="index">
+          <router-link :to="{name: 'product', params: {id: product.id}}" class="product-link">
             <div class="img">
               <img :src="product.image_url" :alt="product.name" />
             </div>
@@ -14,9 +14,9 @@
               <button class="btn secondary add-to-cart">+ Carrinho</button>
               <button class="btn primary  buy-now">Comprar</button>
             </div>
-          </div>
-        </TransitionGroup>
-      </router-link>
+          </router-link>
+        </div>
+      </TransitionGroup>
     </div>
     <div class="no-products" v-else-if="products === null">
       <h4>Nenhum produto encontrado</h4>
@@ -143,18 +143,20 @@ onMounted(() => {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
     .product {
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      overflow: hidden;
+      &:hover {
+        transform: scale(1.02);
+      }
+    }
+    .product-link {
       display: flex;
       flex-direction: column;
       align-items: center;
       background-color: var(--white-color);
       padding: 10px;
-      border-radius: var(--border-radius);
-      box-shadow: var(--shadow);
-      transition: var(--transition);
-      cursor: pointer;
-      &:hover {
-        transform: scale(1.02);
-      }
       .img {
         width: 100%;
         height: 400px;
