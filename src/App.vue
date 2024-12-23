@@ -79,7 +79,7 @@ input.btn {
   @extend .btn;
 }
 
-input {
+input, textarea {
   outline: none;
   background-color: var(--white-color);
   border: 1px solid var(--gray-color);
@@ -91,7 +91,7 @@ input {
   color: var(--text-color);
 }
 
-input:focus {
+input:focus, textarea:focus {
   border-color: var(--primary-color);
 }
 </style>

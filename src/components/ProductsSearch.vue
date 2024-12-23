@@ -28,6 +28,7 @@ const searchProducts = () => {
         border-color: transparent;
         margin-right: 10px;
         width: 40%;
+        box-shadow: var(--shadow);
         &:focus {
             border-color: var(--primary-color);
         }
