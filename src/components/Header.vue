@@ -114,9 +114,9 @@ header {
         transform: translate(-50%, -50%);
         a {
             margin-right: 10px;
-            font-family: var(--ff-primary-Medium);
+            font-family: var(--ff-primary);
             color: var(--primary-color);
-            font-size: var(--subtitle-small);
+            font-size: var(--text-medium);
             transition: var(--transition);
             padding: 10px;
             border-radius: 30px;

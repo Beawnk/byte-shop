@@ -1,5 +1,5 @@
 <template>
-  <section id="products-list" class="container" v-if="products">
+  <section id="products-list" class="container" v-if="products.length">
     <ProductsSearch @emit-search-products="onSearchProducts" />
     <div class="grid" v-if="products.length">
       <div class="product" v-for="product in products" :key="product.id">
@@ -23,6 +23,7 @@
       <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
     </div>
   </section>
+  <Loader v-else/>
 </template>
 
 <script setup>
@@ -62,12 +63,13 @@ const onSearchProducts = async (search) => {
   const { data, error } = await supabase
     .from('products')
     .select('*')
-    .ilike('name', `%${cleanedSearch}%`)
+    .ilike('id', `%${cleanedSearch}%`)
     .range(0, itemsPerPage - 1)
   if (error) {
     console.error(error)
   } else {
     products.value = data
+    console.log(data)
     totalPages.value = 1 // Reset pagination for search results
   }
 }
@@ -87,7 +89,9 @@ const nextPage = () => {
 }
 
 onMounted(() => {
-  fetchProducts()
+  setTimeout(() => {
+    fetchProducts()
+  }, 500)
 })
 </script>
 
