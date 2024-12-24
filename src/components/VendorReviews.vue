@@ -1,17 +1,26 @@
 <template>
-    <div class="reviews" v-if="reviews.length">
+  <div class="modal">
+    <div class="modal-content">
+      <VendorInfo :vendor="vendor" />
+      <div class="reviews" v-if="reviews.length">
         <h3>Reviews</h3>
         <div class="review" v-for="review in reviews" :key="review.id">
-            <p>{{ review.user_name }}</p>
-            <p>{{ review.stars }}</p>
-            <p>{{ review.review }}</p>
+          <p>{{ review.user_name }}</p>
+          <p>{{ review.stars }}</p>
+          <p>{{ review.review }}</p>
         </div>
+      </div>
+      <div class="no-reviews" v-else>
+        <h4>Nenhuma avaliação encontrada</h4>
+      </div>
     </div>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
+import VendorInfo from '@/components/VendorInfo.vue'
 
 const props = defineProps({
   vendorId: {
@@ -36,7 +45,6 @@ const fetchReviews = async () => {
   if (error) {
     console.error(error)
   } else {
-    vendor.value = data.name
     const reviewsWithUserNames = await Promise.all(data.reviews.map(async (review) => {
       const { data: userData, error: userError } = await supabase
         .from('users')
@@ -56,7 +64,13 @@ const fetchReviews = async () => {
     const stars = await Promise.all(reviews.value.map(review => review.stars))
 
     getStars(stars)
-    emit('emitVendorInfo', vendor.value, averageRating.value, reviews.value.length, data.avatar)
+    vendor.value = {
+      name: data.name,
+      rating: averageRating.value,
+      reviews: reviews.value.length,
+      avatar: data.avatar
+    }
+    emit('emitVendorInfo', vendor.value)
   }
 }
 
@@ -71,5 +85,27 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-
+.modal {
+  .modal-content{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    .reviews {
+      background-color: var(--white-color);
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+    }
+    .no-reviews {
+      background-color: var(--white-color);
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 20vh;
+    }
+  }
+}
 </style>

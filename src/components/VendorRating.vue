@@ -1,5 +1,5 @@
 <template>
-    <div class="rating">
+    <div class="rating" v-if="vendor">
         <p class="rating-number">{{ vendor.rating }}</p>
         <div class="stars">
             <span v-for="star in useGetVendorStars(vendor.rating)" :key="star" class="star" :class="{full: star == 'full', half: star == 'half', empty: star == 'empty'}"></span>

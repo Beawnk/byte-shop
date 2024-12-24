@@ -96,6 +96,30 @@ input:focus, textarea:focus {
   border-color: var(--primary-color);
 }
 
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  .modal-content {
+    background-color: var(--background-color);
+    padding: 40px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    max-width: 50vw;
+    width: 100%;
+    max-height: 80vh;
+    min-height: 80vh;
+    overflow-y: auto;
+  }
+}
+
 // transition-property: overlay, display, opacity, transform;
 // transition-duration: 0.3s;
 // transition-behavior: allow-discrete;

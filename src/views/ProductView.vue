@@ -14,15 +14,7 @@
             <button class="btn secondary save"></button>
           </div>
         </div>
-        <div class="vendor" v-if="vendor">
-            <h4>Vendedor</h4>
-            <div class="avatar">
-                <img :src="vendor.avatar" :alt="vendor.name" />
-            </div>
-            <h5>{{ vendor.name }}</h5>
-            <VendorRating :vendor="vendor"/>
-            <router-link to="/produtos" class="vendor-products btn primary">Ver todos os produtos</router-link>
-        </div>
+        <VendorInfo :vendor="vendor" />
       </div>
     </div>
     <VendorReviews v-if="product" @emit-vendor-info="onVendorInfo" :vendor-id="product.vendor_id"/>
@@ -35,7 +27,7 @@ import { ref, onMounted } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import { formatCurrency } from '@/composables/formatCurrency';
 import VendorReviews from '@/components/VendorReviews.vue';
-import VendorRating from '@/components/VendorRating.vue';
+import VendorInfo from '@/components/VendorInfo.vue';
 
 const props = defineProps({
   id: {
@@ -46,7 +38,7 @@ const props = defineProps({
 
 const product = ref(null)
 const loading = ref(false)
-const vendor = ref(null)
+const vendor = ref({})
 
 const fetchProduct = async () => {
   loading.value = true
@@ -69,14 +61,9 @@ const fetchProduct = async () => {
   }
 }
 
-const onVendorInfo = (vendorName, vendorRating, vendorReviews, vendorAvatar) => {
-  vendor.value = {
-    name: vendorName,
-    rating: vendorRating,
-    reviews: vendorReviews,
-    avatar: vendorAvatar
-  }
-  console.log(useGetVendorStars(vendorRating))
+const onVendorInfo = async (vendorInfo) => {
+  vendor.value = await vendorInfo
+  console.log('vendor', vendor.value)
 }
 
 onMounted(() => {
@@ -95,6 +82,9 @@ onMounted(() => {
             height: 800px;
             border-radius: 8px;
             overflow: hidden;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            background-color: var(--white-color);
             img {
                 object-fit: cover;
                 width: 100%;
@@ -143,44 +133,6 @@ onMounted(() => {
                       }
                   }
               }
-            }
-            .vendor {
-                background-color: var(--white-color);
-                padding: 20px;
-                border-radius: var(--border-radius);
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-                align-items: center;
-                justify-content: center;
-                min-height: 300px;
-                height: 100%;
-                width: 100%;
-                box-shadow: var(--shadow);
-                h4 {
-                    color: var(--text-color);
-                    margin-bottom: 20px;
-                }
-                .avatar {
-                    width: 100px;
-                    height: 100px;
-                    border-radius: 50%;
-                    overflow: hidden;
-                    img {
-                        object-fit: cover;
-                        width: 100%;
-                        height: 100%;
-                    }
-                }
-                h5 {
-                    color: var(--text-color);
-                }
-                p {
-                    color: var(--text-color);
-                }
-                .btn {
-                  margin-top: 10px;
-                }
             }
         }
     }
