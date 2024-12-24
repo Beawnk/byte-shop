@@ -50,6 +50,7 @@ main {
   transition: var(--transition);
   border: 2px solid transparent;
   cursor: pointer;
+  font-size: var(--text-medium);
   &.primary {
     background-color: var(--primary-color);
     border-color: var(--primary-color);

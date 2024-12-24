@@ -5,22 +5,23 @@
         <img :src="product.image_url" :alt="product.name" />
       </div>
       <div class="info">
-        <h2>{{ product.name }}</h2>
-        <p>{{ formatCurrency(product.price) }}</p>
-        <p>{{ product.description }}</p>
-        <div class="actions">
-          <button class="btn primary buy-now">Comprar</button>
-          <button class="btn secondary save"></button>
+        <div class="product-info">
+          <h2>{{ product.name }}</h2>
+          <p>{{ formatCurrency(product.price) }}</p>
+          <p>{{ product.description }}</p>
+          <div class="actions">
+            <router-link to="/products" class="btn primary buy-now">Comprar</router-link>
+            <button class="btn secondary save"></button>
+          </div>
         </div>
         <div class="vendor" v-if="vendor">
-            <h5>{{ vendor.name }}</h5>
-            <div class="rating">
-                <p class="rating-number">{{ vendor.rating }}</p>
-                <div class="stars">
-                    <span v-for="star in useGetVendorStars(vendor.rating)" :key="star" class="star" :class="{full: star == 'full', half: star == 'half', empty: star == 'empty'}"></span>
-                </div>
-                <p class="total-reviews">{{ vendor.reviews }} avaliações</p>
+            <h4>Vendedor</h4>
+            <div class="avatar">
+                <img :src="vendor.avatar" :alt="vendor.name" />
             </div>
+            <h5>{{ vendor.name }}</h5>
+            <VendorRating :vendor="vendor"/>
+            <router-link to="/produtos" class="vendor-products btn primary">Ver todos os produtos</router-link>
         </div>
       </div>
     </div>
@@ -34,7 +35,7 @@ import { ref, onMounted } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import { formatCurrency } from '@/composables/formatCurrency';
 import VendorReviews from '@/components/VendorReviews.vue';
-import { useGetVendorStars } from '@/composables/getVendorStars';
+import VendorRating from '@/components/VendorRating.vue';
 
 const props = defineProps({
   id: {
@@ -68,11 +69,12 @@ const fetchProduct = async () => {
   }
 }
 
-const onVendorInfo = (vendorName, vendorRating, vendorReviews) => {
+const onVendorInfo = (vendorName, vendorRating, vendorReviews, vendorAvatar) => {
   vendor.value = {
     name: vendorName,
     rating: vendorRating,
-    reviews: vendorReviews
+    reviews: vendorReviews,
+    avatar: vendorAvatar
   }
   console.log(useGetVendorStars(vendorRating))
 }
@@ -84,12 +86,13 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 #product-page {
+    padding: calc(var(--section) + var(--header-height)) 200px var(--section) 200px;
     .product {
         display: flex;
         gap: 40px;
         .img {
-            width: 600px;
-            height: 600px;
+            width: calc(50% - 40px);
+            height: 800px;
             border-radius: 8px;
             overflow: hidden;
             img {
@@ -101,15 +104,45 @@ onMounted(() => {
         .info {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            h2 {
-                color: var(--text-color);
-            }
-            p {
-                color: var(--text-color);
-            }
-            .actions {
-                display: flex;
+            gap: 40px;
+            width: calc(50% - 40px);
+            .product-info {
+              display: flex;
+              flex-direction: column;
+              gap: 20px;
+              background-color: var(--white-color);
+              padding: 40px;
+              border-radius: var(--border-radius);
+              box-shadow: var(--shadow);
+              h2 {
+                  color: var(--text-color);
+              }
+              p {
+                  color: var(--text-color);
+              }
+              .actions {
+                  display: flex;
+                  gap: 10px;
+                  .save {
+                      background-image: url('../assets/img/icons/favorite.png');
+                      background-size: 25px;
+                      background-repeat: no-repeat;
+                      background-position: 50% calc(50% + 2px);
+                      padding: 20px;
+                      cursor: pointer;
+                      transition: var(--transition);
+                      background-color: transparent;
+                      border: 2px solid var(--gray-color);
+                      &:hover {
+                          background-color: var(--gray-color);
+                          background-image: url('../assets/img/icons/favorited.png');
+                      }
+                      &.saved {
+                          background-color: var(--gray-color);
+                          background-image: url('../assets/img/icons/favorited.png');
+                      }
+                  }
+              }
             }
             .vendor {
                 background-color: var(--white-color);
@@ -122,40 +155,31 @@ onMounted(() => {
                 justify-content: center;
                 min-height: 300px;
                 height: 100%;
+                width: 100%;
+                box-shadow: var(--shadow);
+                h4 {
+                    color: var(--text-color);
+                    margin-bottom: 20px;
+                }
+                .avatar {
+                    width: 100px;
+                    height: 100px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    img {
+                        object-fit: cover;
+                        width: 100%;
+                        height: 100%;
+                    }
+                }
                 h5 {
                     color: var(--text-color);
                 }
                 p {
                     color: var(--text-color);
                 }
-                .rating {
-                    display: flex;
-                    gap: 10px;
-                    align-items: center;
-                    .rating-number {
-                        font-size: var(--text-big);
-                    }
-                    .stars {
-                        display: flex;
-                        gap: 5px;
-                        .star {
-                            width: 20px;
-                            height: 20px;
-                            background-size: contain;
-                            background-repeat: no-repeat;
-                            background-position: center;
-
-                            &.full {
-                                background-image: url('../assets/img/icons/star-full.png');
-                            }
-                            &.half {
-                                background-image: url('..assets/img/icons/star-half.png');
-                            }
-                            &.empty {
-                                background-image: url('../assets/img/icons/star-empty.png');
-                            }
-                        }
-                    }
+                .btn {
+                  margin-top: 10px;
                 }
             }
         }

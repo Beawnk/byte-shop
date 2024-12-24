@@ -56,7 +56,7 @@ const fetchReviews = async () => {
     const stars = await Promise.all(reviews.value.map(review => review.stars))
 
     getStars(stars)
-    emit('emitVendorInfo', vendor.value, averageRating.value, reviews.value.length)
+    emit('emitVendorInfo', vendor.value, averageRating.value, reviews.value.length, data.avatar)
   }
 }
 
