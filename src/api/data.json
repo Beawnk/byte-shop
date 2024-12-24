@@ -55,5 +55,13 @@
         "description": "A versatile tablet for work and play.",
         "pictures": []
       }
+    ],
+    "reviews": [
+      {
+        "user_id": null,
+        "review": "", 
+        "stars": 5, 
+        "product": null
+      }
     ]
 }

@@ -19,7 +19,7 @@
     --white-color: #ffffff;
     --dark-color: #1c1c1c;
     --light-dark-color: #404243;
-    --black-color: #0a0a0a;
+    --black-color: #6c63ff;
     --shadow-color: #66666636;
 
     --shadow: 0px 2px 10px 0px var(--shadow-color);
@@ -109,7 +109,7 @@ label {
 }
 
 a, p {
-    font-family: var(--ff-primary-light);
+    font-family: var(--ff-primary);
 }
 
 p {
@@ -124,7 +124,7 @@ a {
 
 span {
     font-size: var(--text-small);
-    font-family: var(--ff-primary-light);
+    font-family: var(--ff-primary);
 }
 
 ul { 

@@ -11,8 +11,7 @@
             <h2>{{ product.name }}</h2>
             <p>{{ formatCurrency(product.price) }}</p>
             <div class="actions">
-              <button class="btn secondary add-to-cart">+ Carrinho</button>
-              <button class="btn primary  buy-now">Comprar</button>
+              <button class="btn primary buy-now">Comprar</button>
             </div>
           </router-link>
         </div>
