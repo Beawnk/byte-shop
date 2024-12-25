@@ -14,10 +14,10 @@
             <button class="btn secondary save"></button>
           </div>
         </div>
-        <VendorInfo :vendor="vendor" />
+        <VendorInfo :vendor="vendor" @emitOpenReviews="onEmitOpenReviews" />
       </div>
     </div>
-    <VendorReviews v-if="product" @emit-vendor-info="onVendorInfo" :vendor-id="product.vendor_id"/>
+    <VendorReviews v-if="product" v-show="modalReviews" @emit-vendor-info="onVendorInfo" :vendor-id="product.vendor_id"/>
   </section>
   <Loader v-if="loading"/>
 </template>
@@ -38,7 +38,8 @@ const props = defineProps({
 
 const product = ref(null)
 const loading = ref(false)
-const vendor = ref({})
+const vendor = ref(null)
+const modalReviews = ref(false)
 
 const fetchProduct = async () => {
   loading.value = true
@@ -63,7 +64,10 @@ const fetchProduct = async () => {
 
 const onVendorInfo = async (vendorInfo) => {
   vendor.value = await vendorInfo
-  console.log('vendor', vendor.value)
+}
+
+const onEmitOpenReviews = () => {
+  modalReviews.value = !modalReviews.value
 }
 
 onMounted(() => {

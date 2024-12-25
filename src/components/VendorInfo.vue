@@ -5,7 +5,7 @@
             <img :src="vendor.avatar" :alt="vendor.name" />
         </div>
         <h5>{{ vendor.name }}</h5>
-        <VendorRating :vendor="vendor"/>
+        <VendorRating :vendor="vendor" @click="openReviews"/>
         <router-link to="/produtos" class="vendor-products btn primary">Ver todos os produtos</router-link>
     </div>
 </template>
@@ -15,10 +15,15 @@ import VendorRating from '@/components/VendorRating.vue';
 
 const props = defineProps({
     vendor: {
-        type: Object,
         required: true
     }
 })
+
+const emit = defineEmits('emitOpenReviews')
+
+const openReviews = () => {
+    emit('emitOpenReviews')
+}
 </script>
 
 <style lang="scss" scoped>
