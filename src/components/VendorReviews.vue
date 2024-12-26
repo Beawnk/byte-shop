@@ -1,6 +1,6 @@
 <template>
-  <div class="modal" v-if="vendorId">
-    <div class="modal-content">
+  <div class="modal modal-reviews" v-if="vendorId">
+    <div class="modal-content" ref="modal">
       <button class="close" @click="closeModal"></button>
       <VendorInfo :vendor="vendor" />
       <div class="reviews" v-if="reviews.length">
@@ -38,6 +38,7 @@ import { ref, onMounted } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import VendorInfo from '@/components/VendorInfo.vue'
 import { useGetVendorStars } from '@/composables/getVendorStars'
+import { useClickOutside } from '@/composables/clickOutside';
 
 const props = defineProps({
   vendorId: {
@@ -46,11 +47,12 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits('emitVendorInfo', 'emitCloseModal')
+const emit = defineEmits(['emitVendorInfo', 'emitCloseModal'])
 
 const reviews = ref([])
 const vendor = ref(null)
 const averageRating = ref(0)
+const modal = ref(null)
 
 const fetchReviews = async () => {
   const { data, error } = await supabase
@@ -79,7 +81,6 @@ const fetchReviews = async () => {
     }))
 
     reviews.value = reviewsWithUser
-    console.log(reviews.value)
     const stars = await Promise.all(reviews.value.map(review => review.stars))
 
     getStars(stars)
@@ -90,6 +91,7 @@ const fetchReviews = async () => {
       avatar: data.avatar,
     }
     emit('emitVendorInfo', vendor.value)
+    useClickOutside(modal, closeModal)
   }
 }
 

@@ -17,7 +17,7 @@
         <VendorInfo :vendor="vendor" @emitOpenReviews="onEmitOpenReviews" />
       </div>
     </div>
-    <VendorReviews v-if="product" v-show="modalReviews" @emit-vendor-info="onVendorInfo" @emit-close-modal="onEmitOpenReviews" :vendor-id="product.vendor_id" :class="{open: modalReviews}"/>
+    <VendorReviews v-if="product" v-show="modalReviews" @emit-vendor-info="onVendorInfo" @emit-close-modal="onEmitCloseReviews" :vendor-id="product.vendor_id" :class="{open: modalReviews}"/>
   </section>
   <Loader v-if="loading"/>
 </template>
@@ -68,6 +68,10 @@ const onVendorInfo = async (vendorInfo) => {
 
 const onEmitOpenReviews = () => {
   modalReviews.value = !modalReviews.value
+}
+
+const onEmitCloseReviews = () => {
+  modalReviews.value = false
 }
 
 onMounted(() => {

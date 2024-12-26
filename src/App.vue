@@ -130,7 +130,7 @@ input:focus, textarea:focus {
     padding: 40px;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
-    max-width: 50vw;
+    max-width: 1000px;
     width: 100%;
     max-height: 80vh;
     min-height: 80vh;
