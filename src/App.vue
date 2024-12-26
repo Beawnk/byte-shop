@@ -107,6 +107,24 @@ input:focus, textarea:focus {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  opacity: 0;
+  transition-property: overlay, display, opacity;
+  transition-duration: 0.3s;
+  transition-behavior: allow-discrete;
+  &.open {
+    opacity: 1;
+    @starting-style {
+      opacity: 0;
+    }
+    .modal-content {
+      opacity: 1;
+      transform: translateY(0);
+      @starting-style {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+    }
+  }
   .modal-content {
     background-color: var(--background-color);
     padding: 40px;
@@ -117,6 +135,11 @@ input:focus, textarea:focus {
     max-height: 80vh;
     min-height: 80vh;
     position: relative;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition-property: overlay, display, opacity, transform;
+    transition-duration: 0.3s;
+    transition-behavior: allow-discrete;
     .close {
       position: absolute;
       top: 15px;

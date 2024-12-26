@@ -65,7 +65,8 @@ body {
     font-family: var(--ff-primary);
 }
 
-body:has(.loader) {
+body:has(.loader),
+body:has(.modal.open) {
     overflow: hidden;
 }
 
