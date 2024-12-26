@@ -73,11 +73,13 @@ body:has(.loader) {
 h1, h2, h3 {
     font-family: var(--ff-primary-semiBold);
     margin: 0;
+    font-weight: normal;
 }
 
 h4, h5, h6 {
     font-family: var(--ff-primary-Medium);
     margin: 0;
+    font-weight: normal;
 }
 
 h1 {
@@ -120,6 +122,11 @@ p {
 a {
     text-decoration: none;
     color: inherit;
+}
+
+strong {
+    font-family: var(--ff-primary-semiBold);
+    font-weight: normal;
 }
 
 span {

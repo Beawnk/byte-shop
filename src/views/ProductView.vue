@@ -17,7 +17,7 @@
         <VendorInfo :vendor="vendor" @emitOpenReviews="onEmitOpenReviews" />
       </div>
     </div>
-    <VendorReviews v-if="product" v-show="modalReviews" @emit-vendor-info="onVendorInfo" :vendor-id="product.vendor_id"/>
+    <VendorReviews v-if="product" v-show="modalReviews" @emit-vendor-info="onVendorInfo" @emit-close-modal="onEmitOpenReviews" :vendor-id="product.vendor_id"/>
   </section>
   <Loader v-if="loading"/>
 </template>

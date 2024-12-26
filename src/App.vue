@@ -116,7 +116,18 @@ input:focus, textarea:focus {
     width: 100%;
     max-height: 80vh;
     min-height: 80vh;
-    overflow-y: auto;
+    position: relative;
+    .close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 15px;
+      height: 15px;
+      background-image: url('@/assets/img/icons/clear.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
   }
 }
 

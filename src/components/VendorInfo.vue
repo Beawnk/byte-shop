@@ -36,7 +36,7 @@ const openReviews = () => {
     gap: 10px;
     align-items: center;
     justify-content: center;
-    min-height: 300px;
+    min-height: 350px;
     height: 100%;
     width: 100%;
     box-shadow: var(--shadow);

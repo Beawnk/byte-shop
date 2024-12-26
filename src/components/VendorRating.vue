@@ -19,7 +19,7 @@ const props = defineProps({
 })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .rating {
     display: flex;
     gap: 10px;
@@ -28,33 +28,6 @@ const props = defineProps({
     .rating-number {
         font-size: var(--subtitle-medium);
         transition: var(--transition);
-    }
-    .stars {
-        display: flex;
-        gap: 5px;
-        .star {
-            width: 20px;
-            height: 20px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            transition: var(--transition);
-            &.full {
-                background-image: url('../assets/img/icons/star-full.png');
-                &:hover {
-                    background-image: url('../assets/img/icons/star-full-hover.png');
-                }
-            }
-            &.half {
-                background-image: url('..assets/img/icons/star-half.png');
-                &:hover {
-                    background-image: url('../assets/img/icons/star-half-hover.png');
-                }
-            }
-            &.empty {
-                background-image: url('../assets/img/icons/star-empty.png');
-            }
-        }
     }
     &:hover {
         .star {
@@ -73,6 +46,27 @@ const props = defineProps({
         transition: var(--transition);
         font-size: var(--text-small);
         margin-left: 10px;
+    }
+}
+.stars {
+    display: flex;
+    gap: 5px;
+    .star {
+        width: 20px;
+        height: 20px;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        transition: var(--transition);
+        &.full {
+            background-image: url('../assets/img/icons/star-full.png');
+        }
+        &.half {
+            background-image: url('../assets/img/icons/star-half.png');
+        }
+        &.empty {
+            background-image: url('../assets/img/icons/star-empty.png');
+        }
     }
 }
 </style>

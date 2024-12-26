@@ -1,6 +1,7 @@
 <template>
   <div class="modal" v-if="vendorId">
     <div class="modal-content">
+      <button class="close" @click="closeModal"></button>
       <VendorInfo :vendor="vendor" />
       <div class="reviews" v-if="reviews.length">
         <div class="review" v-for="review in reviews" :key="review.id">
@@ -8,14 +9,21 @@
             <div class="avatar">
               <img :src="review.user_avatar" :alt="review.user_name" />
             </div>
-            <div class="name-stars">
-              <p>{{ review.user_name }}</p>
+            <div class="user-info">
+              <div class="name-date">
+                <h5>{{ review.user_name }}</h5>
+                <span class="date">{{ review.date }}</span>
+              </div>
               <div class="stars">
-                <span v-for="star in review.stars" :key="star" class="star" :class="{full: star == 'full', half: star == 'half', empty: star == 'empty'}"></span>
+                <span v-for="star in useGetVendorStars(review.stars)" :key="star" class="star" :class="{full: star == 'full', half: star == 'half', empty: star == 'empty'}"></span>
               </div>
             </div>
           </div>
-          <p>{{ review.review }}</p>
+          <div class="text">
+            <p class="product"><strong>Produto avaliado: </strong>{{ review.product_name }}</p>
+            <h6 class="title">"{{ review.title }}"</h6>
+            <p class="review-text">{{ review.review }}</p>
+          </div>
         </div>
       </div>
       <div class="no-reviews" v-else>
@@ -29,6 +37,7 @@
 import { ref, onMounted } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import VendorInfo from '@/components/VendorInfo.vue'
+import { useGetVendorStars } from '@/composables/getVendorStars'
 
 const props = defineProps({
   vendorId: {
@@ -37,7 +46,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits('emitVendorInfo')
+const emit = defineEmits('emitVendorInfo', 'emitCloseModal')
 
 const reviews = ref([])
 const vendor = ref(null)
@@ -53,7 +62,7 @@ const fetchReviews = async () => {
   if (error) {
     console.error(error)
   } else {
-    const reviewsWithUserNames = await Promise.all(data.reviews.map(async (review) => {
+    const reviewsWithUser = await Promise.all(data.reviews.map(async (review) => {
       const { data: userData, error: userError } = await supabase
         .from('users')
         .select('name, avatar')
@@ -64,11 +73,12 @@ const fetchReviews = async () => {
         console.error(userError)
         return review
       } else {
-        return { ...review, user_name: userData.name, user_avatar: userData.avatar }
+        const product = await fetchProductName(review.product_id);
+        return { ...review, user_name: userData.name, user_avatar: userData.avatar, product_name: product }
       }
     }))
 
-    reviews.value = reviewsWithUserNames
+    reviews.value = reviewsWithUser
     console.log(reviews.value)
     const stars = await Promise.all(reviews.value.map(review => review.stars))
 
@@ -77,15 +87,37 @@ const fetchReviews = async () => {
       name: data.name,
       rating: averageRating.value,
       reviews: reviews.value.length,
-      avatar: data.avatar
+      avatar: data.avatar,
     }
     emit('emitVendorInfo', vendor.value)
   }
 }
 
+const fetchProductName = async (productId) => {
+  const { data, error } = await supabase
+    .from('products')
+    .select('name')
+    .eq('id', productId)
+    .single()
+
+  if (error) {
+    console.error(error)
+  } else {
+    return data.name
+  }
+}
+
 const getStars = (stars) => {
     const averageStars = stars.reduce((acc, star) => acc + star, 0) / stars.length
-    averageRating.value = averageStars
+    averageRating.value = roundRating(averageStars)
+}
+
+const roundRating = (rating) => {
+    return Math.round(rating * 2) / 2;
+};
+
+const closeModal = () => {
+  emit('emitCloseModal')
 }
 
 onMounted(() => {
@@ -103,11 +135,59 @@ onMounted(() => {
       display: flex;
       flex-direction: column;
       gap: 20px;
+      overflow-y: auto;
+      padding-right: 20px;
       .review {
         background-color: var(--white-color);
         padding: 20px;
         border-radius: var(--border-radius);
         box-shadow: var(--shadow);
+        .user {
+          display: flex;
+          gap: 20px;
+          margin-bottom: 20px;
+          .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            img {
+              object-fit: cover;
+              width: 100%;
+              height: 100%;
+            }
+          }
+          .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: calc(100% - 70px);
+            .name-date {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: 5px;
+              h5 {
+                color: var(--text-color);
+              }
+              .date {
+                color: var(--text-color-light);
+              }
+            }
+          }
+        }
+        .text {
+          p {
+            color: var(--text-color);
+          }
+          .product {
+            margin-bottom: 10px;
+          }
+          h6 {
+            color: var(--text-color);
+            margin-bottom: 10px;
+          }
+        }
       }
     }
     .no-reviews {
