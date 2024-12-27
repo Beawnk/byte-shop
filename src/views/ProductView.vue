@@ -1,5 +1,5 @@
 <template>
-  <section id="product-page" class="container" v-if="!loading">
+  <section id="product-page" class="container">
     <div class="product" v-if="product">
       <div class="img">
         <img :src="product.image_url" :alt="product.name" />
@@ -19,7 +19,6 @@
     </div>
     <VendorReviews v-if="product" v-show="modalReviews" @emit-vendor-info="onVendorInfo" @emit-close-modal="onEmitCloseReviews" :vendor-id="product.vendor_id" :class="{open: modalReviews}"/>
   </section>
-  <Loader v-if="loading"/>
 </template>
 
 <script setup>
@@ -37,12 +36,10 @@ const props = defineProps({
 })
 
 const product = ref(null)
-const loading = ref(false)
 const vendor = ref(null)
 const modalReviews = ref(false)
 
 const fetchProduct = async () => {
-  loading.value = true
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -52,12 +49,10 @@ const fetchProduct = async () => {
   if (error) {
     console.error(error)
     setTimeout(() => {
-      loading.value = false
     }, 500)
   } else {
     product.value = data
     setTimeout(() => {
-      loading.value = false
     }, 500)
   }
 }

@@ -6,12 +6,14 @@
         </div>
         <h5>{{ vendor.name }}</h5>
         <VendorRating :vendor="vendor" @click="openReviews"/>
-        <router-link to="/produtos" class="vendor-products btn primary">Ver todos os produtos</router-link>
+        <router-link :to="{ name: 'products', query: { vendorProducts: JSON.stringify(vendorProducts), vendorName: vendor.name } }" class="vendor-products btn primary">Ver todos os produtos</router-link>
     </div>
 </template>
 
 <script setup>
-import VendorRating from '@/components/VendorRating.vue';
+import { ref, watch } from 'vue'
+import VendorRating from '@/components/VendorRating.vue'
+import { supabase } from '@/lib/supabaseClient'
 
 const props = defineProps({
     vendor: {
@@ -21,9 +23,33 @@ const props = defineProps({
 
 const emit = defineEmits('emitOpenReviews')
 
+const vendorProducts = ref([]);
+
 const openReviews = () => {
     emit('emitOpenReviews')
 }
+
+const fetchVendorProducts = async () => {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('vendor_id', props.vendor.id)
+    if (error) {
+        console.error(error)
+    } else {
+        vendorProducts.value = data
+    }
+}
+
+watch(
+  () => props.vendor,
+  (newVendor) => {
+    if (newVendor) {
+      fetchVendorProducts();
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style lang="scss" scoped>

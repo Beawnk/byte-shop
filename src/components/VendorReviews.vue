@@ -85,6 +85,7 @@ const fetchReviews = async () => {
 
     getStars(stars)
     vendor.value = {
+      id: data.id,
       name: data.name,
       rating: averageRating.value,
       reviews: reviews.value.length,

@@ -1,6 +1,12 @@
 <template>
   <Header />
-  <main><RouterView /></main>
+  <main>
+    <router-view v-slot="{ Component }">
+      <transition name="down" mode="out-in" appear>
+        <component :is="Component" />
+      </transition>
+    </router-view>
+  </main>
   <Footer />
 </template>
 
@@ -30,6 +36,22 @@ watch(route, () => {
 </script>
 
 <style lang="scss">
+.down-enter-active,
+.down-leave-active {
+  transition: opacity, transform 0.5s ease;
+}
+
+.down-enter-to, .down-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.down-enter-from,
+.down-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
 main {
   flex: 1;
   .container {

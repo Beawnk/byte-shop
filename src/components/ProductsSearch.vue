@@ -7,7 +7,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
+
+const props = defineProps(['searchValue', 'vendorName']);
 
 const emit = defineEmits(['emitSearchProducts']);
 
@@ -21,6 +23,11 @@ const clearSearch = () => {
     search.value = '';
     emit('emitSearchProducts', search.value);
 }
+
+watch(() => props.vendorName, (newValue) => {
+    console.log(newValue);
+    search.value = newValue;
+});
 </script>
 
 <style lang="scss" scoped>

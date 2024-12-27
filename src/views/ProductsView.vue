@@ -1,6 +1,6 @@
 <template>
-  <section id="products-list" class="container" v-if="!loading">
-    <ProductsSearch @emit-search-products="onSearchProducts" />
+  <section id="products-list" class="container">
+    <ProductsSearch @emit-search-products="onSearchProducts" :searchValue="searchValue" :vendorName="vendorName"/>
     <div class="grid" v-if="products.length">
       <TransitionGroup name="grid" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave">
         <div class="product" v-for="(product, index) in products" :key="product.id" :data-index="index">
@@ -26,24 +26,36 @@
       <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
     </div>
   </section>
-  <Loader v-if="loading"/>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import ProductsSearch from '@/components/ProductsSearch.vue';
 import { supabase } from '@/lib/supabaseClient'
 import { formatCurrency } from '@/composables/formatCurrency';
 import { gsap } from "gsap";
 
-const products = ref({})
+const route = useRoute()
+const router = useRouter()
+const products = ref([])
 const currentPage = ref(1)
 const itemsPerPage = 10
 const totalPages = ref(1)
-const loading = ref(false)
+const searchValue = ref('')
+const vendorName = ref('')
+
+const getQuery = async () => {
+  const vendorProducts = JSON.parse(route.query.vendorProducts)
+  vendorName.value = route.query.vendorName
+  const name = vendorName.value
+  products.value = vendorProducts
+
+  router.replace({ query: { name } })
+  searchValue.value = vendorName.value
+}
 
 const fetchProducts = async (page = 1) => {
-  loading.value = true
   const from = (page - 1) * itemsPerPage
   const to = from + itemsPerPage - 1
 
@@ -59,13 +71,11 @@ const fetchProducts = async (page = 1) => {
   } else {
     products.value = data
     totalPages.value = Math.ceil(count / itemsPerPage)
-    setTimeout(() => {
-      loading.value = false
-    }, 500)
   }
 }
 
 const cleanSearchValue = (value) => {
+  router.replace({ query: {  } })
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
@@ -130,9 +140,13 @@ function onLeave(el, done) {
   });
 }
 
-onMounted(() => {
-  fetchProducts()
-})
+onMounted(async () => {
+  if (route.query.vendorProducts) {
+    await getQuery();
+  } else {
+    await fetchProducts();
+  }
+});
 </script>
 
 <style lang="scss" scoped>
