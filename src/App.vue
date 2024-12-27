@@ -19,10 +19,10 @@ import Footer from '@/components/Footer.vue';
 const route = useRoute();
 
 const updateBodyClass = () => {
-  if (route.path === '/') {
-    document.body.classList.add('home-route');
+  if (route.path === '/' || route.path === '/conta') {
+    document.body.classList.add('gradient');
   } else {
-    document.body.classList.remove('home-route');
+    document.body.classList.remove('gradient');
   }
 };
 
@@ -56,7 +56,7 @@ main {
   flex: 1;
   .container {
     padding: calc(var(--section) + var(--header-height)) var(--side) var(--section) var(--side);
-    .home-route & {
+    .gradient & {
       padding-top: var(--section);
     }
   }
@@ -116,6 +116,18 @@ input, textarea {
 
 input:focus, textarea:focus {
   border-color: var(--primary-color);
+}
+
+.input {
+  margin-bottom: 20px;
+  label {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--text-color);
+  }
+  input, textarea {
+    width: 100%;
+  }
 }
 
 .modal {

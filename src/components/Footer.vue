@@ -18,7 +18,7 @@ footer {
     color: var(--white-color);
     position: relative;
     top: 60px;
-    .home-route & {
+    .gradient & {
       background-color: var(--secondary-color);
       top: 0;
     }

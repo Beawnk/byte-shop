@@ -9,7 +9,7 @@
             <router-link to="/contact">Contato</router-link>
         </nav>
         <div class="user">
-            <router-link to="/login">Login</router-link>
+            <router-link to="/conta">Login</router-link>
         </div>
     </header>
 </template>
@@ -25,7 +25,7 @@ const logoWhite = new URL('@/assets/img/logo-white.png', import.meta.url).href;
 const logoDefault = new URL('@/assets/img/logo.png', import.meta.url).href;
 
 const updateLogo = () => {
-    if (route.path === '/') {
+    if (route.path === '/' || route.path === '/conta') {
         logo.value = logoWhite;
     } else {
         logo.value = logoDefault;
@@ -53,7 +53,7 @@ header {
     height: var(--header-height);
     width: 100%;
     box-shadow: var(--shadow);
-    .home-route & {
+    .gradient & {
         box-shadow: none;
     }
     .logo {
@@ -65,7 +65,7 @@ header {
             font-size: var(--subtitle-big);
             position: relative;
             padding-bottom: 3px;
-            .home-route & {
+            .gradient & {
                 color: var(--white-color);
             }
             &::after {
@@ -83,7 +83,7 @@ header {
                 transition-duration: 0.3s;
                 transition-behavior: allow-discrete;
             }
-            .home-route &::after {
+            .gradient &::after {
                 background-color: var(--white-color);
                 background-image: none;
             }
