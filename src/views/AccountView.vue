@@ -29,7 +29,7 @@ const onSignUpPage = () => {
 
 const onLoginPage = () => {
     page.value = 'login';
-    router.replace({ query: { page: 'login' } })
+    router.replace({ query: { page: 'login' } }) 
 };
 
 onMounted(() => {

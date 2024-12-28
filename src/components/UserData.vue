@@ -18,7 +18,7 @@
     </div>
     <div class="input cep">
       <label for="cep">CEP</label>
-      <input type="text" id="cep" v-model="cep" placeholder="Digite seu CEP" />
+      <input type="text" id="cep" v-model="cep" placeholder="Digite seu CEP" @keyup="fillCep"/>
     </div>
     <div class="input-group">
       <div class="input street">
@@ -59,6 +59,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useLoginStore } from '@/stores/LoginState';
+import { useGetAddress } from '@/composables/getAddress';
 
 const loginStore = useLoginStore();
 
@@ -72,14 +73,14 @@ const district = ref('');
 const city = ref('');
 const state = ref('');
 const country = ref('');
-const profilePicUrl = ref(new URL('@/assets/img/profile/profile-default.png', import.meta.url).href);
+const profilePicUrl = ref('https://tnwvrtitkleeayjechmy.supabase.co/storage/v1/object/public/byte/avatars/profile-default.png');
 
 onMounted(() => {
   email.value = loginStore.user.email;
   name.value = loginStore.user.name;
   password.value = loginStore.user.password;
   profilePicUrl.value = loginStore.user.avatar;
-  cep.value = loginStore.user.cep;
+  cep.value = loginStore.user.zip_code;
   street.value = loginStore.user.street;
   number.value = loginStore.user.number;
   district.value = loginStore.user.district;
@@ -99,26 +100,32 @@ const onFileChange = (event) => {
   }
 };
 
-const updateUserStore = () => {
-  loginStore.user = {
-    name: name.value,
-    email: email.value,
-    password: password.value,
-    avatar: profilePicUrl.value,
-    street: street.value,
-    number: number.value,
-    district: district.value,
-    city: city.value,
-    state: state.value,
-    country: country.value,
-    zip_code: cep.value
-  };
-  console.log(loginStore.user);
-};
+const fillCep = async () => {
+  const cepValue = cep.value.replace(/\D/g, '');
+  if (cepValue.length == 8) {
+    const address = await useGetAddress(cepValue);
+    street.value = address.logradouro;
+    district.value = address.bairro;
+    city.value = address.localidade;
+    state.value = address.uf;
+  }
+}
 
-defineExpose({
-  updateUserStore
-});
+const updateUserStore = () => {
+  loginStore.user.name = name.value;
+  loginStore.user.email = email.value;
+  loginStore.user.password = password.value;
+  loginStore.user.avatar = profilePicUrl.value;
+  loginStore.user.street = street.value;
+  loginStore.user.number = number.value;
+  loginStore.user.district = district.value;
+  loginStore.user.city = city.value;
+  loginStore.user.state = state.value;
+  loginStore.user.country = country.value;
+  loginStore.user.zip_code = cep.value;
+  
+  loginStore.createAccount();
+};
 </script>
 
 <style lang="scss" scoped>

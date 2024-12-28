@@ -118,6 +118,10 @@ input:focus, textarea:focus {
   border-color: var(--primary-color);
 }
 
+input::placeholder {
+  opacity: 0.3;
+}
+
 .input {
   margin-bottom: 20px;
   label {
