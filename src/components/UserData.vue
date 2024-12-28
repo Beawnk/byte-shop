@@ -21,13 +21,13 @@
       <input type="text" id="cep" v-model="cep" placeholder="Digite seu CEP" />
     </div>
     <div class="input-group">
-      <div class="input">
+      <div class="input street">
         <label for="street">Rua</label>
         <input type="text" id="street" v-model="street" placeholder="Digite sua rua" />
       </div>
-      <div class="input">
+      <div class="input number">
         <label for="number">Número</label>
-        <input type="text" id="number" v-model="number" placeholder="Digite o número" />
+        <input type="text" id="number" v-model="number" placeholder="000" />
       </div>
     </div>
     <div class="input-group">
@@ -69,7 +69,7 @@ const district = ref('');
 const city = ref('');
 const state = ref('');
 const country = ref('');
-const profilePicUrl = ref('');
+const profilePicUrl = ref(new URL('@/assets/img/profile/profile-default.png', import.meta.url).href);
 
 const onFileChange = (event) => {
   const file = event.target.files[0];
@@ -89,19 +89,53 @@ const onFileChange = (event) => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 20px;
+    justify-content: center;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin: 0 auto 20px auto;
+    position: relative;
+    &:hover {
+      &::after {
+        content: '';
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        background-color: var(--white-color);
+        border-radius: 50%;
+        right: 20px;
+        top: 10px;
+        background-image: url('../assets/img/icons/edit.png');
+        background-size: 20px;
+        background-repeat: no-repeat;
+        background-position: center;
+        
+      }
+    }
     img {
-      max-width: 150px;
-      max-height: 150px;
+      width: 100%;
+      height: 100%;
       border-radius: 50%;
-      margin-bottom: 10px;
     }
     input[type="file"] {
       display: block;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      cursor: pointer;
+      z-index: 1;
+      border-radius: 50%;
     }
   }
   .cep {
     width: calc(50% - 10px);
+  }
+  .number {
+    max-width: 100px;
+    flex: auto;
   }
   .action {
     margin-top: 20px;
