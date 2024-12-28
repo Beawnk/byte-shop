@@ -17,7 +17,7 @@
         </form>
         <p class="border">Ou</p>
         <div class="action">
-            <button class="btn secondary signup">Crie uma conta</button>
+            <button class="btn secondary signup" @click="$emit('emitSignUpPage')">Crie uma conta</button>
         </div>
     </div>
 </template>
@@ -25,8 +25,14 @@
 <script setup>
 import { ref } from 'vue';
 
+const emit = defineEmits(['emitSignUpPage']);
+
 const email = ref('');
 const password = ref('');
+
+const LogIn = () => {
+    console.log('LogIn');
+}
 </script>
 
 <style lang="scss" scoped>
@@ -47,40 +53,9 @@ const password = ref('');
         margin-top: 10px;
         a {
             color: var(--primary-color);
-        }
-    }
-    .border {
-        width: 100%;
-        text-align: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 20px 0;
-        color: var(--text-color);
-        &::before {
-            content: '';
-            display: block;
-            height: 1px;
-            width: 100px;
-            background-color: var(--gray-color);
-            margin-right: 10px;
-        }
-        &::after {
-            content: '';
-            display: block;
-            height: 1px;
-            width: 100px;
-            background-color: var(--gray-color);
-            margin-left: 10px;
-        }
-    }
-    .action {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        button {
-            min-width: 160px;
+            &:hover {
+                text-decoration: underline;
+            }
         }
     }
 }

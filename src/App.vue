@@ -130,6 +130,14 @@ input:focus, textarea:focus {
   }
 }
 
+.input-group {
+  display: flex;
+  gap: 20px;
+  .input {
+    flex: 1;
+  }
+}
+
 .modal {
   position: fixed;
   top: 0;

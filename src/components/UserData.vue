@@ -1,0 +1,111 @@
+<template>
+  <form class="user-form">
+    <div class="profile-pic">
+      <img v-if="profilePicUrl" :src="profilePicUrl" alt="Profile Picture" />
+      <input type="file" @change="onFileChange" />
+    </div>
+    <div class="input">
+      <label for="email">Email</label>
+      <input type="email" id="email" v-model="email" placeholder="Digite seu email" />
+    </div>
+    <div class="input">
+      <label for="name">Nome completo</label>
+      <input type="text" id="name" v-model="name" placeholder="Digite seu nome completo" />
+    </div>
+    <div class="input">
+      <label for="password">Senha</label>
+      <input type="password" id="password" v-model="password" placeholder="Digite sua senha" />
+    </div>
+    <div class="input cep">
+      <label for="cep">CEP</label>
+      <input type="text" id="cep" v-model="cep" placeholder="Digite seu CEP" />
+    </div>
+    <div class="input-group">
+      <div class="input">
+        <label for="street">Rua</label>
+        <input type="text" id="street" v-model="street" placeholder="Digite sua rua" />
+      </div>
+      <div class="input">
+        <label for="number">Número</label>
+        <input type="text" id="number" v-model="number" placeholder="Digite o número" />
+      </div>
+    </div>
+    <div class="input-group">
+      <div class="input">
+        <label for="district">Bairro</label>
+        <input type="text" id="district" v-model="district" placeholder="Digite seu bairro" />
+      </div>
+      <div class="input">
+        <label for="city">Cidade</label>
+        <input type="text" id="city" v-model="city" placeholder="Digite sua cidade" />
+      </div>
+    </div>
+    <div class="input-group">
+      <div class="input">
+        <label for="state">Estado</label>
+        <input type="text" id="state" v-model="state" placeholder="Digite seu estado" />
+      </div>
+      <div class="input">
+        <label for="country">País</label>
+        <input type="text" id="country" v-model="country" placeholder="Digite seu país" />
+      </div>
+    </div>
+    <div class="action">
+      <slot></slot>
+    </div>
+  </form>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const email = ref('');
+const name = ref('');
+const password = ref('');
+const cep = ref('');
+const street = ref('');
+const number = ref('');
+const district = ref('');
+const city = ref('');
+const state = ref('');
+const country = ref('');
+const profilePicUrl = ref('');
+
+const onFileChange = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      profilePicUrl.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+.user-form {
+  .profile-pic {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+    img {
+      max-width: 150px;
+      max-height: 150px;
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
+    input[type="file"] {
+      display: block;
+    }
+  }
+  .cep {
+    width: calc(50% - 10px);
+  }
+  .action {
+    margin-top: 20px;
+  }
+}
+
+</style>

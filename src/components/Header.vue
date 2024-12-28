@@ -9,20 +9,26 @@
             <router-link to="/contact">Contato</router-link>
         </nav>
         <div class="user">
-            <router-link to="/conta">Login</router-link>
+            <router-link to="/conta" v-if="!isLogged" class="btn primary">Login</router-link>
+            <router-link to="/conta" v-else>{{ userName }}</router-link>
         </div>
     </header>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
+import { useLoginStore } from '@/stores/LoginState';
 
+const loginStore = useLoginStore();
 const route = useRoute();
 const logo = ref('');
 
 const logoWhite = new URL('@/assets/img/logo-white.png', import.meta.url).href;
 const logoDefault = new URL('@/assets/img/logo.png', import.meta.url).href;
+
+const isLogged = computed(() => loginStore.logged);
+const userName = computed(() => loginStore.user.name.replace(/ .*/, ''));
 
 const updateLogo = () => {
     if (route.path === '/' || route.path === '/conta') {

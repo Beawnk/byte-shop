@@ -51,7 +51,7 @@ const getQuery = async () => {
   const name = vendorName.value
   products.value = vendorProducts
 
-  router.replace({ query: { name } })
+  router.replace({ query: { vendedor: name } })
   searchValue.value = vendorName.value
 }
 
