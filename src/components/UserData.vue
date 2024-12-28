@@ -73,6 +73,7 @@ const profilePicUrl = ref(new URL('@/assets/img/profile/profile-default.png', im
 
 const onFileChange = (event) => {
   const file = event.target.files[0];
+  console.log(file);
   if (file) {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -95,6 +96,7 @@ const onFileChange = (event) => {
     border-radius: 50%;
     margin: 0 auto 20px auto;
     position: relative;
+    border: 3px solid var(--primary-color);
     &:hover {
       &::after {
         content: '';
@@ -109,7 +111,7 @@ const onFileChange = (event) => {
         background-size: 20px;
         background-repeat: no-repeat;
         background-position: center;
-        
+        z-index: 2;
       }
     }
     img {
