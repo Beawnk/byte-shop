@@ -1,8 +1,8 @@
 <template>
     <div class="signup-form">
         <h2>Criar conta</h2>
-            <UserData>
-                <button class="btn primary">Cadastrar</button>
+            <UserData v-slot="{ update }">
+                <button class="btn primary" @click.prevent="update">Cadastrar</button>
             </UserData>
         <p class="border">Ou</p>
         <div class="action">
@@ -15,8 +15,6 @@
 import { ref } from 'vue';
 import UserData from '@/components/UserData.vue';
 
-const email = ref('');
-const password = ref('');
 </script>
 
 <style lang="scss" scoped>

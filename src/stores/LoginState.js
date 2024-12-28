@@ -5,11 +5,11 @@ export const useLoginStore = defineStore('login', () => {
     const logged = ref(false)
     const user = {
         id: ref(''),
-        name: ref('Bianca Sineleck'),
+        name: ref(''),
         email: ref(''),
         password: ref(''),
         is_vendor: ref(false),
-        avatar: ref(''),
+        avatar: ref(new URL('@/assets/img/profile/profile-default.png', import.meta.url).href),
         street: ref(''),
         number: ref(''),
         district: ref(''),

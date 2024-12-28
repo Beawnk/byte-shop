@@ -9,7 +9,7 @@
     --secondary-color: #f5b4b0;
     --background-color: #edf3ff;
     --text-color: #5f5380;
-    --highlight-color: #ff3da8;
+    /* --highlight-color: #ff3da8; */
     --success-color: #2ce27e;
     --info-color: #667dff;
     --warning-color: #FAC975;
@@ -19,7 +19,6 @@
     --white-color: #ffffff;
     --dark-color: #1c1c1c;
     --light-dark-color: #404243;
-    --black-color: #6c63ff;
     --shadow-color: #66666636;
 
     --shadow: 0px 2px 10px 0px var(--shadow-color);

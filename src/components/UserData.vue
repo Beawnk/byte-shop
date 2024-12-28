@@ -51,13 +51,16 @@
       </div>
     </div>
     <div class="action">
-      <slot></slot>
+      <slot :update="updateUserStore"></slot>
     </div>
   </form>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
+import { useLoginStore } from '@/stores/LoginState';
+
+const loginStore = useLoginStore();
 
 const email = ref('');
 const name = ref('');
@@ -71,9 +74,22 @@ const state = ref('');
 const country = ref('');
 const profilePicUrl = ref(new URL('@/assets/img/profile/profile-default.png', import.meta.url).href);
 
+onMounted(() => {
+  email.value = loginStore.user.email;
+  name.value = loginStore.user.name;
+  password.value = loginStore.user.password;
+  profilePicUrl.value = loginStore.user.avatar;
+  cep.value = loginStore.user.cep;
+  street.value = loginStore.user.street;
+  number.value = loginStore.user.number;
+  district.value = loginStore.user.district;
+  city.value = loginStore.user.city;
+  state.value = loginStore.user.state;
+  country.value = loginStore.user.country;
+});
+
 const onFileChange = (event) => {
   const file = event.target.files[0];
-  console.log(file);
   if (file) {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -82,6 +98,27 @@ const onFileChange = (event) => {
     reader.readAsDataURL(file);
   }
 };
+
+const updateUserStore = () => {
+  loginStore.user = {
+    name: name.value,
+    email: email.value,
+    password: password.value,
+    avatar: profilePicUrl.value,
+    street: street.value,
+    number: number.value,
+    district: district.value,
+    city: city.value,
+    state: state.value,
+    country: country.value,
+    zip_code: cep.value
+  };
+  console.log(loginStore.user);
+};
+
+defineExpose({
+  updateUserStore
+});
 </script>
 
 <style lang="scss" scoped>
