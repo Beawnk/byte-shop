@@ -1,5 +1,5 @@
 <template>
-  <router-view></router-view>
+	<p>UserProductsView works!</p>
 </template>
 
 <script setup>

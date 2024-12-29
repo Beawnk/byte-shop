@@ -1,5 +1,6 @@
 <template>
   <section id="account" class="container" :class="{ login: loginStore.page === 'login', signup: loginStore.page === 'signup', user: loginStore.page === 'user' }">
+    <UserMenu v-if="loginStore.logged" />
     <div class="account-wrapper">
         <Transition mode="out-in" appear><Login v-if="!loginStore.logged && loginStore.page == 'login'"  @emit-sign-up-page="onSignUpPage"/></Transition>
         <Transition mode="out-in" appear><SignUp v-if="!loginStore.logged && loginStore.page == 'signup'" @emit-login-page="onLoginPage"/></Transition>
@@ -13,6 +14,7 @@ import { ref, onMounted } from 'vue';
 import Login from '@/components/Login.vue';
 import SignUp from '@/components/SignUp.vue';
 import User from '@/components/User.vue';
+import UserMenu from '@/components/UserMenu.vue';
 import { useLoginStore } from '@/stores/LoginState';
 import { useRoute, useRouter } from 'vue-router'
 
@@ -50,8 +52,17 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
     &.signup {
         padding-top: calc(var(--section) + var(--header-height));
+        .account-wrapper {
+            max-width: 900px;
+        }
+    }
+    &.user {
+        padding-top: calc(var(--section) + var(--header-height));
+        align-items: flex-start;
+        gap: 10px;
         .account-wrapper {
             max-width: 900px;
         }

@@ -9,8 +9,8 @@
             <router-link to="/contact">Contato</router-link>
         </nav>
         <div class="user">
-            <router-link to="/conta" v-if="!isLogged" class="btn primary">Login</router-link>
-            <router-link to="/conta" v-else>{{ userName }}</router-link>
+            <router-link to="/usuario" v-if="!isLogged" class="btn primary">Login</router-link>
+            <router-link to="/usuario" v-else>{{ userName }}</router-link>
         </div>
     </header>
 </template>
@@ -31,7 +31,7 @@ const isLogged = computed(() => loginStore.logged);
 const userName = computed(() => loginStore.user.name.replace(/ .*/, ''));
 
 const updateLogo = () => {
-    if (route.path === '/' || route.path === '/conta') {
+    if (route.path === '/' || route.path === '/usuario') {
         logo.value = logoWhite;
     } else {
         logo.value = logoDefault;
@@ -59,6 +59,7 @@ header {
     height: var(--header-height);
     width: 100%;
     box-shadow: var(--shadow);
+    z-index: 10;
     .gradient & {
         box-shadow: none;
     }

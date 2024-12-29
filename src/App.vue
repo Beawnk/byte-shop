@@ -19,7 +19,7 @@ import Footer from '@/components/Footer.vue';
 const route = useRoute();
 
 const updateBodyClass = () => {
-  if (route.path === '/' || route.path === '/conta') {
+  if (route.path === '/' || route.path === '/usuario') {
     document.body.classList.add('gradient');
   } else {
     document.body.classList.remove('gradient');

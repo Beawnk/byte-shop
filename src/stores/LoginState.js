@@ -63,6 +63,8 @@ export const useLoginStore = defineStore('login', () => {
         user.zip_code.value = customUser.address_cep;
 
         logged.value = true;
+        page.value = 'user';
+        router.replace({ query: { user: data.user.name } })
       }
     } catch (error) {
       console.error('Error logging in:', error.message);
@@ -144,8 +146,6 @@ export const useLoginStore = defineStore('login', () => {
   
         console.log('Account created successfully!');
         login(email, password);
-        page.value = 'user';
-        router.replace({ query: { user: data.user.id } })
       }
     } catch (error) {
       console.error('Error creating account:', error.message);

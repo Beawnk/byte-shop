@@ -21,9 +21,16 @@ const router = createRouter({
       props: true
     },
     {
-      path: '/conta',
-      name: 'account',
+      path: '/usuario',
+      name: 'user',
       component: () => import('@/views/AccountView.vue'),
+      children: [
+        {
+          path: '',
+          name: 'data',
+          component: () => import('@/views/user/UserDataEditView.vue'),
+        }
+      ]
     }
   ],
 })

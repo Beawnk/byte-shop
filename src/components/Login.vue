@@ -12,7 +12,7 @@
                 <span class="lost-pass"><router-link to="/">Esqueceu a senha?</router-link></span>
             </div>
             <div class="action">
-                <button type="submit" class="btn primary login" @click.prevent="LogIn">Entrar</button>
+                <button type="submit" class="btn primary login" @click.prevent="LogIn" @keyup.enter.prevent="LogIn">Entrar</button>
             </div>
         </form>
         <p class="border">Ou</p>
