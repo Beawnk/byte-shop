@@ -1,8 +1,8 @@
 <template>
-  <section id="account" class="container" :class="{ login: page === 'login', signup: page === 'signup', user: page === 'user' }">
+  <section id="account" class="container" :class="{ login: loginStore.page === 'login', signup: loginStore.page === 'signup', user: loginStore.page === 'user' }">
     <div class="account-wrapper">
-        <Transition mode="out-in" appear><Login v-if="!loginStore.logged && page === 'login'"  @emit-sign-up-page="onSignUpPage"/></Transition>
-        <Transition mode="out-in" appear><SignUp v-if="!loginStore.logged && page === 'signup'" @emit-login-page="onLoginPage"/></Transition>
+        <Transition mode="out-in" appear><Login v-if="!loginStore.logged && loginStore.page == 'login'"  @emit-sign-up-page="onSignUpPage"/></Transition>
+        <Transition mode="out-in" appear><SignUp v-if="!loginStore.logged && loginStore.page == 'signup'" @emit-login-page="onLoginPage"/></Transition>
         <Transition mode="out-in" appear><User v-if="loginStore.logged"/></Transition>
     </div>
   </section>
@@ -20,26 +20,24 @@ const loginStore = useLoginStore();
 const route = useRoute()
 const router = useRouter()
 
-const page = ref('login');
-
 const onSignUpPage = () => {
-    page.value = 'signup';
+    loginStore.page = 'signup';
     router.replace({ query: { page: 'signup' } })
 };
 
 const onLoginPage = () => {
-    page.value = 'login';
+    loginStore.page = 'login';
     router.replace({ query: { page: 'login' } }) 
 };
 
 onMounted(() => {
     if (route.query.page === 'signup') {
-        page.value = 'signup';
-    } else if (page.value === 'login') {
+        loginStore.page = 'signup';
+    } else if (loginStore.page === 'login') {
         router.replace({ query: { page: 'login' } })
     }
     if (loginStore.logged) {
-        page.value = 'user';
+        loginStore.page = 'user';
         router.replace({ query: { user: loginStore.user.name } })
     }
 });

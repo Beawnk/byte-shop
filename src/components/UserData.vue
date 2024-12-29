@@ -124,7 +124,7 @@ const updateUserStore = () => {
   loginStore.user.country = country.value;
   loginStore.user.zip_code = cep.value;
   
-  loginStore.createAccount();
+  loginStore.createAccount(email.value, password.value);
 };
 </script>
 
