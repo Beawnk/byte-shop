@@ -27,6 +27,10 @@ export const useLoginStore = defineStore('login', () => {
 
   const login = async (email, password) => {
     try {
+      if (!email || !password) {
+        throw new Error('Email and password are required');
+      }
+
       const { data, error: loginError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -139,8 +143,9 @@ export const useLoginStore = defineStore('login', () => {
         if (dbError) throw new Error(dbError.message);
   
         console.log('Account created successfully!');
-        page.value = 'login';
-        router.replace({ query: { page: 'login' } })
+        login(email, password);
+        page.value = 'user';
+        router.replace({ query: { user: data.user.id } })
       }
     } catch (error) {
       console.error('Error creating account:', error.message);
