@@ -1,22 +1,24 @@
 <template>
   <section id="product-page" class="container">
-    <div class="product" v-if="product">
-      <div class="img">
-        <img :src="product.image_url" :alt="product.name" />
-      </div>
-      <div class="info">
-        <div class="product-info">
-          <h2>{{ product.name }}</h2>
-          <p>{{ formatCurrency(product.price) }}</p>
-          <p>{{ product.description }}</p>
-          <div class="actions">
-            <router-link to="/products" class="btn primary buy-now">Comprar</router-link>
-            <button class="btn secondary save"></button>
-          </div>
+    <transition name="down" mode="out-in" appear>
+      <div class="product" v-if="product">
+        <div class="img">
+          <img :src="product.image_url" :alt="product.name" />
         </div>
-        <VendorInfo :vendor="vendor" @emitOpenReviews="onEmitOpenReviews" />
+        <div class="info">
+          <div class="product-info">
+            <h2>{{ product.name }}</h2>
+            <p>{{ formatCurrency(product.price) }}</p>
+            <p>{{ product.description }}</p>
+            <div class="actions">
+              <router-link to="/products" class="btn primary buy-now">Comprar</router-link>
+              <button class="btn secondary save"></button>
+            </div>
+          </div>
+          <VendorInfo :vendor="vendor" @emitOpenReviews="onEmitOpenReviews" />
+        </div>
       </div>
-    </div>
+    </transition>
     <VendorReviews v-if="product" v-show="modalReviews" @emit-vendor-info="onVendorInfo" @emit-close-modal="onEmitCloseReviews" :vendor-id="product.vendor_id" :class="{open: modalReviews}"/>
   </section>
 </template>

@@ -1,13 +1,15 @@
 <template>
   <section id="home" class="container">
-    <div class="presentation">
-      <h1>Byte Shop</h1>
-      <p>Compra e venda de aparelhos tecnológicos</p>
-      <div class="buttons"> 
-        <router-link to="/produtos" class="btn primary">Produtos</router-link>
-        <router-link to="/produtos" class="btn primary">Vender</router-link>
+    <transition name="down" mode="out-in" appear>
+      <div class="presentation">
+        <h1>Byte Shop</h1>
+        <p>Compra e venda de aparelhos tecnológicos</p>
+        <div class="buttons"> 
+          <router-link to="/produtos" class="btn primary">Produtos</router-link>
+          <router-link to="/produtos" class="btn primary">Vender</router-link>
+        </div>
       </div>
-    </div>
+    </transition>
   </section>
 </template>
 

@@ -1,11 +1,7 @@
 <template>
   <Header />
   <main>
-    <router-view v-slot="{ Component }">
-      <transition name="down" mode="out-in" appear>
-        <component :is="Component" />
-      </transition>
-    </router-view>
+    <router-view/>
   </main>
   <Footer />
 </template>
@@ -52,7 +48,7 @@ watch(route, () => {
 .down-enter-from,
 .down-leave-to {
   opacity: 0;
-  transform: translateY(-20px);
+  transform: translateY(-50px);
 }
 
 main {
@@ -200,6 +196,39 @@ input::placeholder {
       background-repeat: no-repeat;
       background-position: center;
     }
+  }
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+  button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: 1px solid var(--gray-color);
+    border-radius: var(--border-radius);
+    background-color: var(--white-color);
+    color: var(--text-color);
+    font-family: var(--ff-primary);
+    cursor: pointer;
+    transition: var(--transition);
+    &:hover {
+      background-color: var(--gray-color);
+      color: var(--white-color);
+    }
+    &:disabled {
+      opacity: 0.5;
+      &:hover {
+        background-color: var(--white-color);
+        color: var(--text-color);
+      }
+    }
+  }
+  span {
+    font-family: var(--ff-primary);
+    font-size: var(--text-medium);
+    color: var(--text-color);
   }
 }
 

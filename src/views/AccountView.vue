@@ -1,11 +1,15 @@
 <template>
   <section id="account" class="container" :class="{ login: userStore.page === 'login', signup: userStore.page === 'signup', user: userStore.page === 'user' }">
-    <UserMenu v-if="userStore.logged" />
-    <div class="account-wrapper">
-        <Transition mode="out-in" appear><Login v-if="!userStore.logged && userStore.page == 'login'"  @emit-sign-up-page="onSignUpPage"/></Transition>
-        <Transition mode="out-in" appear><SignUp v-if="!userStore.logged && userStore.page == 'signup'" @emit-login-page="onLoginPage"/></Transition>
-        <Transition mode="out-in" appear><User v-if="userStore.logged"/></Transition>
-    </div>
+    <transition name="down" mode="out-in" appear>
+        <div class="wrapper">
+            <UserMenu v-if="userStore.logged" />
+            <div class="account-wrapper">
+                <Transition mode="out-in" appear><Login v-if="!userStore.logged && userStore.page == 'login'"  @emit-sign-up-page="onSignUpPage"/></Transition>
+                <Transition mode="out-in" appear><SignUp v-if="!userStore.logged && userStore.page == 'signup'" @emit-login-page="onLoginPage"/></Transition>
+                <Transition mode="out-in" appear><User v-if="userStore.logged"/></Transition>
+            </div>
+        </div>
+    </transition>
   </section>
 </template>
 
@@ -49,64 +53,70 @@ onMounted(() => {
 #account {
     background-image: linear-gradient(180deg, var(--primary-color) 10%, var(--secondary-color) 90%);
     min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
     &.signup {
-        padding-top: calc(var(--section) + var(--header-height));
-        .account-wrapper {
-            max-width: 900px;
+        .wrapper {
+            padding-top: calc(var(--section) + var(--header-height));
+            .account-wrapper {
+                max-width: 900px;
+            }
         }
     }
     &.user {
-        padding-top: calc(var(--section) + var(--header-height));
-        align-items: flex-start;
-        gap: 10px;
+        .wrapper {
+            padding-top: calc(var(--section) + var(--header-height));
+            align-items: flex-start;
+            gap: 10px;
+            .account-wrapper {
+                max-width: 900px;
+            }
+        }
+    }
+    .wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
         .account-wrapper {
-            max-width: 900px;
+            width: 100%;
+            max-width: 600px;
+            background-color: var(--background-color);
+            padding: 40px;
+            border-radius: 10px;
+            transition: max-width 0.5s ease;
         }
-    }
-    .account-wrapper {
-        width: 100%;
-        max-width: 600px;
-        background-color: var(--background-color);
-        padding: 40px;
-        border-radius: 10px;
-        transition: max-width 0.5s ease;
-    }
-    .border {
-        width: 100%;
-        text-align: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 20px 0;
-        color: var(--text-color);
-        &::before {
-            content: '';
-            display: block;
-            height: 1px;
-            width: 100px;
-            background-color: var(--gray-color);
-            margin-right: 10px;
+        .border {
+            width: 100%;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            color: var(--text-color);
+            &::before {
+                content: '';
+                display: block;
+                height: 1px;
+                width: 100px;
+                background-color: var(--gray-color);
+                margin-right: 10px;
+            }
+            &::after {
+                content: '';
+                display: block;
+                height: 1px;
+                width: 100px;
+                background-color: var(--gray-color);
+                margin-left: 10px;
+            }
         }
-        &::after {
-            content: '';
-            display: block;
-            height: 1px;
-            width: 100px;
-            background-color: var(--gray-color);
-            margin-left: 10px;
-        }
-    }
-    .action {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        button {
-            min-width: 160px;
+        .action {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            button {
+                min-width: 160px;
+            }
         }
     }
 }

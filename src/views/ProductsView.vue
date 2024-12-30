@@ -1,30 +1,34 @@
 <template>
   <section id="products-list" class="container">
-    <ProductsSearch @emit-search-products="onSearchProducts" :searchValue="searchValue" :vendorName="vendorName"/>
-    <div class="grid" v-if="products">
-      <TransitionGroup name="grid" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave">
-        <div class="product" v-for="(product, index) in products" :key="product.id" :data-index="index">
-          <router-link :to="{name: 'product', params: {id: product.id}}" class="product-link">
-            <div class="img">
-              <img :src="product.image_url" :alt="product.name" />
+    <transition name="down" mode="out-in" appear>
+      <div class="wrapper">
+        <ProductsSearch @emit-search-products="onSearchProducts" :searchValue="searchValue" :vendorName="vendorName"/>
+        <div class="grid" v-if="products">
+          <TransitionGroup name="grid" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave">
+            <div class="product" v-for="(product, index) in products" :key="product.id" :data-index="index">
+              <router-link :to="{name: 'product', params: {id: product.id}}" class="product-link">
+                <div class="img">
+                  <img :src="product.image_url" :alt="product.name" />
+                </div>
+                <h2>{{ product.name }}</h2>
+                <p>{{ formatCurrency(product.price) }}</p>
+                <div class="actions">
+                  <button class="btn primary buy-now">Comprar</button>
+                </div>
+              </router-link>
             </div>
-            <h2>{{ product.name }}</h2>
-            <p>{{ formatCurrency(product.price) }}</p>
-            <div class="actions">
-              <button class="btn primary buy-now">Comprar</button>
-            </div>
-          </router-link>
+          </TransitionGroup>
         </div>
-      </TransitionGroup>
-    </div>
-    <div class="no-products" v-else-if="products === null">
-      <h4>Nenhum produto encontrado</h4>
-    </div>
-    <div class="pagination" v-if="products">
-      <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
-      <span>Page {{ currentPage }} of {{ totalPages }}</span>
-      <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
-    </div>
+        <div class="no-products" v-else-if="products === null">
+          <h4>Nenhum produto encontrado</h4>
+        </div>
+        <div class="pagination" v-if="products">
+          <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
+          <span>Page {{ currentPage }} of {{ totalPages }}</span>
+          <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+        </div>
+      </div>
+    </transition>
   </section>
 </template>
 
@@ -213,39 +217,6 @@ onMounted(async () => {
       font-size: var(--subtitle-big);
       color: var(--text-color);
       font-family: var(--ff-primary);
-    }
-  }
-  .pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 40px;
-    button {
-      padding: 10px 20px;
-      margin: 0 10px;
-      border: 1px solid var(--gray-color);
-      border-radius: var(--border-radius);
-      background-color: var(--white-color);
-      color: var(--text-color);
-      font-family: var(--ff-primary);
-      cursor: pointer;
-      transition: var(--transition);
-      &:hover {
-        background-color: var(--gray-color);
-        color: var(--white-color);
-      }
-      &:disabled {
-        opacity: 0.5;
-        &:hover {
-          background-color: var(--white-color);
-          color: var(--text-color);
-        }
-      }
-    }
-    span {
-      font-family: var(--ff-primary);
-      font-size: var(--text-medium);
-      color: var(--text-color);
     }
   }
 }
