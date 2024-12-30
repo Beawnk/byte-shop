@@ -12,10 +12,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useUserStore } from '@/stores/UserState';
 import UserProductItem from '@/components/UserProductItem.vue';
 import { gsap } from "gsap";
+
+const props = defineProps(["fetchProducts"]);
 
 const userStore = useUserStore();
 const products = ref([]);
@@ -50,6 +52,10 @@ function onLeave(el, done) {
     onComplete: done,
   });
 }
+
+watch(() => props.fetchProducts, async () => {
+  products.value = await userStore.loadProducts();
+});
 
 onMounted(async () => {
 	console.log(userStore.user.id);

@@ -2,8 +2,8 @@
 	<div class="user-products">
 		<h2>Seus produtos</h2>
 		<button class="btn primary add" v-if="!showAddProduct" @click="showAddProduct = true">Adicionar produto</button>
-		<transition name="down" mode="out-in" appear><UserAddProduct v-show="showAddProduct" @hide-add-product="showAddProduct = false"/></transition>
-		<UserProducts />
+		<transition name="down" mode="out-in" appear><UserAddProduct v-show="showAddProduct" @hide-add-product="showAddProduct = false" @added-product="fetchProducts++" :class="{open: showAddProduct}"/></transition>
+		<UserProducts :fetchProducts="fetchProducts" />
 	</div>
 </template>
 
@@ -13,6 +13,7 @@ import UserAddProduct from '@/components/UserAddProduct.vue';
 import UserProducts from '@/components/UserProducts.vue';
 
 const showAddProduct = ref(false);
+const fetchProducts = ref(0);
 </script>
 
 <style lang="scss" scoped>
