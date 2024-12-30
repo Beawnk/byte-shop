@@ -1,8 +1,12 @@
 <template>
 	<div class="products">
 		<TransitionGroup class="products-list" v-if="products" name="list" tag="div" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave" appear>
-			<div v-for="(product, index) in products" :key="product.id" :data-index="index" class="product">
+			<div v-for="(product, index) in products" :key="product.id" :data-index="index" class="product" @mouseover="productHoverIndex = index" @mouseleave="productHoverIndex = null" :class="{'show-actions': productHoverIndex === index}">
 				<UserProductItem :product="product" />
+        <div class="actions" v-show="productHoverIndex === index">
+          <button class="delete" @click.prevent="userStore.deleteProduct(product.id)"></button>
+          <button class="edit"></button>
+        </div>
 			</div>
 		</TransitionGroup>
 		<div v-else>
@@ -21,6 +25,8 @@ const props = defineProps(["fetchProducts"]);
 
 const userStore = useUserStore();
 const products = ref([]);
+
+const productHoverIndex = ref(null);
 
 // GSAP Hooks
 function onBeforeEnter(el) {
@@ -70,6 +76,59 @@ onMounted(async () => {
 	.products-list {
 		.product {
 			margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      &.show-actions {
+        .actions {
+          width: fit-content;
+          opacity: 1;
+          @starting-style {
+            width: 0;
+            opacity: 0;
+          }
+          button {
+            opacity: 1;
+            width: 50px;
+            @starting-style {
+              opacity: 0;
+              width: 0;
+            }
+          }
+        }
+      }
+      .actions {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 10px;
+        width: 0;
+        opacity: 0;
+        transition-property: overlay, display, opacity, width;
+        transition-duration: 0.5s;
+        transition-behavior: allow-discrete;
+        button {
+          height: 50px;
+          background-size: 20px;
+          background-repeat: no-repeat;
+          background-position: center;
+          width: 0;
+          opacity: 0;
+          transition-property: overlay, opacity, width, transform;
+          transition-duration: 0.5s;
+          transition-behavior: allow-discrete;
+          &.delete {
+            background-image: url('../assets/img/icons/remove.png');
+          }
+          &.edit {
+            background-image: url('../assets/img/icons/edit.png');
+          }
+          &:hover {
+            transform: scale(1.2);
+          }
+        }
+      }
 		}
 	}
 }

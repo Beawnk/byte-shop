@@ -169,6 +169,23 @@ export const useUserStore = defineStore('user', () => {
     }
   };
 
+  const deleteProduct = async (productId) => {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', productId);
+
+      if (error) throw new Error(error.message);
+
+      console.log('Product deleted successfully:', productId);
+      await loadProducts();
+    } catch (error) {
+      console.error('Error deleting product:', error.message);
+      throw error;
+    }
+  };
+
   // Watch for changes in the user or login state to save automatically
   watch(
     () => ({ user, logged: logged.value }),
@@ -188,5 +205,6 @@ export const useUserStore = defineStore('user', () => {
     createAccount,
     loadUserFromLocalStorage,
     loadProducts,
+    deleteProduct,
   };
 });

@@ -19,17 +19,14 @@ const props = defineProps(['product'])
 
 <style lang="scss" scoped>
 .product-link {
+	width: 100%;
 	background-color: var(--white-color);
 	border-radius: var(--border-radius);
 	overflow: hidden;
-	margin-top: 20px;
 	box-shadow: var(--shadow);
 	display: flex;
 	align-items: center;
-	transition: var(--transition);
-	&:hover {
-		transform: scale(1.02);
-	}
+	transition: width 0.5s ease;
 	.product-image {
 		width: 150px;
 		height: 150px;
@@ -60,6 +57,9 @@ const props = defineProps(['product'])
 			margin-top: 10px;
 		}
 	}
+}
+.show-actions .product-link {
+    width: calc(100% - 50px);
 }
 
 </style>

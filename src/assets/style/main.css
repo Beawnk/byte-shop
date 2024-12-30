@@ -149,6 +149,7 @@ button {
     outline: none;
     background-color: transparent;
     padding: 0;
+    transition: var(--transition);
 }
 
 /* width */
