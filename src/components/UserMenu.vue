@@ -2,19 +2,19 @@
 	<div class="user-menu">
 		<ul>
 			<li><router-link :to="{name: 'data'}">Dados</router-link></li>
-			<li><router-link :to="{name: 'products'}">Produtos</router-link></li>
+			<li><router-link :to="{name: 'user-products'}">Produtos</router-link></li>
 			<li><router-link :to="{name: 'orders'}">Pedidos</router-link></li>
 			<li><router-link :to="{name: 'sales'}">Vendas</router-link></li>
 			<li><router-link :to="{name: 'reviews'}">Avaliações</router-link></li>
-			<li><button class="logout-btn" @click.prevent="loginStore.logout">Sair</button></li>
+			<li><button class="logout-btn" @click.prevent="userStore.logout">Sair</button></li>
 		</ul>
 	</div>
 </template>
 
 <script setup>
-import { useLoginStore } from '@/stores/LoginState';
+import { useUserStore } from '@/stores/UserState';
 
-const loginStore = useLoginStore();
+const userStore = useUserStore();
 </script>
 
 <style lang="scss" scoped>

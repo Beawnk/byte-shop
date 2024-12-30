@@ -3,7 +3,7 @@ import { ref, reactive, watch } from 'vue';
 import { supabase } from '@/lib/supabaseClient';
 import { useRoute, useRouter } from 'vue-router';
 
-export const useLoginStore = defineStore('login', () => {
+export const useUserStore = defineStore('user', () => {
   const route = useRoute();
   const router = useRouter();
   const page = ref('login');
@@ -24,6 +24,7 @@ export const useLoginStore = defineStore('login', () => {
     address_country: '',
     address_cep: '',
   });
+  const userProducts = reactive([]);
 
   // Restore login info from localStorage
   const loadUserFromLocalStorage = () => {
@@ -149,6 +150,25 @@ export const useLoginStore = defineStore('login', () => {
     }
   };
 
+  const loadProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('vendor_id', user.id);
+
+      if (error) throw new Error(error.message);
+
+      userProducts.splice(0, userProducts.length, ...data);
+      console.log('User products loaded:', userProducts);
+
+      return userProducts;
+    } catch (error) {
+      console.error('Error loading user products:', error.message);
+      throw error;
+    }
+  };
+
   // Watch for changes in the user or login state to save automatically
   watch(
     () => ({ user, logged: logged.value }),
@@ -167,5 +187,6 @@ export const useLoginStore = defineStore('login', () => {
     logout,
     createAccount,
     loadUserFromLocalStorage,
+    loadProducts,
   };
 });

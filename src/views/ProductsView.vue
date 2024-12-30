@@ -1,7 +1,7 @@
 <template>
   <section id="products-list" class="container">
     <ProductsSearch @emit-search-products="onSearchProducts" :searchValue="searchValue" :vendorName="vendorName"/>
-    <div class="grid" v-if="products.length">
+    <div class="grid" v-if="products">
       <TransitionGroup name="grid" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave">
         <div class="product" v-for="(product, index) in products" :key="product.id" :data-index="index">
           <router-link :to="{name: 'product', params: {id: product.id}}" class="product-link">
@@ -20,7 +20,7 @@
     <div class="no-products" v-else-if="products === null">
       <h4>Nenhum produto encontrado</h4>
     </div>
-    <div class="pagination" v-if="products.length">
+    <div class="pagination" v-if="products">
       <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
       <span>Page {{ currentPage }} of {{ totalPages }}</span>
       <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
@@ -67,7 +67,7 @@ const fetchProducts = async (page = 1) => {
   if (error) {
     console.error(error)
   } else if (data.length === 0) {
-    products.value = null
+    products.value = NonNullable
   } else {
     products.value = data
     totalPages.value = Math.ceil(count / itemsPerPage)

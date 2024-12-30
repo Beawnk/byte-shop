@@ -18,17 +18,17 @@
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { useLoginStore } from '@/stores/LoginState';
+import { useUserStore } from '@/stores/UserState';
 
-const loginStore = useLoginStore();
+const userStore = useUserStore();
 const route = useRoute();
 const logo = ref('');
 
 const logoWhite = new URL('@/assets/img/logo-white.png', import.meta.url).href;
 const logoDefault = new URL('@/assets/img/logo.png', import.meta.url).href;
 
-const isLogged = computed(() => loginStore.logged);
-const userName = computed(() => loginStore.user.name.replace(/ .*/, ''));
+const isLogged = computed(() => userStore.logged);
+const userName = computed(() => userStore.user.name.replace(/ .*/, ''));
 
 const updateLogo = () => {
     if (route.path === '/' || route.path.startsWith('/usuario')) {

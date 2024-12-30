@@ -32,7 +32,7 @@ const router = createRouter({
         },
         {
           path: 'produtos',
-          name: 'products',
+          name: 'user-products',
           component: () => import('@/views/user/UserProductsView.vue'),
         },
         {

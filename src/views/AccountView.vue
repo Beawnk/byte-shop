@@ -1,10 +1,10 @@
 <template>
-  <section id="account" class="container" :class="{ login: loginStore.page === 'login', signup: loginStore.page === 'signup', user: loginStore.page === 'user' }">
-    <UserMenu v-if="loginStore.logged" />
+  <section id="account" class="container" :class="{ login: userStore.page === 'login', signup: userStore.page === 'signup', user: userStore.page === 'user' }">
+    <UserMenu v-if="userStore.logged" />
     <div class="account-wrapper">
-        <Transition mode="out-in" appear><Login v-if="!loginStore.logged && loginStore.page == 'login'"  @emit-sign-up-page="onSignUpPage"/></Transition>
-        <Transition mode="out-in" appear><SignUp v-if="!loginStore.logged && loginStore.page == 'signup'" @emit-login-page="onLoginPage"/></Transition>
-        <Transition mode="out-in" appear><User v-if="loginStore.logged"/></Transition>
+        <Transition mode="out-in" appear><Login v-if="!userStore.logged && userStore.page == 'login'"  @emit-sign-up-page="onSignUpPage"/></Transition>
+        <Transition mode="out-in" appear><SignUp v-if="!userStore.logged && userStore.page == 'signup'" @emit-login-page="onLoginPage"/></Transition>
+        <Transition mode="out-in" appear><User v-if="userStore.logged"/></Transition>
     </div>
   </section>
 </template>
@@ -15,32 +15,32 @@ import Login from '@/components/Login.vue';
 import SignUp from '@/components/SignUp.vue';
 import User from '@/components/User.vue';
 import UserMenu from '@/components/UserMenu.vue';
-import { useLoginStore } from '@/stores/LoginState';
+import { useUserStore } from '@/stores/UserState';
 import { useRoute, useRouter } from 'vue-router'
 
-const loginStore = useLoginStore();
+const userStore = useUserStore();
 const route = useRoute()
 const router = useRouter()
 
 const onSignUpPage = () => {
-    loginStore.page = 'signup';
+    userStore.page = 'signup';
     router.replace({ query: { page: 'signup' } })
 };
 
 const onLoginPage = () => {
-    loginStore.page = 'login';
+    userStore.page = 'login';
     router.replace({ query: { page: 'login' } }) 
 };
 
 onMounted(() => {
     if (route.query.page === 'signup') {
-        loginStore.page = 'signup';
-    } else if (loginStore.page === 'login') {
+        userStore.page = 'signup';
+    } else if (userStore.page === 'login') {
         router.replace({ query: { page: 'login' } })
     }
-    if (loginStore.logged) {
-        loginStore.page = 'user';
-        router.replace({ query: { user: loginStore.user.name } })
+    if (userStore.logged) {
+        userStore.page = 'user';
+        router.replace({ query: { user: userStore.user.name } })
     }
 });
 </script>

@@ -58,10 +58,10 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
-import { useLoginStore } from '@/stores/LoginState';
+import { useUserStore } from '@/stores/UserState';
 import { useGetAddress } from '@/composables/getAddress';
 
-const loginStore = useLoginStore();
+const userStore = useUserStore();
 
 const email = ref('');
 const name = ref('');
@@ -76,17 +76,17 @@ const country = ref('');
 const profilePicUrl = ref('https://tnwvrtitkleeayjechmy.supabase.co/storage/v1/object/public/byte/avatars/profile-default.png');
 
 onMounted(() => {
-  email.value = loginStore.user.email;
-  name.value = loginStore.user.name;
-  password.value = loginStore.user.password;
-  profilePicUrl.value = loginStore.user.avatar;
-  cep.value = loginStore.user.address_cep;
-  street.value = loginStore.user.address_street;
-  number.value = loginStore.user.address_number;
-  district.value = loginStore.user.address_district;
-  city.value = loginStore.user.address_city;
-  state.value = loginStore.user.address_state;
-  country.value = loginStore.user.address_country;
+  email.value = userStore.user.email;
+  name.value = userStore.user.name;
+  password.value = userStore.user.password;
+  profilePicUrl.value = userStore.user.avatar;
+  cep.value = userStore.user.address_cep;
+  street.value = userStore.user.address_street;
+  number.value = userStore.user.address_number;
+  district.value = userStore.user.address_district;
+  city.value = userStore.user.address_city;
+  state.value = userStore.user.address_state;
+  country.value = userStore.user.address_country;
 });
 
 const onFileChange = (event) => {
@@ -112,19 +112,19 @@ const fillCep = async () => {
 }
 
 const updateUserStore = () => {
-  loginStore.user.name = name.value;
-  loginStore.user.email = email.value;
-  loginStore.user.password = password.value;
-  loginStore.user.avatar = profilePicUrl.value;
-  loginStore.user.address_street = street.value;
-  loginStore.user.address_number = number.value;
-  loginStore.user.address_district = district.value;
-  loginStore.user.address_city = city.value;
-  loginStore.user.address_state = state.value;
-  loginStore.user.address_country = country.value;
-  loginStore.user.address_cep = cep.value;
+  userStore.user.name = name.value;
+  userStore.user.email = email.value;
+  userStore.user.password = password.value;
+  userStore.user.avatar = profilePicUrl.value;
+  userStore.user.address_street = street.value;
+  userStore.user.address_number = number.value;
+  userStore.user.address_district = district.value;
+  userStore.user.address_city = city.value;
+  userStore.user.address_state = state.value;
+  userStore.user.address_country = country.value;
+  userStore.user.address_cep = cep.value;
   
-  loginStore.createAccount(email.value, password.value);
+  userStore.createAccount(email.value, password.value);
 };
 </script>
 

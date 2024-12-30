@@ -24,17 +24,17 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useLoginStore } from '@/stores/LoginState';
+import { useUserStore } from '@/stores/UserState';
 
 const emit = defineEmits(['emitSignUpPage']);
 
-const loginStore = useLoginStore();
+const userStore = useUserStore();
 
 const email = ref('');
 const password = ref('');
 
 const LogIn = () => {
-    loginStore.login(email.value, password.value);
+    userStore.login(email.value, password.value);
 }
 </script>
 
