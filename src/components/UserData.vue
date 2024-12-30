@@ -29,7 +29,7 @@
         <label for="number">Número</label>
         <input type="text" id="number" v-model="number" placeholder="000" />
       </div>
-    </div>
+    </div> 
     <div class="input-group">
       <div class="input">
         <label for="district">Bairro</label>
@@ -80,13 +80,13 @@ onMounted(() => {
   name.value = loginStore.user.name;
   password.value = loginStore.user.password;
   profilePicUrl.value = loginStore.user.avatar;
-  cep.value = loginStore.user.zip_code;
-  street.value = loginStore.user.street;
-  number.value = loginStore.user.number;
-  district.value = loginStore.user.district;
-  city.value = loginStore.user.city;
-  state.value = loginStore.user.state;
-  country.value = loginStore.user.country;
+  cep.value = loginStore.user.address_cep;
+  street.value = loginStore.user.address_street;
+  number.value = loginStore.user.address_number;
+  district.value = loginStore.user.address_district;
+  city.value = loginStore.user.address_city;
+  state.value = loginStore.user.address_state;
+  country.value = loginStore.user.address_country;
 });
 
 const onFileChange = (event) => {
@@ -116,13 +116,13 @@ const updateUserStore = () => {
   loginStore.user.email = email.value;
   loginStore.user.password = password.value;
   loginStore.user.avatar = profilePicUrl.value;
-  loginStore.user.street = street.value;
-  loginStore.user.number = number.value;
-  loginStore.user.district = district.value;
-  loginStore.user.city = city.value;
-  loginStore.user.state = state.value;
-  loginStore.user.country = country.value;
-  loginStore.user.zip_code = cep.value;
+  loginStore.user.address_street = street.value;
+  loginStore.user.address_number = number.value;
+  loginStore.user.address_district = district.value;
+  loginStore.user.address_city = city.value;
+  loginStore.user.address_state = state.value;
+  loginStore.user.address_country = country.value;
+  loginStore.user.address_cep = cep.value;
   
   loginStore.createAccount(email.value, password.value);
 };

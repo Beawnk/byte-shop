@@ -13,13 +13,15 @@
 <script setup>
 import { onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { useLoginStore } from '@/stores/LoginState';
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
 
 const route = useRoute();
+const loginStore = useLoginStore();
 
 const updateBodyClass = () => {
-  if (route.path === '/' || route.path === '/usuario') {
+  if (route.path === '/' || route.path.startsWith('/usuario')) {
     document.body.classList.add('gradient');
   } else {
     document.body.classList.remove('gradient');
@@ -28,6 +30,7 @@ const updateBodyClass = () => {
 
 onMounted(() => {
   updateBodyClass();
+  loginStore.loadUserFromLocalStorage();
 });
 
 watch(route, () => {

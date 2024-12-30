@@ -29,6 +29,26 @@ const router = createRouter({
           path: '',
           name: 'data',
           component: () => import('@/views/user/UserDataEditView.vue'),
+        },
+        {
+          path: 'produtos',
+          name: 'products',
+          component: () => import('@/views/user/UserProductsView.vue'),
+        },
+        {
+          path: 'pedidos',
+          name: 'orders',
+          component: () => import('@/views/user/UserOrdersView.vue'),
+        },
+        {
+          path: 'vendas',
+          name: 'sales',
+          component: () => import('@/views/user/UserSalesView.vue'),
+        },
+        {
+          path: 'avaliacoes',
+          name: 'reviews',
+          component: () => import('@/views/user/UserReviewsView.vue'),
         }
       ]
     }

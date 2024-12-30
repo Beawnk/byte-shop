@@ -31,7 +31,7 @@ const isLogged = computed(() => loginStore.logged);
 const userName = computed(() => loginStore.user.name.replace(/ .*/, ''));
 
 const updateLogo = () => {
-    if (route.path === '/' || route.path === '/usuario') {
+    if (route.path === '/' || route.path.startsWith('/usuario')) {
         logo.value = logoWhite;
     } else {
         logo.value = logoDefault;
