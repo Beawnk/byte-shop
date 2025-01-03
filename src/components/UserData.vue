@@ -12,10 +12,14 @@
       <label for="name">Nome completo</label>
       <input type="text" id="name" v-model="name" placeholder="Digite seu nome completo" />
     </div>
-    <div class="input">
+    <div class="input" v-if="props.mode === 'create'">
       <label for="password">Senha</label>
       <input type="password" id="password" v-model="password" placeholder="Digite sua senha" />
     </div>
+    <div class="change-pass" v-else>
+      <button class="btn primary" @click.prevent="userStore.sendPasswordResetEmail(userStore.user.email)">Alterar senha</button>
+    </div>
+    <h4>Endereço</h4>
     <div class="input cep">
       <label for="cep">CEP</label>
       <input type="text" id="cep" v-model="cep" placeholder="Digite seu CEP" @keyup="fillCep"/>
@@ -60,6 +64,8 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useUserStore } from '@/stores/UserState';
 import { useGetAddress } from '@/composables/getAddress';
+
+const props = defineProps(['mode']);
 
 const userStore = useUserStore();
 
@@ -123,13 +129,22 @@ const updateUserStore = () => {
   userStore.user.address_state = state.value;
   userStore.user.address_country = country.value;
   userStore.user.address_cep = cep.value;
+  if (props.mode === 'edit') {
+    userStore.updateAccount();
+  } else if (props.mode === 'create') {
+    userStore.createAccount(email.value, password.value);
+  }
   
-  userStore.createAccount(email.value, password.value);
 };
 </script>
 
 <style lang="scss" scoped>
 .user-form {
+  h4 {
+    margin-bottom: 20px;
+    margin-top: 30px;
+    color: var(--text-color);
+  }
   .profile-pic {
     display: flex;
     flex-direction: column;
@@ -185,6 +200,7 @@ const updateUserStore = () => {
   }
   .action {
     margin-top: 20px;
+    justify-content: flex-end !important;
   }
 }
 

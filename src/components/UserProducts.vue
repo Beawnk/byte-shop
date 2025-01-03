@@ -5,7 +5,7 @@
 				<UserProductItem :product="product" />
         <div class="actions" v-show="productHoverIndex === index">
           <button class="delete" @click.prevent="userStore.deleteProduct(product.id)"></button>
-          <button class="edit"></button>
+          <button class="edit" @click.prevent="$emit('handleProductModeEdit', product.id)"></button>
         </div>
 			</div>
 		</TransitionGroup>
@@ -22,6 +22,8 @@ import UserProductItem from '@/components/UserProductItem.vue';
 import { gsap } from "gsap";
 
 const props = defineProps(["fetchProducts"]);
+
+const emit = defineEmits(["handleProductModeEdit"]);
 
 const userStore = useUserStore();
 const products = ref([]);
@@ -64,7 +66,6 @@ watch(() => props.fetchProducts, async () => {
 });
 
 onMounted(async () => {
-	console.log(userStore.user.id);
 	if(userStore.user.id) {
 		products.value = await userStore.loadProducts();
 	}

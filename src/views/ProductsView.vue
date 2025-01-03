@@ -8,7 +8,7 @@
             <div class="product" v-for="(product, index) in products" :key="product.id" :data-index="index">
               <router-link :to="{name: 'product', params: {id: product.id}}" class="product-link">
                 <div class="img">
-                  <img :src="product.image_url" :alt="product.name" />
+                  <img :src="product.image_url[0]" :alt="product.name" />
                 </div>
                 <h2>{{ product.name }}</h2>
                 <p>{{ formatCurrency(product.price) }}</p>
@@ -60,23 +60,25 @@ const getQuery = async () => {
 }
 
 const fetchProducts = async (page = 1) => {
-  const from = (page - 1) * itemsPerPage
-  const to = from + itemsPerPage - 1
+  const from = (page - 1) * itemsPerPage;
+  const to = from + itemsPerPage - 1;
 
   const { data, error, count } = await supabase
     .from('products')
     .select('*', { count: 'exact' })
-    .range(from, to)
+    .eq('sold', false)
+    .order('created_date', { ascending: false })
+    .range(from, to);
 
   if (error) {
-    console.error(error)
+    console.error(error);
   } else if (data.length === 0) {
-    products.value = NonNullable
+    products.value = null;
   } else {
-    products.value = data
-    totalPages.value = Math.ceil(count / itemsPerPage)
+    products.value = data;
+    totalPages.value = Math.ceil(count / itemsPerPage);
   }
-}
+};
 
 const cleanSearchValue = (value) => {
   router.replace({ query: {  } })

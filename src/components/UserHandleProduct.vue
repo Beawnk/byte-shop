@@ -1,8 +1,8 @@
 <template>
 	<div class="modal product-modal">
 		<div class="modal-content" ref="modal"> 
-			<div class="add-product">
-				<div class="add-product-form">
+			<div class="handle-product">
+				<div class="handle-product-form">
 					<form>
 						<div class="input">
 							<label for="name">Nome do produto</label>
@@ -31,8 +31,8 @@
 					</form>
 				</div>
 				<div class="actions">
-					<button class="btn secondary cancel" @click="$emit('hideAddProduct')">Cancelar</button>
-					<button class="btn primary save" @click.prevent="createProduct">Salvar</button>
+					<button class="btn secondary cancel" @click="$emit('hideProductModal')">Cancelar</button>
+					<button class="btn primary save" @click.prevent="saveProduct">Salvar</button>
 				</div>
 			</div>
 		</div>
@@ -41,12 +41,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useHandleImages } from '@/composables/handleImages';
 import { useUserStore } from '@/stores/UserState';
 import { supabase } from '@/lib/supabaseClient'
 
-const emit = defineEmits(['hideAddProduct', 'addedProduct']);
+const props = defineProps(['productId', 'mode']);
+const emit = defineEmits(['hideProductModal', 'productSaved']);
 const userStore = useUserStore();
 
 const name = ref('');
@@ -57,42 +58,73 @@ const images = ref([]);
 const imgHoverIndex = ref(null);
 
 const onFileChange = (e) => {
-  images.value = useHandleImages(images.value, e);
-  console.log(images.value);
+  	images.value = useHandleImages(images.value, e);
 };
 
 const removeImage = (index) => {
-  images.value.splice(index, 1);
+  	images.value.splice(index, 1);
 };
 
-const createProduct = async () => {
-  const { data, error } = await supabase
-	.from('products')
-	.insert([
-	  {
-		id: name.value.toLowerCase().replace(/ /g, '-'),
-		name: name.value,
-		description: description.value,
-		price: price.value,
-		image_url: images.value,
-		vendor_id: userStore.user.id,
-		sold: false
-	  }
-	]);
-
-  if (error) {
-	console.error(error);
-  } else {
-	emit('hideAddProduct');
-	emit('addedProduct');
-  }
+const saveProduct = async () => {
+	if (props.mode === 'add') {
+  		const { data, error } = await supabase
+		.from('products')
+		.insert([
+		  	{
+				id: name.value.toLowerCase().replace(/ /g, '-'),
+				name: name.value,
+				description: description.value,
+				price: price.value,
+				image_url: images.value,
+				vendor_id: userStore.user.id,
+				sold: false
+		  	}
+		]);
+		
+  		if (error) {
+			console.error(error);
+  		} else {
+			emit('hideProductModal');
+			emit('productSaved');
+  		}
+	} else if (props.mode === 'edit') {
+    	const { data, error } = await supabase
+    	  .from('products')
+    	  .update({
+    	    name: name.value,
+    	    description: description.value,
+    	    price: price.value,
+    	    image_url: images.value,
+    	  })
+    	  .eq('id', props.productId);
+    	if (error) {
+    	  console.error(error);
+    	} else {
+			emit('hideProductModal');
+  			emit('productSaved');	
+		}
+  	}
 };
 
+watch(() => props.productId, async () => {
+	if (props.mode === 'edit' && props.productId) {
+		const product = await userStore.getProduct(props.productId);
+		name.value = product.name;
+		description.value = product.description;
+		price.value = product.price;
+		images.value = product.image_url;
+  	} else if (props.mode === 'add') {
+		name.value = '';
+		description.value = '';
+		price.value = '';
+		images.value = [];
+  	}
+},{ immediate: true });
 </script>
 
 <style lang="scss" scoped>
-.add-product {
-	.add-product-form {
+.handle-product {
+	.handle-product-form {
 		.images {
 			display: flex;
 			background-color: var(--white-color);

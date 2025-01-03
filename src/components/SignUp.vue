@@ -1,7 +1,7 @@
 <template>
     <div class="signup-form">
         <h2>Criar conta</h2>
-            <UserData v-slot="{ update }">
+            <UserData v-slot="{ update }" :mode="'create'">
                 <button class="btn primary" @click.prevent="update">Cadastrar</button>
             </UserData>
         <p class="border">Ou</p>

@@ -44,7 +44,9 @@ onMounted(() => {
     }
     if (userStore.logged) {
         userStore.page = 'user';
-        router.replace({ query: { user: userStore.user.name } })
+        if (route.path !== '/usuario/alterar-senha') {
+            router.replace({ query: { user: userStore.user.name } })
+        }
     }
 });
 </script>

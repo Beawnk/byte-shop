@@ -95,6 +95,14 @@ main {
       border-color: var(--primary-color);
     }
   }
+  &:disabled {
+    opacity: 0.5;
+    cursor: initial;
+    &:hover {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+  }
 }
 
 input.btn {

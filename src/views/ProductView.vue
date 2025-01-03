@@ -11,7 +11,8 @@
             <p>{{ formatCurrency(product.price) }}</p>
             <p>{{ product.description }}</p>
             <div class="actions">
-              <router-link to="/products" class="btn primary buy-now">Comprar</router-link>
+              <router-link :to="{name: 'buy', params: {id: product.id}}" class="btn primary buy-now" v-if="product.sold === false">Comprar</router-link>
+              <button class="btn primary" disabled v-else>Vendido</button>
               <button class="btn secondary save"></button>
             </div>
           </div>

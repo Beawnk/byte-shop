@@ -21,6 +21,12 @@ const router = createRouter({
       props: true
     },
     {
+      path: '/comprar/:id',
+      name: 'buy',
+      component: () => import('@/views/BuyView.vue'),
+      props: true
+    },
+    {
       path: '/usuario',
       name: 'user',
       component: () => import('@/views/AccountView.vue'),
@@ -49,6 +55,11 @@ const router = createRouter({
           path: 'avaliacoes',
           name: 'reviews',
           component: () => import('@/views/user/UserReviewsView.vue'),
+        },
+        {
+          path: 'alterar-senha',
+          name: 'change-password',
+          component: () => import('@/views/user/UserChangePassView.vue'),
         }
       ]
     }

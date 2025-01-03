@@ -25,7 +25,6 @@ const clearSearch = () => {
 }
 
 watch(() => props.vendorName, (newValue) => {
-    console.log(newValue);
     search.value = newValue;
 });
 </script>
