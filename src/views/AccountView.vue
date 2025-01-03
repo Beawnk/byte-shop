@@ -37,9 +37,11 @@ const onLoginPage = () => {
 };
 
 onMounted(() => {
+    const redirect = route.query.redirect;
+    console.log(redirect)
     if (route.query.page === 'signup') {
         userStore.page = 'signup';
-    } else if (userStore.page === 'login') {
+    } else if (userStore.page === 'login' && !redirect) {
         router.replace({ query: { page: 'login' } })
     }
     if (userStore.logged) {

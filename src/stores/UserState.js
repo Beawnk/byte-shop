@@ -72,10 +72,16 @@ export const useUserStore = defineStore('user', () => {
     	   	 	// Populate user state
     	    	Object.assign(user, customUser);
     	    	logged.value = true;
-    	    	page.value = 'user';
+				saveUserToLocalStorage();
 
-    	    	saveUserToLocalStorage(); // Save session
-    	    	router.replace({ query: { user: data.user.name } });
+				const redirect = route.query.redirect;
+
+				if (redirect) {
+					router.push({ path: `/${redirect}` });
+				} else {
+    	    		page.value = 'user';
+					router.replace({ query: { user: data.user.name } });
+				}
     	  	}
     	} catch (error) {
     	  	console.error('Error logging in:', error.message);

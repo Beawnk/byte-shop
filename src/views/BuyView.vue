@@ -33,7 +33,7 @@
 						</div>
 					</div>
 					<div class="action">
-						<button class="btn primary buy-now">Finalizar</button>
+						<button class="btn primary buy-now" @click.prevent="completeBuy">Finalizar</button>
 					</div>
 				</div>
 			</div>
@@ -81,9 +81,32 @@ const fetchProduct = async () => {
 	}
 };
 
+const completeBuy = async () => {
+	const { data, error } = await supabase.from('orders').insert([
+		{
+			buyer_id: userStore.user.id,
+			product: product.value.id,
+			total: product.value.price
+		},
+	]);
+	if (error) {
+		console.error(error);
+	} else {
+		const { data: productData, error: productError } = await supabase
+			.from('products')
+			.update({ sold: true })
+			.eq('id', product.value.id);
+		if (productError) {
+			console.error(productError);
+		} else {
+			router.push({ name: 'orders' });
+		}
+	}
+};
+
 onMounted(() => {
 	if (userStore.logged === false) {
-		router.push({ name: 'user' });
+		router.push({ name: 'user', query: { redirect: `comprar/${props.id}` } });
 		userStore.page = 'login';
 	} else {
 		fetchProduct();
