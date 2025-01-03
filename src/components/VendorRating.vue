@@ -28,6 +28,7 @@ const props = defineProps({
     .rating-number {
         font-size: var(--subtitle-medium);
         transition: var(--transition);
+        color: var(--text-color);
     }
     &:hover {
         .star {
@@ -45,6 +46,7 @@ const props = defineProps({
     .total-reviews {
         transition: var(--transition);
         font-size: var(--text-small);
+        color: var(--text-color);
         margin-left: 10px;
     }
 }

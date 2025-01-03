@@ -57,7 +57,7 @@ onMounted(() => {
     min-height: 100vh;
     &.signup {
         .wrapper {
-            padding-top: calc(var(--section) + var(--header-height));
+            padding-top: var(--section);
             .account-wrapper {
                 max-width: 900px;
             }
@@ -65,7 +65,7 @@ onMounted(() => {
     }
     &.user {
         .wrapper {
-            padding-top: calc(var(--section) + var(--header-height));
+            padding-top: var(--section);
             align-items: flex-start;
             gap: 10px;
             .account-wrapper {
@@ -78,6 +78,7 @@ onMounted(() => {
         justify-content: center;
         align-items: center;
         position: relative;
+        min-height: calc(100vh - var(--header-height));
         .account-wrapper {
             width: 100%;
             max-width: 600px;

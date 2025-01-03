@@ -1,23 +1,25 @@
 <template>
   <form class="user-form">
-    <div class="profile-pic">
-      <img v-if="profilePicUrl" :src="profilePicUrl" alt="Profile Picture" />
-      <input type="file" @change="onFileChange" />
-    </div>
-    <div class="input">
-      <label for="email">Email</label>
-      <input type="email" id="email" v-model="email" placeholder="Digite seu email" />
-    </div>
-    <div class="input">
-      <label for="name">Nome completo</label>
-      <input type="text" id="name" v-model="name" placeholder="Digite seu nome completo" />
-    </div>
-    <div class="input" v-if="props.mode === 'create'">
-      <label for="password">Senha</label>
-      <input type="password" id="password" v-model="password" placeholder="Digite sua senha" />
-    </div>
-    <div class="change-pass" v-else>
-      <button class="btn primary" @click.prevent="userStore.sendPasswordResetEmail(userStore.user.email)">Alterar senha</button>
+    <div class="user-info" v-show="!route.path.startsWith('/comprar')">
+      <div class="profile-pic">
+        <img v-if="profilePicUrl" :src="profilePicUrl" alt="Profile Picture" />
+        <input type="file" @change="onFileChange" />
+      </div>
+      <div class="input">
+        <label for="email">Email</label>
+        <input type="email" id="email" v-model="email" placeholder="Digite seu email" />
+      </div>
+      <div class="input">
+        <label for="name">Nome completo</label>
+        <input type="text" id="name" v-model="name" placeholder="Digite seu nome completo" />
+      </div>
+      <div class="input" v-if="props.mode === 'create'">
+        <label for="password">Senha</label>
+        <input type="password" id="password" v-model="password" placeholder="Digite sua senha" />
+      </div>
+      <div class="change-pass" v-else>
+        <button class="btn primary" @click.prevent="userStore.sendPasswordResetEmail(userStore.user.email)">Alterar senha</button>
+      </div>
     </div>
     <h4>Endereço</h4>
     <div class="input cep">
@@ -64,10 +66,12 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useUserStore } from '@/stores/UserState';
 import { useGetAddress } from '@/composables/getAddress';
+import { useRoute } from 'vue-router';
 
 const props = defineProps(['mode']);
 
 const userStore = useUserStore();
+const route = useRoute();
 
 const email = ref('');
 const name = ref('');
@@ -138,7 +142,7 @@ const updateUserStore = () => {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .user-form {
   h4 {
     margin-bottom: 20px;

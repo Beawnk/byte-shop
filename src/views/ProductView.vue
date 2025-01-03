@@ -3,7 +3,7 @@
     <transition name="down" mode="out-in" appear>
       <div class="product" v-if="product">
         <div class="img">
-          <img :src="product.image_url" :alt="product.name" />
+          <img :src="product.image_url[0]" :alt="product.name" />
         </div>
         <div class="info">
           <div class="product-info">
@@ -11,8 +11,9 @@
             <p>{{ formatCurrency(product.price) }}</p>
             <p>{{ product.description }}</p>
             <div class="actions">
-              <router-link :to="{name: 'buy', params: {id: product.id}}" class="btn primary buy-now" v-if="product.sold === false">Comprar</router-link>
-              <button class="btn primary" disabled v-else>Vendido</button>
+              <router-link :to="{name: 'buy', params: {id: product.id}}" class="btn primary buy-now" v-if="product.sold === false && userStore.logged === true">Comprar</router-link>
+              <router-link :to="{name: 'user'}" class="btn primary buy-now" v-if="product.sold === false && userStore.logged === false">Comprar</router-link>
+              <button class="btn primary" disabled v-if="product.sold === true">Vendido</button>
               <button class="btn secondary save"></button>
             </div>
           </div>
@@ -30,6 +31,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { formatCurrency } from '@/composables/formatCurrency';
 import VendorReviews from '@/components/VendorReviews.vue';
 import VendorInfo from '@/components/VendorInfo.vue';
+import { useUserStore } from '@/stores/UserState';
 
 const props = defineProps({
   id: {
@@ -37,6 +39,8 @@ const props = defineProps({
     required: true
   }
 })
+
+const userStore = useUserStore()
 
 const product = ref(null)
 const vendor = ref(null)

@@ -40,12 +40,7 @@ import VendorInfo from '@/components/VendorInfo.vue'
 import { useGetVendorStars } from '@/composables/getVendorStars'
 import { useClickOutside } from '@/composables/clickOutside';
 
-const props = defineProps({
-  vendorId: {
-    type: Number,
-    required: true
-  }
-})
+const props = defineProps(['vendorId'])
 
 const emit = defineEmits(['emitVendorInfo', 'emitCloseModal'])
 
@@ -64,35 +59,47 @@ const fetchReviews = async () => {
   if (error) {
     console.error(error)
   } else {
-    const reviewsWithUser = await Promise.all(data.reviews.map(async (review) => {
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('name, avatar')
-        .eq('id', review.user_id)
-        .single()
-
-      if (userError) {
-        console.error(userError)
-        return review
-      } else {
-        const product = await fetchProductName(review.product_id);
-        return { ...review, user_name: userData.name, user_avatar: userData.avatar, product_name: product }
+    if (data.reviews) {
+      const reviewsWithUser = await Promise.all(data.reviews.map(async (review) => {
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('name, avatar')
+          .eq('id', review.user_id)
+          .single()
+      
+        if (userError) {
+          console.error(userError)
+          return review
+        } else {
+          const product = await fetchProductName(review.product_id);
+          return { ...review, user_name: userData.name, user_avatar: userData.avatar, product_name: product }
+        }
+      }))
+    
+      reviews.value = reviewsWithUser
+      const stars = await Promise.all(reviews.value.map(review => review.stars))
+    
+      getStars(stars)
+      vendor.value = {
+        id: data.id,
+        name: data.name,
+        rating: averageRating.value,
+        reviews: reviews.value.length,
+        avatar: data.avatar,
       }
-    }))
-
-    reviews.value = reviewsWithUser
-    const stars = await Promise.all(reviews.value.map(review => review.stars))
-
-    getStars(stars)
-    vendor.value = {
-      id: data.id,
-      name: data.name,
-      rating: averageRating.value,
-      reviews: reviews.value.length,
-      avatar: data.avatar,
+      emit('emitVendorInfo', vendor.value)
+      useClickOutside(modal, closeModal)
+    } else {
+      vendor.value = {
+        id: data.id,
+        name: data.name,
+        rating: 0,
+        reviews: 0,
+        avatar: data.avatar,
+      }
+      emit('emitVendorInfo', vendor.value)
+      useClickOutside(modal, closeModal)
     }
-    emit('emitVendorInfo', vendor.value)
-    useClickOutside(modal, closeModal)
   }
 }
 
@@ -202,6 +209,9 @@ onMounted(() => {
       justify-content: center;
       align-items: center;
       min-height: 20vh;
+      h4 {
+        color: var(--text-color);
+      }
     }
   }
 }

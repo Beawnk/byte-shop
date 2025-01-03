@@ -150,6 +150,12 @@ export const useUserStore = defineStore('user', () => {
 
 	const updateAccount = async () => {
 		try {
+			const { data: session } = await supabase.auth.getSession();
+
+			if (!session) {
+			  throw new Error('Sessão expirada. Faça login novamente.');
+			}
+
 		  	// Check if the email has changed
 		  	const { email: currentEmail } = await supabase.auth.getUser();
 		  	if (user.email !== currentEmail) {
