@@ -79,8 +79,8 @@ export const useUserStore = defineStore('user', () => {
 				if (redirect) {
 					router.push({ path: `/${redirect}` });
 				} else {
+					router.replace({ query: { user: customUser.name } });
     	    		page.value = 'user';
-					router.replace({ query: { user: data.user.name } });
 				}
     	  	}
     	} catch (error) {
