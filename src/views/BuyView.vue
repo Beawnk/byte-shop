@@ -86,7 +86,16 @@ const completeBuy = async () => {
 		{
 			buyer_id: userStore.user.id,
 			product: product.value.id,
-			total: product.value.price
+			total: product.value.price,
+			address: {
+				cep: userStore.user.address_cep,
+				street: userStore.user.address_street,
+				number: userStore.user.address_number,
+				district: userStore.user.address_district,
+				city: userStore.user.address_city,
+				state: userStore.user.address_state,
+				country: userStore.user.address_country
+			}
 		},
 	]);
 	if (error) {

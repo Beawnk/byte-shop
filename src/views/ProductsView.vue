@@ -13,7 +13,8 @@
                 <h2>{{ product.name }}</h2>
                 <p>{{ formatCurrency(product.price) }}</p>
                 <div class="actions">
-                  <button class="btn primary buy-now">Comprar</button>
+                  <router-link :to="{name: 'buy', params: {id: product.id}}" class="btn primary buy-now" v-if="userStore.logged === true">Comprar</router-link>
+                  <router-link :to="{name: 'user', query: {redirect: `comprar/${product.id}`}}" class="btn primary buy-now" v-if="userStore.logged === false">Comprar</router-link>
                 </div>
               </router-link>
             </div>
@@ -38,8 +39,10 @@ import { useRoute, useRouter } from 'vue-router'
 import ProductsSearch from '@/components/ProductsSearch.vue';
 import { supabase } from '@/lib/supabaseClient'
 import { formatCurrency } from '@/composables/formatCurrency';
+import { useUserStore } from '@/stores/UserState';
 import { gsap } from "gsap";
 
+const userStore = useUserStore()
 const route = useRoute()
 const router = useRouter()
 const products = ref([])
