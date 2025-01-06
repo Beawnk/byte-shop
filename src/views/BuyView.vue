@@ -84,8 +84,8 @@ const completeBuy = async () => {
 	const { data, error } = await supabase.from('orders').insert([
 		{
 			buyer_id: userStore.user.id,
+			product_id: product.value.id,
 			product: {
-				id: product.value.id,
 				name: product.value.name,
 				pictures: product.value.image_url,
 				price: product.value.price,

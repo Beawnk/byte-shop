@@ -4,7 +4,7 @@
 		<p><strong>Data:</strong> {{ dateTimeFormatted }}</p>
 	</div>
 	<div class="order-wrapper">
-		<router-link :to="{name: 'product', params: {id: order.product.id}}" class="product-item" v-if="order.product">
+		<router-link :to="{name: 'product', params: {id: order.product_id}}" class="product-item" v-if="order.product">
 			<div class="product-image">
 			  	<img :src="order.product.pictures[0]" alt="Product image" />
 			</div>
@@ -32,9 +32,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
 import { formatCurrency } from '@/composables/formatCurrency';
-import { supabase } from '@/lib/supabaseClient';
 import { DateTime } from 'luxon';
 
 const props = defineProps(['order'])

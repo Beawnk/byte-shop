@@ -28,36 +28,62 @@ const userStore = useUserStore();
 const sales = ref([]);
 
 const fetchSales = async () => {
-	try {
-		const { data: salesData, error: salesError } = await supabase
-			.from('orders')
-			.select('*')
-			.eq('buyer_id', userStore.user.id);
+  	try {
+  	  	// Step 1: Fetch all products where the vendor_id matches the current user
+  	  	const { data: products, error: productsError } = await supabase
+  	  	  	.from('products')
+  	  	  	.select('id')
+  	  	  	.eq('vendor_id', userStore.user.id);
 
-		if (salesError) {
-			console.error('Error fetching sales:', salesError);
-			return;
-		}
+  	  	if (productsError) {
+  	  	  	console.error('Error fetching products:', productsError);
+  	  	  	return;
+  	  	}
 
-		for (const sale of salesData) {
-			const { data: buyerData, error: buyerError } = await supabase
-				.from('users')
-				.select('name')
-				.eq('id', sale.buyer_id)
-				.single();
+  	  	if (!products || products.length === 0) {
+  	  	  	console.log('No products found for this vendor.');
+  	  	  	sales.value = [];
+  	  	  	return;
+  	  	}
 
-			if (buyerError) {
-				console.error(`Error fetching buyer for sale ${sale.id}:`, buyerError);
-				sale.buyer = { name: 'Desconhecido' };
-			} else {
-				sale.buyer = buyerData;
-			}
-		}
+  	  	// Step 2: Fetch orders where the product ID matches one of the fetched products
+  	  	const productIds = products.map((product) => product.id);
 
-		sales.value = salesData;
-	} catch (error) {
-		console.error('Error in fetchsales:', error);
-	}
+  	  	const { data: orders, error: ordersError } = await supabase
+  	  	  	.from('orders')
+  	  	  	.select('*')
+  	  	  	.in('product_id', productIds); // Assuming 'product' in 'orders' references the product ID
+
+  	  	if (ordersError) {
+  	  	 	console.error('Error fetching orders:', ordersError);
+  	  	 	return;
+  	  	}
+
+  	  	// Step 3: Fetch all buyers in a single query
+  	  	const buyerIds = [...new Set(orders.map((order) => order.buyer_id))];
+
+  	  	const { data: buyers, error: buyersError } = await supabase
+  	  	  	.from('users')
+  	  	  	.select('id, name')
+  	  	  	.in('id', buyerIds);
+
+  	  	if (buyersError) {
+  	  	  	console.error('Error fetching buyers:', buyersError);
+  	  	  	return;
+  	  	}
+
+  	  	// Step 4: Map buyer data to the orders
+  	  	const buyerMap = Object.fromEntries(buyers.map((buyer) => [buyer.id, buyer.name]));
+
+  	  	sales.value = orders.map((order) => ({
+  	  	  	...order,
+  	  	  	buyer: { name: buyerMap[order.buyer_id] || 'Desconhecido' },
+  	  	}));
+
+  	  	console.log('Sales:', sales.value);
+  	} catch (error) {
+  	  	console.error('Error in fetchSales:', error);
+  	}
 };
 
 onMounted(() => {
