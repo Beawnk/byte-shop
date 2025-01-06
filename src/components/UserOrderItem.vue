@@ -4,14 +4,14 @@
 		<p><strong>Data:</strong> {{ dateTimeFormatted }}</p>
 	</div>
 	<div class="order-wrapper">
-		<router-link :to="{name: 'product', params: {id: product.id}}" class="product-item" v-if="product">
+		<router-link :to="{name: 'product', params: {id: order.product.id}}" class="product-item" v-if="order.product">
 			<div class="product-image">
-			  	<img :src="product.image_url[0]" alt="Product image" />
+			  	<img :src="order.product.pictures[0]" alt="Product image" />
 			</div>
 			<div class="product-info">
-				<h5>{{ product.name }}</h5>
-			  	<p>{{ truncatedText(product.description, 70) }}</p>
-			  	<p class="price">{{ formatCurrency(product.price) }}</p>
+				<h5>{{ order.product.name }}</h5>
+			  	<p>{{ truncatedText(order.product.description, 70) }}</p>
+			  	<p class="price">{{ formatCurrency(order.product.price) }}</p>
 			</div>
   		</router-link>
 		<div class="order-item" v-if="order">
@@ -39,22 +39,6 @@ import { DateTime } from 'luxon';
 
 const props = defineProps(['order'])
 
-const product = ref(null)
-
-const fetchProduct = async () => {
-	  const { data, error } = await supabase
-	.from('products')
-	.select('*')
-	.eq('id', props.order.product)
-	.single()
-
-  if (error) {
-	console.error(error)
-  } else {
-	product.value = data
-  }
-}
-
 const dateTime = DateTime.fromISO(props.order.created_at, { zone: 'utc' }).setZone('America/Sao_Paulo');
 
 const dateTimeFormatted = dateTime.toFormat('dd/MM/yyyy HH:mm:ss')
@@ -62,11 +46,6 @@ const dateTimeFormatted = dateTime.toFormat('dd/MM/yyyy HH:mm:ss')
 const truncatedText = (string, letters) => {
 	return string.substring(0, letters) + '...'
 }
-
-onMounted(() => {
-  fetchProduct()
-})
-
 </script>
 
 <style lang="scss" scoped>

@@ -1,6 +1,6 @@
 <template>
 	<div class="user-sales">
-		<h2>Seus pedidos</h2>
+		<h2>Suas vendas</h2>
 		<div class="sales">
 			<TransitionGroup class="sales-list" v-if="sales.length" name="list" tag="div" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave" appear>
 				<div v-for="(sale, index) in sales" :key="sale.id" :data-index="index" class="sale">
@@ -9,6 +9,9 @@
 					</UserOrderItem>
 				</div>
 			</TransitionGroup>
+			<div class="no-sales" v-else>
+				<h5>Nenhuma venda encontrada</h5>
+			</div>
 		</div>
 	</div>
 </template>
@@ -100,6 +103,16 @@ function onLeave(el, done) {
 	}
 	.sales {
 		margin-top: 20px;
+		.no-sales {
+			text-align: center;
+			height: 400px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			h5 {
+				color: var(--text-color);
+			}
+		}
 		.sales-list {
 			.sale {
 				background-color: var(--white-color);

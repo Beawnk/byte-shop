@@ -67,7 +67,6 @@ const onAddressSave = (callback) => {
 };
 
 const fetchProduct = async () => {
-	console.log(props.id);
 	const { data, error } = await supabase
 		.from('products')
 		.select('*')
@@ -85,7 +84,14 @@ const completeBuy = async () => {
 	const { data, error } = await supabase.from('orders').insert([
 		{
 			buyer_id: userStore.user.id,
-			product: product.value.id,
+			product: {
+				id: product.value.id,
+				name: product.value.name,
+				pictures: product.value.image_url,
+				price: product.value.price,
+				vendor_id: product.value.vendor_id, 
+				description: product.value.description
+			},
 			total: product.value.price,
 			address: {
 				cep: userStore.user.address_cep,
