@@ -2,8 +2,15 @@
   <section id="product-page" class="container">
     <transition name="down" mode="out-in" appear>
       <div class="product" v-if="product">
-        <div class="img">
-          <img :src="product.image_url[0]" :alt="product.name" />
+        <div class="images">
+          <div class="img">
+            <img :src="selectedImage" :alt="product.name" />
+          </div>
+          <div class="thumbnails">
+            <div class="thumb" v-for="(image, index) in product.image_url" :key="index">
+              <img :src="image" :alt="`${product.name} - image ${index + 1}`" @click="selectImage(image)" :class="{ active: selectedImage === image }" />
+            </div>
+          </div>
         </div>
         <div class="info">
           <div class="product-info">
@@ -45,6 +52,7 @@ const userStore = useUserStore()
 const product = ref(null)
 const vendor = ref(null)
 const modalReviews = ref(false)
+const selectedImage = ref('');
 
 const fetchProduct = async () => {
   const { data, error } = await supabase
@@ -55,14 +63,15 @@ const fetchProduct = async () => {
 
   if (error) {
     console.error(error)
-    setTimeout(() => {
-    }, 500)
   } else {
     product.value = data
-    setTimeout(() => {
-    }, 500)
+    selectedImage.value = data.image_url[0];
   }
 }
+
+const selectImage = (image) => {
+  selectedImage.value = image;
+};
 
 const onVendorInfo = async (vendorInfo) => {
   vendor.value = await vendorInfo
@@ -87,19 +96,47 @@ onMounted(() => {
     .product {
         display: flex;
         gap: 40px;
-        .img {
+        .images {
             width: calc(50% - 40px);
-            height: 800px;
-            border-radius: 8px;
-            overflow: hidden;
-            padding: 20px;
-            box-shadow: var(--shadow);
-            background-color: var(--white-color);
-            img {
-                object-fit: cover;
+            .img {
                 width: 100%;
                 height: 100%;
+                background-color: var(--white-color);
+                border-radius: 8px;
+                overflow: hidden;
+                padding: 20px;
+                box-shadow: var(--shadow);
+                height: 700px;
+                img {
+                    object-fit: cover;
+                    width: 100%;
+                    height: 100%;
+                }
             }
+            .thumbnails {
+                display: flex;
+                gap: 10px;
+                margin-top: 20px;
+                .thumb {
+                    width: 120px;
+                    height: 120px;
+                    background-color: var(--white-color);
+                    border-radius: 8px;
+                    padding: 10px;
+                    overflow: hidden;
+                    box-shadow: var(--shadow);
+                    img {
+                        object-fit: cover;
+                        width: 100%;
+                        height: 100%;
+                        cursor: pointer;
+                        transition: var(--transition);
+                        &:hover {
+                            transform: scale(1.05);
+                        }
+                    }
+                }
+            } 
         }
         .info {
             display: flex;

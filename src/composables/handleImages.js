@@ -2,8 +2,8 @@ export function useHandleImages(fileImages, e) {
   const files = e.target.files;
 
   // Check if the number of images exceeds 6
-  if (fileImages.length + files.length > 6) {
-    alert('Você só pode adicionar até 6 imagens.');
+  if (fileImages.length + files.length > 5) {
+    alert('Você só pode adicionar até 5 imagens.');
     return fileImages;
   }
 

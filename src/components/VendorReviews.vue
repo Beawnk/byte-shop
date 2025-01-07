@@ -97,7 +97,6 @@ const fetchReviews = async () => {
             reviews: reviews.value.length,
             avatar: vendorData.avatar,
           }
-          console.log(vendor.value)
           emit('emitVendorInfo', vendor.value)
           useClickOutside(modal, closeModal)
         } else {
