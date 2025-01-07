@@ -9,9 +9,10 @@
 					</UserOrderItem>
 				</div>
 			</TransitionGroup>
-			<div class="no-sales" v-else>
+			<div class="no-sales" v-else-if="sales.length === 0 && !loading">
 				<h5>Nenhuma venda encontrada</h5>
 			</div>
+			<Loader v-if="loading"/>
 		</div>
 	</div>
 </template>
@@ -26,8 +27,10 @@ import { supabase } from '@/lib/supabaseClient';
 const userStore = useUserStore();
 
 const sales = ref([]);
+const loading = ref(false);
 
 const fetchSales = async () => {
+	loading.value = true;
   	try {
   	  	// Step 1: Fetch all products where the vendor_id matches the current user
   	  	const { data: products, error: productsError } = await supabase
@@ -83,6 +86,8 @@ const fetchSales = async () => {
   	  	console.log('Sales:', sales.value);
   	} catch (error) {
   	  	console.error('Error in fetchSales:', error);
+  	} finally {
+  	  	loading.value = false;
   	}
 };
 
@@ -124,6 +129,8 @@ function onLeave(el, done) {
 
 <style lang="scss" scoped>
 .user-sales {
+	position: relative;
+	min-height: 500px;
 	h2 {
 		color: var(--text-color);
 	}
