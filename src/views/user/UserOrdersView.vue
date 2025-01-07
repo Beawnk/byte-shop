@@ -45,7 +45,6 @@ const fetchOrders = async () => {
 	}
 };
 
-// Fetch reviews for the user to check if they've already reviewed a product
 const fetchUserReviews = async () => {
 	const { data, error } = await supabase
 		.from('reviews')
@@ -59,9 +58,7 @@ const fetchUserReviews = async () => {
 	}
 };
 
-// Check if the user has already reviewed the product
 const isReviewed = (order) => {
-	// Assuming 'product_id' is a column in the 'orders' table, and 'product_id' is in the 'reviews' table
 	return userReviews.value.some(review => review.product_id === order.product_id);
 };
 

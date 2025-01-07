@@ -2,14 +2,15 @@ import { defineStore } from 'pinia';
 import { ref, reactive, watch } from 'vue';
 import { supabase } from '@/lib/supabaseClient';
 import { useRoute, useRouter } from 'vue-router';
+import { useAlertStore } from '@/stores/alertStore';
 
 export const useUserStore = defineStore('user', () => {
+	const alertStore = useAlertStore();
   	const route = useRoute();
   	const router = useRouter();
   	const page = ref('login');
   	const logged = ref(false);
 
-  	// Use reactive for the user object
   	const user = reactive({
     	id: '',
     	name: '',
@@ -25,7 +26,6 @@ export const useUserStore = defineStore('user', () => {
   	});
   	const userProducts = reactive([]);
 
-  // Restore login info from localStorage
   	const loadUserFromLocalStorage = () => {
     	const storedUser = localStorage.getItem('user');
     	const isLogged = localStorage.getItem('logged') === 'true';
@@ -47,9 +47,12 @@ export const useUserStore = defineStore('user', () => {
   	};
 
   	const login = async (email, password) => {
+		alertStore.clearNotifications();
     	try {
     	  	if (!email || !password) {
-    	    	throw new Error('Email and password are required');
+				if (!email) alertStore.setFieldError('email', 'Digite seu email.');
+				if (!password) alertStore.setFieldError('password', 'Digite sua senha.');
+    	    	throw new Error('Erro de validação. Verifique os campos e tente novamente.');
     	  	}
 
     	  	const { data, error: loginError } = await supabase.auth.signInWithPassword({
@@ -57,19 +60,23 @@ export const useUserStore = defineStore('user', () => {
     	    	password,
     	  	});
 
-    	  	if (loginError) throw new Error(loginError.message);
+    	  	if (loginError) { 
+				alertStore.addGlobalError('Email ou senha inválidos.');
+				throw new Error(loginError.message);
+			}
 
     	  	if (data.user) {
-    	    	// Fetch additional user details from the custom 'users' table
     	    	const { data: customUser, error: userError } = await supabase
-    	      .from('users')
-    	      .select('*')
-    	      .eq('id', data.user.id)
-    	      .single();
+    	      	.from('users')
+    	      	.select('*')
+    	      	.eq('id', data.user.id)
+    	      	.single();
 
-    	    	if (userError) throw new Error(userError.message);
+    	    	if (userError) { 
+					alertStore.addGlobalError('Erro ao carregar informações do usuário.');
+					throw new Error(userError.message); 
+				}
 
-    	   	 	// Populate user state
     	    	Object.assign(user, customUser);
     	    	logged.value = true;
 				saveUserToLocalStorage();
@@ -82,9 +89,11 @@ export const useUserStore = defineStore('user', () => {
 					router.replace({ query: { user: customUser.name } });
     	    		page.value = 'user';
 				}
+
+				alertStore.addGlobalSuccess('Login efetuado com sucesso.');
     	  	}
     	} catch (error) {
-    	  	console.error('Error logging in:', error.message);
+    	  	alertStore.addGlobalError('Erro ao efetuar login', error.message);
     	  	throw error;
     	}
   	};
@@ -92,9 +101,11 @@ export const useUserStore = defineStore('user', () => {
   	const logout = async () => {
     	try {
     	  	const { error: logoutError } = await supabase.auth.signOut();
-    	  	if (logoutError) throw new Error(logoutError.message);
+    	  	if (logoutError) {
+				alertStore.addGlobalError('Erro ao efetuar logout.');
+				throw new Error(logoutError.message);
+			}
 			
-    	  	// Reset user state to default values
     	  	Object.assign(user, {
     	  	  	id: '',
     	  	  	name: '',
@@ -112,11 +123,11 @@ export const useUserStore = defineStore('user', () => {
     	  	logged.value = false;
     	  	page.value = 'login';
 
-    	  	clearLocalStorage(); // Clear session data
+    	  	clearLocalStorage();
 
     	  	router.replace({ query: { page: 'login' } });
     	} catch (error) {
-    	  	console.error('Error logging out:', error.message);
+    	  	alertStore.addGlobalError('Erro ao efetuar logout:', error.message);
     	  	throw error;
     	}
   	};
@@ -162,10 +173,8 @@ export const useUserStore = defineStore('user', () => {
 			  throw new Error('Sessão expirada. Faça login novamente.');
 			}
 
-		  	// Check if the email has changed
 		  	const { email: currentEmail } = await supabase.auth.getUser();
 		  	if (user.email !== currentEmail) {
-				// Update the email in the auth table
 				const { error: authError } = await supabase.auth.updateUser({
 			  	email: user.email,
 				});
@@ -173,7 +182,6 @@ export const useUserStore = defineStore('user', () => {
 			if (authError) throw new Error(`Error updating auth email: ${authError.message}`);
 		  	}
 	  
-		  	// Update the user details in the custom 'users' table
 		  	const { error: dbError } = await supabase
 				.from('users')
 				.update(user)
@@ -182,7 +190,7 @@ export const useUserStore = defineStore('user', () => {
 		  	if (dbError) throw new Error(`Error updating user in database: ${dbError.message}`);
 	  
 		  	console.log('User updated successfully:', user.id);
-		  	saveUserToLocalStorage(); // Save the updated user data to localStorage
+		  	saveUserToLocalStorage();
 		} catch (error) {
 		  	console.error('Error updating user:', error.message);
 		  	throw error;
@@ -207,7 +215,7 @@ export const useUserStore = defineStore('user', () => {
 
 	const resetPassword = async (newPassword) => {
 		try {
-		  	const accessToken = route.query.access_token; // Extract the token from the query string
+		  	const accessToken = route.query.access_token;
 			console.log('Access token:', accessToken);
 	  
 		  	if (!accessToken) throw new Error('Missing access token.');
@@ -272,14 +280,12 @@ export const useUserStore = defineStore('user', () => {
 		}
   	};
 
-  // Watch for changes in the user or login state to save automatically
   	watch(
     	() => ({ user, logged: logged.value }),
     	saveUserToLocalStorage,
     	{ deep: true }
   	);
 
-  	// Load session on store initialization
   	loadUserFromLocalStorage();
 
   	return {

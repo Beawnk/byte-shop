@@ -45,6 +45,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useHandleImages } from '@/composables/handleImages';
 import { useUserStore } from '@/stores/UserState';
 import { supabase } from '@/lib/supabaseClient'
+import { useClickOutside } from '@/composables/clickOutside';
 
 const props = defineProps(['productId', 'mode']);
 const emit = defineEmits(['hideProductModal', 'productSaved']);
@@ -54,6 +55,8 @@ const name = ref('');
 const description = ref('');
 const price = ref('');
 const images = ref([]);
+
+const modal = ref(null)
 
 const imgHoverIndex = ref(null);
 
@@ -120,6 +123,10 @@ watch(() => props.productId, async () => {
 		images.value = [];
   	}
 },{ immediate: true });
+
+onMounted(() => {
+	useClickOutside(modal, () => emit('hideProductModal'));
+});
 </script>
 
 <style lang="scss" scoped>
@@ -150,7 +157,7 @@ watch(() => props.productId, async () => {
 					right: -8px;
 					width: 25px;
 					height: 25px;
-					background-color: var(--danger-color);
+					background-color: var(--error-color);
 					border-radius: var(--border-radius);
 					background-image: url('../assets/img/icons/remove-white.png');
 					background-size: 15px;

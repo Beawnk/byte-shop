@@ -1,6 +1,6 @@
 <template>
 	<div class="modal add-review">
-		<div class="modal-content">
+		<div class="modal-content" ref="modal">
 			<button class="close" @click="$emit('closeModal')"></button>
 			<h4>Adicionar avaliação ao vendedor</h4>
 			<form class="review-form">
@@ -34,15 +34,18 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useUserStore } from '@/stores/UserState';
 import { supabase } from '@/lib/supabaseClient';
+import { useClickOutside } from '@/composables/clickOutside';
 
 const props = defineProps(['order']);
 
 const emit = defineEmits(['closeModal', 'reviewedOrder']);
 
 const userStore = useUserStore();
+
+const modal = ref(null);
 
 const rating = ref(0);
 const hoverRating = ref(0);
@@ -74,6 +77,10 @@ const sendReview = async () => {
 		emit('reviewedOrder');
 	}
 }
+
+onMounted(() => {
+	useClickOutside(modal, () => emit('closeModal'));
+});
 </script>
 
 <style lang="scss" scoped>

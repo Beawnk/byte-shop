@@ -1,6 +1,10 @@
 <template>
   <Header />
   <main>
+    <Notifications
+      :errors="alertStore.globalErrors" 
+      :successes="alertStore.globalSuccesses" 
+    />
     <router-view/>
   </main>
   <Footer />
@@ -12,9 +16,12 @@ import { useRoute } from 'vue-router';
 import { useUserStore } from '@/stores/UserState';
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
+import Notifications from '@/components/Notifications.vue';
+import { useAlertStore } from '@/stores/alertStore';
 
 const route = useRoute();
 const userStore = useUserStore();
+const alertStore = useAlertStore();
 
 const updateBodyClass = () => {
   if (route.path === '/' || route.path.startsWith('/usuario')) {

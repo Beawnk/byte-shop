@@ -5,10 +5,12 @@
             <div class="input">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" placeholder="Seu email" v-model="email" />
+                <FieldNotifications :field="'email'"/>
             </div>
             <div class="input">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" placeholder="Sua senha" v-model="password" />
+                <FieldNotifications :field="'password'"/>
                 <span class="lost-pass"><router-link to="/">Esqueceu a senha?</router-link></span>
             </div>
             <div class="action">
@@ -25,10 +27,12 @@
 <script setup>
 import { ref } from 'vue';
 import { useUserStore } from '@/stores/UserState';
+import { useAlertStore } from '@/stores/alertStore';
 
 const emit = defineEmits(['emitSignUpPage']);
 
 const userStore = useUserStore();
+const alertStore = useAlertStore();
 
 const email = ref('');
 const password = ref('');
