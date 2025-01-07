@@ -4,7 +4,7 @@ export function useHandleImages(fileImages, e) {
   const alertStore = useAlertStore();
   const files = e.target.files;
 
-  // Check if the number of images exceeds 6
+  // Check if the number of images exceeds 5
   if (fileImages.length + files.length > 5) {
     alertStore.setFieldError('image', 'Você só pode adicionar até 5 imagens.');
     return fileImages;

@@ -84,25 +84,33 @@ const fetchProducts = async (page = 1) => {
 };
 
 const cleanSearchValue = (value) => {
-  router.replace({ query: {  } })
-  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-}
+  // Normalize input by removing diacritics and spaces
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove accents
+    .replace(/\s+/g, '') // Remove spaces
+    .toLowerCase(); // Convert to lowercase
+};
 
 const onSearchProducts = async (search) => {
+  // Clean the search value
   const cleanedSearch = cleanSearchValue(search);
 
+  // Query Supabase for products by name
   const { data, error } = await supabase
     .from('products')
     .select('*')
-    .ilike('id', `%${cleanedSearch}%`)
-    .range(0, itemsPerPage - 1)
+    .ilike('name', `%${cleanedSearch}%`) // Case-insensitive partial match
+    .range(0, itemsPerPage - 1); // Pagination
+
   if (error) {
-    console.error(error)
+    console.error(error);
   } else {
-    products.value = data
-    totalPages.value = 1
+    // Update products list and pagination
+    products.value = data;
+    totalPages.value = 1; // Adjust as needed if total results are tracked
   }
-}
+};
 
 const prevPage = () => {
   if (currentPage.value > 1) {
