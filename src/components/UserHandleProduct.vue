@@ -7,14 +7,17 @@
 						<div class="input">
 							<label for="name">Nome do produto</label>
 							<input type="text" id="name" v-model="name" />
+							<FieldNotifications :field="'name'"/>
 						</div>
 						<div class="input">
 							<label for="description">Descrição</label>
 							<textarea id="description" rows="4" cols="50" v-model="description"></textarea>
+							<FieldNotifications :field="'description'"/>
 						</div>
 						<div class="input price">
 							<label for="price">Preço</label>
 							<input type="text" id="price" v-model="price"/>
+							<FieldNotifications :field="'price'"/>
 						</div>
 						<div class="input image">
 							<label for="image">Imagem</label>
@@ -27,6 +30,7 @@
 									<input type="file" id="image" @change="onFileChange" multiple />
 								</div>
 							</div>
+							<FieldNotifications :field="'image'"/>
 						</div>
 					</form>
 				</div>
@@ -46,10 +50,12 @@ import { useHandleImages } from '@/composables/handleImages';
 import { useUserStore } from '@/stores/UserState';
 import { supabase } from '@/lib/supabaseClient'
 import { useClickOutside } from '@/composables/clickOutside';
+import { useAlertStore } from '@/stores/alertStore';
 
 const props = defineProps(['productId', 'mode']);
 const emit = defineEmits(['hideProductModal', 'productSaved']);
 const userStore = useUserStore();
+const alertStore = useAlertStore();
 
 const name = ref('');
 const description = ref('');
@@ -69,6 +75,15 @@ const removeImage = (index) => {
 };
 
 const saveProduct = async () => {
+	alertStore.clearNotifications();
+
+	if (!name.value) alertStore.setFieldError('name', 'Insira o nome do produto');
+	if (!description.value) alertStore.setFieldError('description', 'Insira a descrição do produto');
+	if (!price.value) alertStore.setFieldError('price', 'Insira o preço do produto');
+	if (images.value.length === 0) alertStore.setFieldError('image', 'Adicione pelo menos uma imagem do produto');
+
+	if (Object.keys(alertStore.fieldErrors).length > 0) return;
+
 	if (props.mode === 'add') {
   		const { data, error } = await supabase
 		.from('products')
@@ -85,8 +100,9 @@ const saveProduct = async () => {
 		]);
 		
   		if (error) {
-			console.error(error);
+			alertStore.addGlobalError('Erro ao adicionar produto');
   		} else {
+			alertStore.addGlobalSuccess('Produto adicionado com sucesso');
 			emit('hideProductModal');
 			emit('productSaved');
   		}
@@ -101,8 +117,9 @@ const saveProduct = async () => {
     	  })
     	  .eq('id', props.productId);
     	if (error) {
-    	  console.error(error);
+    	  	alertStore.addGlobalError('Erro ao atualizar produto');
     	} else {
+		  	alertStore.addGlobalSuccess('Produto atualizado com sucesso');
 			emit('hideProductModal');
   			emit('productSaved');	
 		}
@@ -125,6 +142,12 @@ watch(() => props.productId, async () => {
 },{ immediate: true });
 
 onMounted(() => {
+	if (props.mode === 'add') {
+		name.value = '';
+		description.value = '';
+		price.value = '';
+		images.value = [];
+	}
 	useClickOutside(modal, () => emit('hideProductModal'));
 });
 </script>
@@ -139,7 +162,6 @@ onMounted(() => {
 			overflow: hidden;
 			padding: 10px;
 			gap: 10px;
-			margin-bottom: 20px;
 			.image {
 				position: relative;
 				border-radius: var(--border-radius);

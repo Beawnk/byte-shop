@@ -17,13 +17,16 @@
         		  	</span>
 					<p class="rating">{{ rating }}</p>
         		</div>
+				<FieldNotifications :field="'stars'"/>
 				<div class="input">
 					<label for="title">Título</label>
 					<input type="text" id="title" name="title" v-model="title"/>
+					<FieldNotifications :field="'title'"/>
 				</div>
 				<div class="input">
 					<label for="review">Avaliação</label>
 					<textarea id="review" name="review" rows="5" cols="50" v-model="review"></textarea>
+					<FieldNotifications :field="'review'"/>
 				</div>
 				<div class="actions">
 					<button class="btn primary" @click.prevent="sendReview">Enviar</button>
@@ -38,12 +41,14 @@ import { ref, onMounted } from 'vue';
 import { useUserStore } from '@/stores/UserState';
 import { supabase } from '@/lib/supabaseClient';
 import { useClickOutside } from '@/composables/clickOutside';
+import { useAlertStore } from '@/stores/alertStore';
 
 const props = defineProps(['order']);
 
 const emit = defineEmits(['closeModal', 'reviewedOrder']);
 
 const userStore = useUserStore();
+const alertStore = useAlertStore();
 
 const modal = ref(null);
 
@@ -57,6 +62,14 @@ const setRating = (value) => {
 };
 
 const sendReview = async () => {
+	alertStore.clearNotifications();
+
+	if (!rating.value) alertStore.setFieldError('stars', 'Selecione uma avaliação');
+	if (!title.value) alertStore.setFieldError('title', 'Digite um título');
+	if (!review.value) alertStore.setFieldError('review', 'Digite uma avaliação');
+
+	if (!rating.value || !title.value || !review.value) return;
+
 	const { data, error } = await supabase
 	.from('reviews')
 	.insert([
@@ -71,8 +84,10 @@ const sendReview = async () => {
 	]);
 
 	if (error) {
-		console.error(error);
+		alertStore.addGlobalError('Erro ao enviar avaliação', error.message);
 	} else {
+		alertStore.addGlobalSuccess('Avaliação enviada com sucesso');
+
 		emit('closeModal');
 		emit('reviewedOrder');
 	}

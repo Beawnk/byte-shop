@@ -93,10 +93,11 @@ const fetchReviews = async () => {
           vendor.value = {
             id: vendorData.id,
             name: vendorData.name,
-            rating: averageRating.value,
+            rating: averageRating.value || 0,
             reviews: reviews.value.length,
             avatar: vendorData.avatar,
           }
+          console.log(vendor.value)
           emit('emitVendorInfo', vendor.value)
           useClickOutside(modal, closeModal)
         } else {

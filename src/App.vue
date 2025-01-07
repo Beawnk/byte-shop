@@ -1,7 +1,7 @@
 <template>
   <Header />
   <main>
-    <Notifications
+    <Notifications v-if="alertStore.globalErrors.length || alertStore.globalSuccesses.length"
       :errors="alertStore.globalErrors" 
       :successes="alertStore.globalSuccesses" 
     />

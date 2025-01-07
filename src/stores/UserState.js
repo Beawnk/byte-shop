@@ -99,6 +99,7 @@ export const useUserStore = defineStore('user', () => {
   	};
 
   	const logout = async () => {
+		alertStore.clearNotifications();
     	try {
     	  	const { error: logoutError } = await supabase.auth.signOut();
     	  	if (logoutError) {
@@ -133,6 +134,7 @@ export const useUserStore = defineStore('user', () => {
   	};
 
   	const createAccount = async (email, password) => {
+		alertStore.clearNotifications();
     	try {
     	  	if (!email || !password) {
 				if (!email) alertStore.setFieldError('email', 'Digite seu email.');
@@ -175,6 +177,7 @@ export const useUserStore = defineStore('user', () => {
   	};
 
 	const updateAccount = async () => {
+		alertStore.clearNotifications();
 		try {
 			const { data: session } = await supabase.auth.getSession();
 
@@ -214,6 +217,7 @@ export const useUserStore = defineStore('user', () => {
 	};
 
 	const sendPasswordResetEmail = async (email) => {
+		alertStore.clearNotifications();
 		try {
 			const redirectUrl = `${window.location.origin}${router.resolve({ name: 'change-password' }).href}`;
 		  	const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -233,6 +237,7 @@ export const useUserStore = defineStore('user', () => {
 	};
 
 	const resetPassword = async (newPassword) => {
+		alertStore.clearNotifications();
 		try {
 		  	const accessToken = route.query.access_token;
 	  
@@ -258,6 +263,7 @@ export const useUserStore = defineStore('user', () => {
 	};
 
 	const loadProducts = async () => {
+		alertStore.clearNotifications();
 		try {
 		   	const { data, error } = await supabase
 			.from('products')
@@ -283,6 +289,7 @@ export const useUserStore = defineStore('user', () => {
   	}
 
   	const deleteProduct = async (productId, isSold) => {
+		alertStore.clearNotifications();
 		if (!isSold) {
     		const confirm = window.confirm('Certeza que deseja excluir este produto?');
     		if (confirm) {

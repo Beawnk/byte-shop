@@ -134,6 +134,8 @@ const fillCep = async () => {
 }
 
 const updateUserStore = () => {
+  alertStore.clearNotifications();
+  
   if (!name.value) alertStore.setFieldError('name', 'Digite seu nome');
   if (!email.value) alertStore.setFieldError('email', 'Digite seu email');
   if (!password.value && props.mode === 'create') alertStore.setFieldError('password', 'Insira uma senha');
