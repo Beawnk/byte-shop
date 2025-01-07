@@ -28,6 +28,7 @@
         </div>
       </div>
     </transition>
+    <Loader v-if="loading"/>
     <VendorReviews v-if="product" v-show="modalReviews" @emit-vendor-info="onVendorInfo" @emit-close-modal="onEmitCloseReviews" :vendor-id="product.vendor_id" :class="{open: modalReviews}"/>
   </section>
 </template>
@@ -53,8 +54,10 @@ const product = ref(null)
 const vendor = ref(null)
 const modalReviews = ref(false)
 const selectedImage = ref('');
+const loading = ref(false)
 
 const fetchProduct = async () => {
+  loading.value = true
   const { data, error } = await supabase
     .from('products')
     .select('*')
@@ -66,6 +69,7 @@ const fetchProduct = async () => {
   } else {
     product.value = data
     selectedImage.value = data.image_url[0];
+    loading.value = false
   }
 }
 
@@ -93,6 +97,8 @@ onMounted(() => {
 <style lang="scss" scoped>
 #product-page {
     padding: calc(var(--section) + var(--header-height)) 200px var(--section) 200px;
+    position: relative;
+    min-height: 600px;
     .product {
         display: flex;
         gap: 40px;

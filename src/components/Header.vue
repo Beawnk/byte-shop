@@ -141,7 +141,6 @@ header {
     }
     .user {
         .username {
-            font-family: var(--ff-primary-semiBold);
             color: var(--primary-color);
             font-size: var(--text-medium);
             padding: 10px;
