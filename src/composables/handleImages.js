@@ -1,9 +1,12 @@
+import { useAlertStore } from "@/stores/alertStore";
+
 export function useHandleImages(fileImages, e) {
+  const alertStore = useAlertStore();
   const files = e.target.files;
 
   // Check if the number of images exceeds 6
   if (fileImages.length + files.length > 5) {
-    alert('Você só pode adicionar até 5 imagens.');
+    alertStore.setFieldError('image', 'Você só pode adicionar até 5 imagens.');
     return fileImages;
   }
 
@@ -13,7 +16,7 @@ export function useHandleImages(fileImages, e) {
     // Check if the file is an image in PNG, JPG, or JPEG format
     const fileType = file.type;
     if (fileType !== 'image/png' && fileType !== 'image/jpeg' && fileType !== 'image/jpg') {
-      alert('Apenas imagens em formato PNG, JPG, e JPEG são permitidas.');
+      alertStore.setFieldError('image', 'Apenas imagens em formato PNG, JPG, e JPEG são permitidas.');
       continue; // Skip invalid file and process the next one
     }
 
