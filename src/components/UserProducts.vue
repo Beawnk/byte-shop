@@ -1,6 +1,6 @@
 <template>
 	<div class="products">
-		<TransitionGroup class="products-list" v-if="products" name="list" tag="div" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave" appear>
+		<TransitionGroup class="products-list" v-if="products.length" name="list" tag="div" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave" appear>
 			<div v-for="(product, index) in products" :key="product.id" :data-index="index" class="product" @mouseover="productHoverIndex = index" @mouseleave="productHoverIndex = null" :class="{'show-actions': productHoverIndex === index, sold: product.sold}">
 				<UserProductItem :product="product" />
         <div class="actions" v-show="productHoverIndex === index">
@@ -9,8 +9,8 @@
         </div>
 			</div>
 		</TransitionGroup>
-		<div v-else>
-			<p>Nenhum produto encontrado</p>
+		<div class="no-products" v-else>
+			<p>Você não tem nenhum produto à venda</p>
 		</div>
 	</div>
 </template>
@@ -159,5 +159,15 @@ onMounted(async () => {
       }
 		}
 	}
+  .no-products {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 400px;
+    p {
+      font-size: var(--text-big);
+      color: var(--text-color);
+    }
+  }
 }
 </style>
