@@ -248,24 +248,28 @@ export const useUserStore = defineStore('user', () => {
     	return userProducts.find((product) => product.id === productId);
   	}
 
-  	const deleteProduct = async (productId) => {
-    	const confirm = window.confirm('Certeza que deseja excluir este produto?');
-    	if (confirm) {
-      		try {
-        		const { error } = await supabase
-          		.from('products')
-          		.delete()
-          		.eq('id', productId);
+  	const deleteProduct = async (productId, isSold) => {
+		if (!isSold) {
+    		const confirm = window.confirm('Certeza que deseja excluir este produto?');
+    		if (confirm) {
+      			try {
+        			const { error } = await supabase
+        	  		.from('products')
+        	  		.delete()
+        	  		.eq('id', productId);
 
-        		if (error) throw new Error(error.message);
+        			if (error) throw new Error(error.message);
 
-        		console.log('Product deleted successfully:', productId);
-        		await loadProducts();
-      		} catch (error) {
-        		console.error('Error deleting product:', error.message);
-        		throw error;
-      		}
-    	}
+        			console.log('Product deleted successfully:', productId);
+        			await loadProducts();
+      			} catch (error) {
+        			console.error('Error deleting product:', error.message);
+        			throw error;
+      			}
+    		}
+		} else {
+			alert('Produto já vendido. Não é possível excluir.');
+		}
   	};
 
   // Watch for changes in the user or login state to save automatically

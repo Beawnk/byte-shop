@@ -22,10 +22,14 @@ const addNewProduct = () => {
 	showHandleProduct.value = true;
 };
 
-const editProduct = (productId) => {
-	editedProduct.value = productId;
-	handleProductMode.value = 'edit';
-	showHandleProduct.value = true;
+const editProduct = (productId, isSold) => {
+	if (!isSold) {
+		editedProduct.value = productId;
+		handleProductMode.value = 'edit';
+		showHandleProduct.value = true;
+	} else {
+		alert('Produto vendido não pode ser editado');
+	}
 };
 </script>
 

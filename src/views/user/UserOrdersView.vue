@@ -5,7 +5,7 @@
 			<TransitionGroup class="orders-list" v-if="orders.length" name="list" tag="div" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave" appear>
 				<div v-for="(order, index) in orders" :key="order.id" :data-index="index" class="order">
 					<UserOrderItem :order="order">
-						<button class="btn primary" @click.prevent="toggleModal" @close-modal="toggleModal">Avaliar</button>
+						<button class="btn primary" @click.prevent="openReviewModal(order)" :disabled="isReviewed(order)">Avaliar</button>
 					</UserOrderItem>
 				</div>
 			</TransitionGroup>
@@ -14,7 +14,7 @@
 			</div>
 		</div>
 	</div>
-	<UserAddReview v-if="showAddReviewModal"/>
+	<UserAddReview v-if="showAddReviewModal" :class="{open: showAddReviewModal}" @close-modal="toggleModal" @reviewed-order="fetchUserReviews" :order="selectedOrder"/>
 </template>
 
 <script setup>
@@ -29,6 +29,8 @@ const userStore = useUserStore();
 
 const orders = ref([]);
 const showAddReviewModal = ref(false);
+const selectedOrder = ref(null);
+const userReviews = ref([]);
 
 const fetchOrders = async () => {
 	const { data, error } = await supabase
@@ -43,12 +45,38 @@ const fetchOrders = async () => {
 	}
 };
 
+// Fetch reviews for the user to check if they've already reviewed a product
+const fetchUserReviews = async () => {
+	const { data, error } = await supabase
+		.from('reviews')
+		.select('*')
+		.eq('user_id', userStore.user.id);
+
+	if (error) {
+		console.error(error);
+	} else {
+		userReviews.value = data;
+	}
+};
+
+// Check if the user has already reviewed the product
+const isReviewed = (order) => {
+	// Assuming 'product_id' is a column in the 'orders' table, and 'product_id' is in the 'reviews' table
+	return userReviews.value.some(review => review.product_id === order.product_id);
+};
+
+const openReviewModal = (order) => {
+	selectedOrder.value = order;
+	toggleModal();
+};
+
 const toggleModal = () => {
 	showAddReviewModal.value = !showAddReviewModal.value;
 };
 
 onMounted(() => {
 	fetchOrders();
+	fetchUserReviews();
 });
 
 // GSAP Hooks

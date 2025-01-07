@@ -1,11 +1,11 @@
 <template>
 	<div class="products">
 		<TransitionGroup class="products-list" v-if="products" name="list" tag="div" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave" appear>
-			<div v-for="(product, index) in products" :key="product.id" :data-index="index" class="product" @mouseover="productHoverIndex = index" @mouseleave="productHoverIndex = null" :class="{'show-actions': productHoverIndex === index}">
+			<div v-for="(product, index) in products" :key="product.id" :data-index="index" class="product" @mouseover="productHoverIndex = index" @mouseleave="productHoverIndex = null" :class="{'show-actions': productHoverIndex === index, sold: product.sold}">
 				<UserProductItem :product="product" />
         <div class="actions" v-show="productHoverIndex === index">
-          <button class="delete" @click.prevent="userStore.deleteProduct(product.id)"></button>
-          <button class="edit" @click.prevent="$emit('handleProductModeEdit', product.id)"></button>
+          <button class="delete" @click.prevent="userStore.deleteProduct(product.id, product.sold)"></button>
+          <button class="edit" @click.prevent="$emit('handleProductModeEdit', product.id, product.sold)"></button>
         </div>
 			</div>
 		</TransitionGroup>
@@ -75,12 +75,39 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .products {
 	.products-list {
+    margin-top: 20px;
 		.product {
-			margin-top: 20px;
+			margin-bottom: 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       width: 100%;
+      position: relative;
+      &:last-child {
+        margin-bottom: 0;
+      }
+      &.sold {
+        &::after {
+          content: 'Vendido';
+          position: absolute;
+          top: 19px;
+          right: 0;
+          padding: 10px;
+          background-color: var(--primary-color);
+          transform: translateY(-50%);
+          font-weight: bold;
+          color: var(--white-color);
+          border-radius: 0 var(--border-radius) 0 var(--border-radius);
+          font-size: var(--text-small);
+        }
+        &.show-actions {
+          .actions {
+            display: none;
+            width: 0;
+            opacity: 0;
+          }
+        }
+      }
       &.show-actions {
         .actions {
           width: fit-content;

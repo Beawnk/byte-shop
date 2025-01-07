@@ -51,16 +51,16 @@ const modal = ref(null)
 
 const fetchReviews = async () => {
   const { data, error } = await supabase
-    .from('users')
+    .from('reviews')
     .select('*')
-    .eq('id', props.vendorId)
-    .single()
+    .eq('vendor_id', props.vendorId)
 
   if (error) {
     console.error(error)
   } else {
-    if (data.reviews) {
-      const reviewsWithUser = await Promise.all(data.reviews.map(async (review) => {
+    if (data) {
+      console.log(data)
+      const reviewsWithUser = await Promise.all(data.map(async (review) => {
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('name, avatar')
@@ -80,25 +80,37 @@ const fetchReviews = async () => {
       const stars = await Promise.all(reviews.value.map(review => review.stars))
     
       getStars(stars)
-      vendor.value = {
-        id: data.id,
-        name: data.name,
-        rating: averageRating.value,
-        reviews: reviews.value.length,
-        avatar: data.avatar,
+      const { data: vendorData, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', props.vendorId)
+        .single()
+
+      if (error) {
+        console.error(error)
+      } else {
+        if (vendorData) {
+          vendor.value = {
+            id: vendorData.id,
+            name: vendorData.name,
+            rating: averageRating.value,
+            reviews: reviews.value.length,
+            avatar: vendorData.avatar,
+          }
+          emit('emitVendorInfo', vendor.value)
+          useClickOutside(modal, closeModal)
+        } else {
+          vendor.value = {
+            id: data.id,
+            name: data.name,
+            rating: 0,
+            reviews: 0,
+            avatar: data.avatar,
+          }
+          emit('emitVendorInfo', vendor.value)
+          useClickOutside(modal, closeModal)
+        }
       }
-      emit('emitVendorInfo', vendor.value)
-      useClickOutside(modal, closeModal)
-    } else {
-      vendor.value = {
-        id: data.id,
-        name: data.name,
-        rating: 0,
-        reviews: 0,
-        avatar: data.avatar,
-      }
-      emit('emitVendorInfo', vendor.value)
-      useClickOutside(modal, closeModal)
     }
   }
 }

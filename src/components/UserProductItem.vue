@@ -58,8 +58,15 @@ const props = defineProps(['product'])
 		}
 	}
 }
-.show-actions .product-link {
-    width: calc(100% - 50px);
+.show-actions {
+	&.sold {
+		.product-link {
+			width: 100%;
+		}
+	}
+	.product-link {
+    	width: calc(100% - 50px);
+	}
 }
 
 </style>
