@@ -30,7 +30,7 @@ export const useUserStore = defineStore('user', () => {
     	const storedUser = localStorage.getItem('user');
     	const isLogged = localStorage.getItem('logged') === 'true';
     	if (storedUser && isLogged) {
-    	  	Object.assign(user, JSON.parse(storedUser)); // Restore reactivity
+    	  	Object.assign(user, JSON.parse(storedUser));
     	  	logged.value = true;
     	  	page.value = 'user';
     	}
@@ -135,7 +135,9 @@ export const useUserStore = defineStore('user', () => {
   	const createAccount = async (email, password) => {
     	try {
     	  	if (!email || !password) {
-    	  	  	throw new Error('Email and password are required');
+				if (!email) alertStore.setFieldError('email', 'Digite seu email.');
+				if (!password) alertStore.setFieldError('password', 'Digite sua senha.');
+    	  	  	throw new Error('Erro de validação. Verifique os campos e tente novamente.');
     	  	}
 
     	  	const { data, error: authError } = await supabase.auth.signUp({
@@ -143,7 +145,10 @@ export const useUserStore = defineStore('user', () => {
     	  	  	password,
     	  	});
 
-    	  	if (authError) throw new Error(authError.message);
+    	  	if (authError) {
+				alertStore.addGlobalError('Erro ao criar conta.', authError.message);
+				throw new Error(authError.message);
+			}
 
     	  	if (data.user) {
     	  	  	const userData = {
@@ -154,13 +159,17 @@ export const useUserStore = defineStore('user', () => {
 
     	  	  	const { error: dbError } = await supabase.from('users').insert([userData]);
 
-    	  	  	if (dbError) throw new Error(dbError.message);
+    	  	  	if (dbError) {
+					alertStore.addGlobalError('Erro ao salvar informações do usuário.', dbError.message);
+					throw new Error(dbError.message);
+				}
 
-    	  	  	console.log('Account created successfully!');
     	  	  	await login(email, password);
+
+				alertStore.addGlobalSuccess('Conta criada com sucesso.');
     	  	}
     	} catch (error) {
-    	  	console.error('Error creating account:', error.message);
+    	  	alertStore.addGlobalError('Erro ao criar conta.', error.message);
     	  	throw error;
     	}
   	};
@@ -170,7 +179,8 @@ export const useUserStore = defineStore('user', () => {
 			const { data: session } = await supabase.auth.getSession();
 
 			if (!session) {
-			  throw new Error('Sessão expirada. Faça login novamente.');
+				alertStore.addGlobalError('Sessão expirada. Faça login novamente.');
+			  	throw new Error('Sessão expirada. Faça login novamente.');
 			}
 
 		  	const { email: currentEmail } = await supabase.auth.getUser();
@@ -179,7 +189,10 @@ export const useUserStore = defineStore('user', () => {
 			  	email: user.email,
 				});
 	  
-			if (authError) throw new Error(`Error updating auth email: ${authError.message}`);
+				if (authError) {
+			  		alertStore.addGlobalError('Erro ao atualizar email de autenticação.', authError.message);
+					throw new Error(`Error updating auth email: ${authError.message}`);
+				}
 		  	}
 	  
 		  	const { error: dbError } = await supabase
@@ -187,12 +200,15 @@ export const useUserStore = defineStore('user', () => {
 				.update(user)
 				.eq('id', user.id);
 	  
-		  	if (dbError) throw new Error(`Error updating user in database: ${dbError.message}`);
-	  
-		  	console.log('User updated successfully:', user.id);
+		  	if (dbError) { 
+				alertStore.addGlobalError('Erro ao atualizar informações do usuário.', dbError.message);
+				throw new Error(`Error updating user in database: ${dbError.message}`);
+			}
+		  	
+		  	alertStore.addGlobalSuccess('Informações do usuário atualizadas com sucesso.');
 		  	saveUserToLocalStorage();
 		} catch (error) {
-		  	console.error('Error updating user:', error.message);
+		  	alertStore.addGlobalError('Erro ao atualizar informações do usuário.', error.message);
 		  	throw error;
 		}
 	};
@@ -204,11 +220,14 @@ export const useUserStore = defineStore('user', () => {
 				redirectTo: redirectUrl,
 		  	});
 	  
-		  	if (error) throw new Error(error.message);
+		  	if (error) {
+				alertStore.addGlobalError('Erro ao enviar email de redefinição de senha.', error.message);
+				throw new Error(error.message);
+			}
 	  
-		  	console.log('Password reset email sent successfully.');
+		  	alertStore.addGlobalSuccess('Email de redefinição de senha enviado com sucesso.');
 		} catch (error) {
-		  	console.error('Error sending password reset email:', error.message);
+		  	alertStore.addGlobalError('Erro ao enviar email de redefinição de senha.', error.message);
 		  	throw error;
 		}
 	};
@@ -216,19 +235,24 @@ export const useUserStore = defineStore('user', () => {
 	const resetPassword = async (newPassword) => {
 		try {
 		  	const accessToken = route.query.access_token;
-			console.log('Access token:', accessToken);
 	  
-		  	if (!accessToken) throw new Error('Missing access token.');
+		  	if (!accessToken) {
+				alertStore.addGlobalError('Token de acesso não encontrado.');
+				throw new Error('Missing access token.');
+			}
 	  
 		  	const { error } = await supabase.auth.updateUser({
 				password: newPassword,
 		  	});
 	  
-		  	if (error) throw new Error(error.message);
-	  
-		  	console.log('Password updated successfully.');
+		  	if (error) { 
+				alertStore.addGlobalError('Erro ao redefinir senha.', error.message);
+				throw new Error(error.message);
+			}
+
+		  	alertStore.addGlobalSuccess('Senha redefinida com sucesso.');
 		} catch (error) {
-		  	console.error('Error resetting password:', error.message);
+		  	alertStore.addGlobalError('Erro ao redefinir senha.', error.message);
 		  	throw error;
 		}
 	};
@@ -240,14 +264,16 @@ export const useUserStore = defineStore('user', () => {
 			.select('*')
 			.eq('vendor_id', user.id);
 	
-		   	if (error) throw new Error(error.message);
-	
+		   	if (error) {
+				alertStore.addGlobalError('Erro ao carregar produtos do usuário.', error.message);
+				throw new Error(error.message);
+			}
+
 		   	userProducts.splice(0, userProducts.length, ...data);
-		   	console.log('User products loaded:', userProducts);
 	
 		   	return userProducts;
 		} catch (error) {
-		   	console.error('Error loading user products:', error.message);
+			alertStore.addGlobalError('Erro ao carregar produtos do usuário.', error.message);
 		   	throw error;
 		}
 	};
@@ -266,17 +292,20 @@ export const useUserStore = defineStore('user', () => {
         	  		.delete()
         	  		.eq('id', productId);
 
-        			if (error) throw new Error(error.message);
+        			if (error) {
+						alertStore.addGlobalError('Erro ao excluir produto.', error.message);
+						throw new Error(error.message);
+					}
 
-        			console.log('Product deleted successfully:', productId);
+        			alertStore.addGlobalSuccess('Produto excluído com sucesso.');
         			await loadProducts();
       			} catch (error) {
-        			console.error('Error deleting product:', error.message);
+        			alertStore.addGlobalError('Erro ao excluir produto.', error.message);
         			throw error;
       			}
     		}
 		} else {
-			alert('Produto já vendido. Não é possível excluir.');
+			alertStore.addGlobalError('Produto vendido não pode ser excluído.');
 		}
   	};
 

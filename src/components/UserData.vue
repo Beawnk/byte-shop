@@ -8,14 +8,17 @@
       <div class="input">
         <label for="email">Email</label>
         <input type="email" id="email" v-model="email" placeholder="Digite seu email" />
+        <FieldNotifications :field="'email'"/>
       </div>
       <div class="input">
         <label for="name">Nome completo</label>
         <input type="text" id="name" v-model="name" placeholder="Digite seu nome completo" />
+        <FieldNotifications :field="'name'"/>
       </div>
       <div class="input" v-if="props.mode === 'create'">
         <label for="password">Senha</label>
         <input type="password" id="password" v-model="password" placeholder="Digite sua senha" />
+        <FieldNotifications :field="'password'"/>
       </div>
       <div class="change-pass" v-else>
         <button class="btn primary" @click.prevent="userStore.sendPasswordResetEmail(userStore.user.email)">Alterar senha</button>
@@ -25,35 +28,42 @@
     <div class="input cep">
       <label for="cep">CEP</label>
       <input type="text" id="cep" v-model="cep" placeholder="Digite seu CEP" @keyup="fillCep"/>
+      <FieldNotifications :field="'address'"/>
     </div>
     <div class="input-group">
       <div class="input street">
         <label for="street">Rua</label>
         <input type="text" id="street" v-model="street" placeholder="Digite sua rua" />
+        <FieldNotifications :field="'address'"/>
       </div>
       <div class="input number">
         <label for="number">Número</label>
         <input type="text" id="number" v-model="number" placeholder="000" />
+        <FieldNotifications :field="'address'"/>
       </div>
     </div> 
     <div class="input-group">
       <div class="input">
         <label for="district">Bairro</label>
         <input type="text" id="district" v-model="district" placeholder="Digite seu bairro" />
+        <FieldNotifications :field="'address'"/>
       </div>
       <div class="input">
         <label for="city">Cidade</label>
         <input type="text" id="city" v-model="city" placeholder="Digite sua cidade" />
+        <FieldNotifications :field="'address'"/>
       </div>
     </div>
     <div class="input-group">
       <div class="input">
         <label for="state">Estado</label>
         <input type="text" id="state" v-model="state" placeholder="Digite seu estado" />
+        <FieldNotifications :field="'address'"/>
       </div>
       <div class="input">
         <label for="country">País</label>
         <input type="text" id="country" v-model="country" placeholder="Digite seu país" />
+        <FieldNotifications :field="'address'"/>
       </div>
     </div>
     <div class="action">
@@ -65,12 +75,14 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useUserStore } from '@/stores/UserState';
+import { useAlertStore } from '@/stores/alertStore';
 import { useGetAddress } from '@/composables/getAddress';
 import { useRoute } from 'vue-router';
 
 const props = defineProps(['mode']);
 
 const userStore = useUserStore();
+const alertStore = useAlertStore();
 const route = useRoute();
 
 const email = ref('');
@@ -122,6 +134,13 @@ const fillCep = async () => {
 }
 
 const updateUserStore = () => {
+  if (!name.value) alertStore.setFieldError('name', 'Digite seu nome');
+  if (!email.value) alertStore.setFieldError('email', 'Digite seu email');
+  if (!password.value && props.mode === 'create') alertStore.setFieldError('password', 'Insira uma senha');
+  if (!cep.value || !street.value || !number.value || !district.value || !city.value || !state.value || !country.value) alertStore.setFieldError('address', 'Preencha todos os campos do endereço');
+
+  if (Object.keys(alertStore.fieldErrors).length > 0) return;
+
   userStore.user.name = name.value;
   userStore.user.email = email.value;
   userStore.user.password = password.value;
