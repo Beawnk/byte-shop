@@ -9,9 +9,10 @@
         </div>
 			</div>
 		</TransitionGroup>
-		<div class="no-products" v-else>
+		<div class="no-products" v-else-if="products.length === 0 && !loading">
 			<p>Você não tem nenhum produto à venda</p>
 		</div>
+    <Loader v-if="loading"/>
 	</div>
 </template>
 
@@ -27,6 +28,7 @@ const emit = defineEmits(["handleProductModeEdit"]);
 
 const userStore = useUserStore();
 const products = ref([]);
+const loading = ref(false);
 
 const productHoverIndex = ref(null);
 
@@ -66,14 +68,18 @@ watch(() => props.fetchProducts, async () => {
 });
 
 onMounted(async () => {
+  loading.value = true;
 	if(userStore.user.id) {
 		products.value = await userStore.loadProducts();
+    loading.value = false;
 	}
 });
 </script>
 
 <style lang="scss" scoped>
 .products {
+  position: relative;
+  min-height: 300px;
 	.products-list {
     margin-top: 20px;
 		.product {
