@@ -9,9 +9,10 @@
 					</UserOrderItem>
 				</div>
 			</TransitionGroup>
-			<div class="no-orders" v-else>
+			<div class="no-orders" v-else-if="orders.length === 0 && !loading">
 				<h5>Nenhum pedido encontrado</h5>
 			</div>
+			<Loader v-if="loading"/>
 		</div>
 	</div>
 	<UserAddReview v-if="showAddReviewModal" :class="{open: showAddReviewModal}" @close-modal="toggleModal" @reviewed-order="fetchUserReviews" :order="selectedOrder"/>
@@ -31,8 +32,10 @@ const orders = ref([]);
 const showAddReviewModal = ref(false);
 const selectedOrder = ref(null);
 const userReviews = ref([]);
+const loading = ref(false);
 
 const fetchOrders = async () => {
+	loading.value = true;
 	const { data, error } = await supabase
 		.from('orders')
 		.select('*')
@@ -42,6 +45,7 @@ const fetchOrders = async () => {
 		console.error(error);
 	} else {
 		orders.value = data;
+		loading.value = false;
 	}
 };
 
@@ -110,6 +114,8 @@ function onLeave(el, done) {
 
 <style lang="scss" scoped>
 .user-orders {
+	position: relative;
+	min-height: 400px;
 	h2 {
 		color: var(--text-color);
 	}
