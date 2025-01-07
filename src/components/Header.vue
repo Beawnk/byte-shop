@@ -10,7 +10,7 @@
         </nav>
         <div class="user">
             <router-link to="/usuario" v-if="!isLogged" class="btn primary">Login</router-link>
-            <router-link to="/usuario" v-else>{{ userName }}</router-link>
+            <router-link to="/usuario" v-else class="username">{{ userName }}</router-link>
         </div>
     </header>
 </template>
@@ -136,6 +136,21 @@ header {
             &.router-link-active {
                 color: var(--white-color);
                 background-color: var(--primary-color);
+            }
+        }
+    }
+    .user {
+        .username {
+            font-family: var(--ff-primary-semiBold);
+            color: var(--primary-color);
+            font-size: var(--text-medium);
+            padding: 10px;
+            border-radius: 30px;
+            background-color: var(--white-color);
+            transition: var(--transition);
+            &:hover {
+                background-color: var(--secondary-color);
+                color: var(--white-color);
             }
         }
     }

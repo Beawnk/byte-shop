@@ -10,7 +10,7 @@
                 <div class="img">
                   <img :src="product.image_url[0]" :alt="product.name" />
                 </div>
-                <h2>{{ product.name }}</h2>
+                <h2>{{ truncatedText(product.name, 30) }}</h2>
                 <p>{{ formatCurrency(product.price) }}</p>
                 <div class="actions">
                   <router-link :to="{name: 'buy', params: {id: product.id}}" class="btn primary buy-now" v-if="userStore.logged === true">Comprar</router-link>
@@ -20,14 +20,15 @@
             </div>
           </TransitionGroup>
         </div>
-        <div class="no-products" v-else-if="products === null">
+        <div class="no-products" v-else-if="products === null && !loading">
           <h4>Nenhum produto encontrado</h4>
         </div>
-        <div class="pagination" v-if="products">
+        <div class="pagination" v-if="products && !loading">
           <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
           <span>Page {{ currentPage }} of {{ totalPages }}</span>
           <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
         </div>
+        <Loader v-if="loading" />
       </div>
     </transition>
   </section>
@@ -51,6 +52,7 @@ const itemsPerPage = 10
 const totalPages = ref(1)
 const searchValue = ref('')
 const vendorName = ref('')
+const loading = ref(false)
 
 const getQuery = async () => {
   const vendorProducts = JSON.parse(route.query.vendorProducts)
@@ -63,6 +65,7 @@ const getQuery = async () => {
 }
 
 const fetchProducts = async (page = 1) => {
+  loading.value = true
   const from = (page - 1) * itemsPerPage;
   const to = from + itemsPerPage - 1;
 
@@ -80,6 +83,7 @@ const fetchProducts = async (page = 1) => {
   } else {
     products.value = data;
     totalPages.value = Math.ceil(count / itemsPerPage);
+    loading.value = false;
   }
 };
 
@@ -126,6 +130,10 @@ const nextPage = () => {
   }
 }
 
+const truncatedText = (string, letters) => {
+	return string.substring(0, letters)
+}
+
 // GSAP Hooks
 function onBeforeEnter(el) {
   el.style.opacity = 0;
@@ -168,6 +176,10 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 #products-list {
+  .wrapper {
+    position: relative;
+    min-height: 600px;
+  }
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -200,12 +212,12 @@ onMounted(async () => {
       }
       h2 {
         margin-top: 10px;
-        font-size: var(--subtitle-big);
+        font-size: var(--subtitle-medium);
         color: var(--text-color);
       }
       p {
         margin-top: 10px;
-        font-size: var(--subtitle-medium);
+        font-size: var(--subtitle-small);
         color: var(--text-color);
         font-family: var(--ff-primary);
       }
