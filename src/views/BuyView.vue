@@ -45,6 +45,7 @@
 import { ref, onMounted } from 'vue';
 import UserData from '@/components/UserData.vue';
 import { useUserStore } from '@/stores/UserState';
+import { useAlertStore } from '@/stores/alertStore';
 import { formatCurrency } from '@/composables/formatCurrency';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'vue-router';
@@ -52,6 +53,7 @@ import { useRouter } from 'vue-router';
 const props = defineProps(['id']);
 
 const userStore = useUserStore();
+const alertStore = useAlertStore();
 const router = useRouter();
 
 const editAddress = ref(false);
@@ -74,7 +76,7 @@ const fetchProduct = async () => {
 		.single();
 
 	if (error) {
-		console.error(error);
+		alertStore.addGlobalError('Erro ao carregar o produto.')
 	} else {
 		product.value = data;
 	}
@@ -105,15 +107,16 @@ const completeBuy = async () => {
 		},
 	]);
 	if (error) {
-		console.error(error);
+		alertStore.addGlobalError('Erro ao finalizar a compra.', error.message);
 	} else {
 		const { data: productData, error: productError } = await supabase
 			.from('products')
 			.update({ sold: true })
 			.eq('id', product.value.id);
 		if (productError) {
-			console.error(productError);
+			alertStore.addGlobalError('Erro ao finalizar a compra.', productError.message);
 		} else {
+			alertStore.addGlobalSuccess('Compra finalizada com sucesso.');
 			router.push({ name: 'orders' });
 		}
 	}
