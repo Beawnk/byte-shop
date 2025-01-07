@@ -5,7 +5,7 @@
 		</div>
 		<div class="product-info">
 			<h5>{{ product.name }}</h5>
-			<p>{{ product.description }}</p>
+			<p>{{ truncatedText(product.description, 150) }}</p>
 			<p class="price">{{ formatCurrency(product.price) }}</p>
 		</div>
 	</router-link>
@@ -15,6 +15,10 @@
 import { formatCurrency } from '@/composables/formatCurrency';
 
 const props = defineProps(['product'])
+
+const truncatedText = (string, letters) => {
+	return string.substring(0, letters) + '...'
+}
 </script>
 
 <style lang="scss" scoped>
