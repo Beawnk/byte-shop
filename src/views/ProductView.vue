@@ -21,7 +21,7 @@
               <router-link :to="{name: 'buy', params: {id: product.id}}" class="btn primary buy-now" v-if="product.sold === false && userStore.logged === true">Comprar</router-link>
               <router-link :to="{name: 'user', query: {redirect: `comprar/${product.id}`}}" class="btn primary buy-now" v-if="product.sold === false && userStore.logged === false">Comprar</router-link>
               <button class="btn primary" disabled v-if="product.sold === true">Vendido</button>
-              <button class="btn secondary save"></button>
+              <FavoriteButton :productId="product.id" />
             </div>
           </div>
           <VendorInfo :vendor="vendor" @emitOpenReviews="onEmitOpenReviews" />
@@ -40,6 +40,7 @@ import { formatCurrency } from '@/composables/formatCurrency';
 import VendorReviews from '@/components/VendorReviews.vue';
 import VendorInfo from '@/components/VendorInfo.vue';
 import { useUserStore } from '@/stores/UserState';
+import FavoriteButton from '@/components/FavoriteButton.vue';
 
 const props = defineProps({
   id: {
@@ -166,25 +167,6 @@ onMounted(() => {
               .actions {
                   display: flex;
                   gap: 10px;
-                  .save {
-                      background-image: url('../assets/img/icons/favorite.png');
-                      background-size: 25px;
-                      background-repeat: no-repeat;
-                      background-position: 50% calc(50% + 2px);
-                      padding: 20px;
-                      cursor: pointer;
-                      transition: var(--transition);
-                      background-color: transparent;
-                      border: 2px solid var(--gray-color);
-                      &:hover {
-                          background-color: var(--gray-color);
-                          background-image: url('../assets/img/icons/favorited.png');
-                      }
-                      &.saved {
-                          background-color: var(--gray-color);
-                          background-image: url('../assets/img/icons/favorited.png');
-                      }
-                  }
               }
             }
         }

@@ -2,6 +2,7 @@
 	<div class="user-menu">
 		<ul>
 			<li><router-link :to="{name: 'data'}">Dados</router-link></li>
+			<li><router-link :to="{name: 'favorites'}">Favoritos</router-link></li>
 			<li><router-link :to="{name: 'user-products'}">Produtos</router-link></li>
 			<li><router-link :to="{name: 'orders'}">Pedidos</router-link></li>
 			<li><router-link :to="{name: 'sales'}">Vendas</router-link></li>

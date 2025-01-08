@@ -1,6 +1,6 @@
 <template>
 	<div class="id-date">
-		<p><strong>ID:</strong> {{ truncatedText(order.id, 8) }}</p>
+		<p><strong>ID:</strong> {{ truncatedText(order.id, 8, '...') }}</p>
 		<p><strong>Data:</strong> {{ dateTimeFormatted }}</p>
 	</div>
 	<div class="order-wrapper">
@@ -41,8 +41,8 @@ const dateTime = DateTime.fromISO(props.order.created_at, { zone: 'utc' }).setZo
 
 const dateTimeFormatted = dateTime.toFormat('dd/MM/yyyy HH:mm:ss')
 
-const truncatedText = (string, letters) => {
-	return string.substring(0, letters) + '...'
+const truncatedText = (string, letters, end = '') => {
+	return string.substring(0, letters) + end
 }
 </script>
 

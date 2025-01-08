@@ -158,7 +158,6 @@ onMounted(() => {
       flex-direction: column;
       gap: 20px;
       overflow-y: auto;
-      padding-right: 20px;
       .review {
         background-color: var(--white-color);
         padding: 20px;

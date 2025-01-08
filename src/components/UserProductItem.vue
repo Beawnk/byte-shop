@@ -4,10 +4,11 @@
 			<img :src="product.image_url[0]" alt="product.name" />
 		</div>
 		<div class="product-info">
-			<h5>{{ product.name }}</h5>
-			<p>{{ truncatedText(product.description, 150) }}</p>
+			<h5>{{ truncatedText(product.name, 40) }}</h5>
+			<p class="description">{{ truncatedText(product.description, 150, '...') }}</p>
 			<p class="price">{{ formatCurrency(product.price) }}</p>
 		</div>
+		<slot></slot>
 	</router-link>
 </template>
 
@@ -16,8 +17,8 @@ import { formatCurrency } from '@/composables/formatCurrency';
 
 const props = defineProps(['product'])
 
-const truncatedText = (string, letters) => {
-	return string.substring(0, letters) + '...'
+const truncatedText = (string, letters, end = '') => {
+	return string.substring(0, letters) + end
 }
 </script>
 

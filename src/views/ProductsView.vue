@@ -130,8 +130,8 @@ const nextPage = () => {
   }
 }
 
-const truncatedText = (string, letters) => {
-	return string.substring(0, letters)
+const truncatedText = (string, letters, end = '') => {
+	return string.substring(0, letters) + end
 }
 
 // GSAP Hooks
