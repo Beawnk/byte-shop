@@ -15,6 +15,7 @@
                 <div class="actions">
                   <router-link :to="{name: 'buy', params: {id: product.id}}" class="btn primary buy-now" v-if="userStore.logged === true">Comprar</router-link>
                   <router-link :to="{name: 'user', query: {redirect: `comprar/${product.id}`}}" class="btn primary buy-now" v-if="userStore.logged === false">Comprar</router-link>
+                  <FavoriteButton :productId="product.id" @click.stop />
                 </div>
               </router-link>
             </div>
@@ -41,6 +42,7 @@ import ProductsSearch from '@/components/ProductsSearch.vue';
 import { supabase } from '@/lib/supabaseClient'
 import { formatCurrency } from '@/composables/formatCurrency';
 import { useUserStore } from '@/stores/UserState';
+import FavoriteButton from '@/components/FavoriteButton.vue';
 import { gsap } from "gsap";
 
 const userStore = useUserStore()

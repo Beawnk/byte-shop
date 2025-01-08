@@ -1,5 +1,5 @@
 <template>
-  	<button @click="toggleFavorite" :class="{ saved: isFavorite }" class="btn save"></button>
+  	<button @click.prevent="toggleFavorite" :class="{ saved: isFavorite }" class="btn save"></button>
 </template>
 
 <script setup>
