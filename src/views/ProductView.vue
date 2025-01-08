@@ -1,7 +1,7 @@
 <template>
   <section id="product-page" class="container">
     <transition name="down" mode="out-in" appear>
-      <div class="product" v-if="product">
+      <div class="product" v-if="product && vendor">
         <div class="images">
           <div class="img">
             <img :src="selectedImage" :alt="product.name" />
