@@ -26,9 +26,10 @@
           </div>
         </div>
       </div>
-      <div class="no-reviews" v-else>
+      <div class="no-reviews" v-else-if="!reviews.length && !loading">
         <h4>Nenhuma avaliação encontrada</h4>
       </div>
+      <Loader v-if="loading" />
     </div>
   </div>
 </template>
@@ -39,6 +40,7 @@ import { supabase } from '@/lib/supabaseClient'
 import VendorInfo from '@/components/VendorInfo.vue'
 import { useGetVendorStars } from '@/composables/getVendorStars'
 import { useClickOutside } from '@/composables/clickOutside';
+import { DateTime } from 'luxon';
 
 const props = defineProps(['vendorId'])
 
@@ -48,6 +50,7 @@ const reviews = ref([])
 const vendor = ref(null)
 const averageRating = ref(0)
 const modal = ref(null)
+const loading = ref(false)
 
 const fetchReviews = async () => {
   const { data, error } = await supabase
@@ -59,7 +62,6 @@ const fetchReviews = async () => {
     console.error(error)
   } else {
     if (data) {
-      console.log(data)
       const reviewsWithUser = await Promise.all(data.map(async (review) => {
         const { data: userData, error: userError } = await supabase
           .from('users')
@@ -72,7 +74,8 @@ const fetchReviews = async () => {
           return review
         } else {
           const product = await fetchProductName(review.product_id);
-          return { ...review, user_name: userData.name, user_avatar: userData.avatar, product_name: product }
+          const date = dateTime(review.created_at)
+          return { ...review, date: date, user_name: userData.name, user_avatar: userData.avatar, product_name: product }
         }
       }))
     
@@ -138,12 +141,18 @@ const roundRating = (rating) => {
     return Math.round(rating * 2) / 2;
 };
 
+const dateTime = (date) => {
+  return DateTime.fromISO(date, { zone: 'utc' }).setZone('America/Sao_Paulo').toFormat('dd/MM/yyyy HH:mm')
+} 
+
 const closeModal = () => {
   emit('emitCloseModal')
 }
 
-onMounted(() => {
-  fetchReviews()
+onMounted(async () => {
+  loading.value = true
+  await fetchReviews()
+  loading.value = false
 })
 </script>
 
