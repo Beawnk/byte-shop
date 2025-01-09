@@ -201,7 +201,7 @@ onMounted(async () => {
                 color: var(--text-color);
               }
               .date {
-                color: var(--text-color-light);
+                color: var(--text-color);
               }
             }
           }

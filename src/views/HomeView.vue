@@ -6,7 +6,7 @@
         <p>Compra e venda de aparelhos tecnológicos</p>
         <div class="buttons"> 
           <router-link to="/produtos" class="btn primary">Produtos</router-link>
-          <router-link to="/produtos" class="btn primary">Vender</router-link>
+          <router-link to="/usuario/produtos" class="btn secondary">Vender</router-link>
         </div>
       </div>
     </transition>
@@ -14,7 +14,9 @@
 </template>
 
 <script setup>
+import { useUserStore } from '@/stores/UserState';
 
+const userStore = useUserStore();
 </script>
 
 <style lang="scss" scoped>

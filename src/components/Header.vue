@@ -6,7 +6,6 @@
         <nav>
             <router-link to="/" exact>Home</router-link>
             <router-link to="/produtos">Produtos</router-link>
-            <router-link to="/contact">Contato</router-link>
         </nav>
         <div class="user">
             <router-link to="/usuario" v-if="!isLogged" class="btn primary">Login</router-link>
