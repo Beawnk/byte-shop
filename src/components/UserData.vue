@@ -1,5 +1,5 @@
 <template>
-  <form class="user-form">
+  <form class="user-form" @submit.prevent="updateUserStore">
     <div class="user-info" v-show="!route.path.startsWith('/comprar')">
       <div class="profile-pic">
         <img v-if="profilePicUrl" :src="profilePicUrl" alt="Profile Picture" />
@@ -7,63 +7,126 @@
       </div>
       <div class="input">
         <label for="email">Email</label>
-        <input type="email" id="email" v-model="email" placeholder="Digite seu email" />
-        <FieldNotifications :field="'email'"/>
+        <input 
+          type="email" 
+          id="email" 
+          v-model="email" 
+          placeholder="Digite seu email" 
+          @blur="validateField('email')"
+        />
+        <FieldNotifications field="email"/>
       </div>
       <div class="input">
         <label for="name">Nome completo</label>
-        <input type="text" id="name" v-model="name" placeholder="Digite seu nome completo" />
-        <FieldNotifications :field="'name'"/>
+        <input 
+          type="text" 
+          id="name" 
+          v-model="name" 
+          placeholder="Digite seu nome completo" 
+          @blur="validateField('name')"
+        />
+        <FieldNotifications field="name"/>
       </div>
       <div class="input" v-if="props.mode === 'create'">
         <label for="password">Senha</label>
-        <input type="password" id="password" v-model="password" placeholder="Digite sua senha" />
-        <FieldNotifications :field="'password'"/>
+        <input 
+          type="password" 
+          id="password" 
+          v-model="password" 
+          placeholder="Digite sua senha" 
+          @blur="validateField('password')"
+        />
+        <FieldNotifications field="password"/>
       </div>
       <div class="change-pass" v-else>
-        <button class="btn primary" @click.prevent="userStore.sendPasswordResetEmail(userStore.user.email)">Alterar senha</button>
+        <button class="btn primary" @click.prevent="userStore.sendPasswordResetEmail(userStore.user.email)">
+          Alterar senha
+        </button>
       </div>
     </div>
     <h4>Endereço</h4>
     <div class="input cep">
       <label for="cep">CEP</label>
-      <input type="text" id="cep" v-model="cep" placeholder="Digite seu CEP" @keyup="fillCep"/>
-      <FieldNotifications :field="'address'"/>
+      <input 
+        type="text" 
+        id="cep" 
+        v-model="cep" 
+        placeholder="Digite seu CEP" 
+        @keyup="fillCep"
+        @blur="validateField('cep')"
+      />
+      <FieldNotifications field="cep"/>
     </div>
     <div class="input-group">
       <div class="input street">
         <label for="street">Rua</label>
-        <input type="text" id="street" v-model="street" placeholder="Digite sua rua" />
-        <FieldNotifications :field="'address'"/>
+        <input 
+          type="text" 
+          id="street" 
+          v-model="street" 
+          placeholder="Digite sua rua" 
+          @blur="validateField('street')"
+        />
+        <FieldNotifications field="street"/>
       </div>
       <div class="input number">
         <label for="number">Número</label>
-        <input type="text" id="number" v-model="number" placeholder="000" />
-        <FieldNotifications :field="'address'"/>
+        <input 
+          type="text" 
+          id="number" 
+          v-model="number" 
+          placeholder="000" 
+          @blur="validateField('number')"
+        />
+        <FieldNotifications field="number"/>
       </div>
-    </div> 
+    </div>
     <div class="input-group">
       <div class="input">
         <label for="district">Bairro</label>
-        <input type="text" id="district" v-model="district" placeholder="Digite seu bairro" />
-        <FieldNotifications :field="'address'"/>
+        <input 
+          type="text" 
+          id="district" 
+          v-model="district" 
+          placeholder="Digite seu bairro" 
+          @blur="validateField('district')"
+        />
+        <FieldNotifications field="district"/>
       </div>
       <div class="input">
         <label for="city">Cidade</label>
-        <input type="text" id="city" v-model="city" placeholder="Digite sua cidade" />
-        <FieldNotifications :field="'address'"/>
+        <input 
+          type="text" 
+          id="city" 
+          v-model="city" 
+          placeholder="Digite sua cidade" 
+          @blur="validateField('city')"
+        />
+        <FieldNotifications field="city"/>
       </div>
     </div>
     <div class="input-group">
       <div class="input">
         <label for="state">Estado</label>
-        <input type="text" id="state" v-model="state" placeholder="Digite seu estado" />
-        <FieldNotifications :field="'address'"/>
+        <input 
+          type="text" 
+          id="state" 
+          v-model="state" 
+          placeholder="Digite seu estado" 
+          @blur="validateField('state')"
+        />
+        <FieldNotifications field="state"/>
       </div>
       <div class="input">
         <label for="country">País</label>
-        <input type="text" id="country" v-model="country" placeholder="Digite seu país" />
-        <FieldNotifications :field="'address'"/>
+        <input 
+          type="text" 
+          id="country" 
+          v-model="country" 
+          placeholder="Digite seu país" 
+          @blur="validateField('country')"
+        />
+        <FieldNotifications field="country"/>
       </div>
     </div>
     <div class="action">
@@ -74,28 +137,80 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
+import { useForm, useField } from 'vee-validate';
+import { userSchema } from '@/composables/userSchema';
 import { useUserStore } from '@/stores/UserState';
 import { useAlertStore } from '@/stores/alertStore';
 import { useGetAddress } from '@/composables/getAddress';
 import { useRoute } from 'vue-router';
 
 const props = defineProps(['mode']);
-
 const userStore = useUserStore();
 const alertStore = useAlertStore();
 const route = useRoute();
 
-const email = ref('');
-const name = ref('');
-const password = ref('');
-const cep = ref('');
-const street = ref('');
-const number = ref('');
-const district = ref('');
-const city = ref('');
-const state = ref('');
-const country = ref('');
+// Initialize form with validation schema
+const { handleSubmit } = useForm({
+  validationSchema: userSchema,
+  validateOnMount: false,
+  context: {
+    mode: props.mode,
+  },
+});
+
+// Setup fields with validation
+const { value: email, validate: validateEmail } = useField('email', undefined, {
+  validateOnValueUpdate: false
+});
+const { value: name, validate: validateName } = useField('name', undefined, {
+  validateOnValueUpdate: false
+});
+const { value: password, validate: validatePassword } = useField('password', undefined, {
+  validateOnValueUpdate: false
+});
+const { value: cep, validate: validateCep } = useField('cep', undefined, {
+  validateOnValueUpdate: false
+});
+const { value: street, validate: validateStreet } = useField('street', undefined, {
+  validateOnValueUpdate: false
+});
+const { value: number, validate: validateNumber } = useField('number', undefined, {
+  validateOnValueUpdate: false
+});
+const { value: district, validate: validateDistrict } = useField('district', undefined, {
+  validateOnValueUpdate: false
+});
+const { value: city, validate: validateCity } = useField('city', undefined, {
+  validateOnValueUpdate: false
+});
+const { value: state, validate: validateState } = useField('state', undefined, {
+  validateOnValueUpdate: false
+});
+const { value: country, validate: validateCountry } = useField('country', undefined, {
+  validateOnValueUpdate: false
+});
+
 const profilePicUrl = ref('https://tnwvrtitkleeayjechmy.supabase.co/storage/v1/object/public/byte/avatars/profile-default.png');
+
+// Validate single field
+const validateField = (fieldName) => {
+  const validateMap = {
+    email: validateEmail,
+    name: validateName,
+    password: validatePassword,
+    cep: validateCep,
+    street: validateStreet,
+    number: validateNumber,
+    district: validateDistrict,
+    city: validateCity,
+    state: validateState,
+    country: validateCountry
+  };
+  
+  if (validateMap[fieldName]) {
+    validateMap[fieldName]();
+  }
+};
 
 onMounted(() => {
   email.value = userStore.user.email;
@@ -130,37 +245,40 @@ const fillCep = async () => {
     district.value = address.bairro;
     city.value = address.localidade;
     state.value = address.uf;
+    
+    // Validate filled fields
+    validateField('street');
+    validateField('district');
+    validateField('city');
+    validateField('state');
   }
-}
+};
 
-const updateUserStore = () => {
+const updateUserStore = handleSubmit(async (values) => {
   alertStore.clearNotifications();
   
-  if (!name.value) alertStore.setFieldError('name', 'Digite seu nome');
-  if (!email.value) alertStore.setFieldError('email', 'Digite seu email');
-  if (!password.value && props.mode === 'create') alertStore.setFieldError('password', 'Insira uma senha');
-  if (!cep.value || !street.value || !number.value || !district.value || !city.value || !state.value || !country.value) alertStore.setFieldError('address', 'Preencha todos os campos do endereço');
+  try {
+    userStore.user.name = values.name;
+    userStore.user.email = values.email;
+    userStore.user.password = values.password;
+    userStore.user.avatar = profilePicUrl.value;
+    userStore.user.address_street = values.street;
+    userStore.user.address_number = values.number;
+    userStore.user.address_district = values.district;
+    userStore.user.address_city = values.city;
+    userStore.user.address_state = values.state;
+    userStore.user.address_country = values.country;
+    userStore.user.address_cep = values.cep;
 
-  if (Object.keys(alertStore.fieldErrors).length > 0) return;
-
-  userStore.user.name = name.value;
-  userStore.user.email = email.value;
-  userStore.user.password = password.value;
-  userStore.user.avatar = profilePicUrl.value;
-  userStore.user.address_street = street.value;
-  userStore.user.address_number = number.value;
-  userStore.user.address_district = district.value;
-  userStore.user.address_city = city.value;
-  userStore.user.address_state = state.value;
-  userStore.user.address_country = country.value;
-  userStore.user.address_cep = cep.value;
-  if (props.mode === 'edit') {
-    userStore.updateAccount();
-  } else if (props.mode === 'create') {
-    userStore.createAccount(email.value, password.value);
+    if (props.mode === 'edit') {
+      await userStore.updateAccount();
+    } else if (props.mode === 'create') {
+      await userStore.createAccount(values.email, values.password);
+    }
+  } catch (error) {
+    // Error handling is done in userStore
   }
-  
-};
+});
 </script>
 
 <style lang="scss">
