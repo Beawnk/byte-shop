@@ -228,5 +228,8 @@ const updateUserStore = () => {
     justify-content: flex-end !important;
   }
 }
+.signup .action {
+  justify-content: center !important;
+}
 
 </style>

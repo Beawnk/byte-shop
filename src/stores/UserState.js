@@ -148,8 +148,8 @@ export const useUserStore = defineStore('user', () => {
     	  	});
 
     	  	if (authError) {
-				alertStore.addGlobalError('Erro ao criar conta.', authError.message);
-				throw new Error(authError.message);
+				alertStore.addGlobalError('Erro ao criar conta.', authError);
+				throw new Error(authError);
 			}
 
     	  	if (data.user) {
