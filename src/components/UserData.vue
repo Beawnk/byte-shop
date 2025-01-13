@@ -1,5 +1,5 @@
 <template>
-  <form class="user-form" @submit.prevent="updateUserStore">
+  <form class="user-form">
     <div class="user-info" v-show="!route.path.startsWith('/comprar')">
       <div class="profile-pic">
         <img v-if="profilePicUrl" :src="profilePicUrl" alt="Profile Picture" />
@@ -138,7 +138,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { useForm, useField } from 'vee-validate';
-import { userSchema } from '@/composables/userSchema';
+import { getUserSchema } from '@/composables/userSchema';
 import { useUserStore } from '@/stores/UserState';
 import { useAlertStore } from '@/stores/alertStore';
 import { useGetAddress } from '@/composables/getAddress';
@@ -151,41 +151,47 @@ const route = useRoute();
 
 // Initialize form with validation schema
 const { handleSubmit } = useForm({
-  validationSchema: userSchema,
+  validationSchema: computed(() => getUserSchema(props.mode)),
   validateOnMount: false,
-  context: {
-    mode: props.mode,
-  },
 });
 
 // Setup fields with validation
 const { value: email, validate: validateEmail } = useField('email', undefined, {
   validateOnValueUpdate: false
 });
+
 const { value: name, validate: validateName } = useField('name', undefined, {
   validateOnValueUpdate: false
 });
+
 const { value: password, validate: validatePassword } = useField('password', undefined, {
   validateOnValueUpdate: false
 });
+
 const { value: cep, validate: validateCep } = useField('cep', undefined, {
   validateOnValueUpdate: false
 });
+
 const { value: street, validate: validateStreet } = useField('street', undefined, {
   validateOnValueUpdate: false
 });
+
 const { value: number, validate: validateNumber } = useField('number', undefined, {
   validateOnValueUpdate: false
 });
+
 const { value: district, validate: validateDistrict } = useField('district', undefined, {
   validateOnValueUpdate: false
 });
+
 const { value: city, validate: validateCity } = useField('city', undefined, {
   validateOnValueUpdate: false
 });
+
 const { value: state, validate: validateState } = useField('state', undefined, {
   validateOnValueUpdate: false
 });
+
 const { value: country, validate: validateCountry } = useField('country', undefined, {
   validateOnValueUpdate: false
 });
@@ -215,7 +221,6 @@ const validateField = (fieldName) => {
 onMounted(() => {
   email.value = userStore.user.email;
   name.value = userStore.user.name;
-  password.value = userStore.user.password;
   profilePicUrl.value = userStore.user.avatar;
   cep.value = userStore.user.address_cep;
   street.value = userStore.user.address_street;
@@ -260,7 +265,6 @@ const updateUserStore = handleSubmit(async (values) => {
   try {
     userStore.user.name = values.name;
     userStore.user.email = values.email;
-    userStore.user.password = values.password;
     userStore.user.avatar = profilePicUrl.value;
     userStore.user.address_street = values.street;
     userStore.user.address_number = values.number;
@@ -276,7 +280,7 @@ const updateUserStore = handleSubmit(async (values) => {
       await userStore.createAccount(values.email, values.password);
     }
   } catch (error) {
-    // Error handling is done in userStore
+    // Erros estão no arquivo userState.js
   }
 });
 </script>
