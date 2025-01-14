@@ -3,7 +3,7 @@
 		<div class="modal-content" ref="modal">
 			<div class="handle-product">
 				<div class="handle-product-form">
-					<form @submit.prevent="handleSubmit(saveProduct)">
+					<form @submit.prevent="saveProduct">
 						<div class="input">
 							<label for="name">Nome do produto</label>
 							<input
@@ -107,7 +107,6 @@ const productSchema = yup.object({
     .required('Insira o preço do produto'),
   images: yup
     .array()
-    .of(yup.string().required())
     .min(1, 'Adicione pelo menos uma imagem')
     .max(5, 'Você só pode adicionar até 5 imagens'),
 });
@@ -136,11 +135,8 @@ const { value: images } = useField('images', undefined, {
 	validateOnValueUpdate: false
 });
 
-const onFileChange = (e) => {
-	console.log(e);
-	console.log(images.value);
-	useHandleImages(images, e);
-	console.log(images.value);
+const onFileChange = async (e) => {
+	images.value = await useHandleImages(images.value, e);
 };
 
 const removeImage = (index) => {
@@ -148,10 +144,7 @@ const removeImage = (index) => {
 };
 
 const saveProduct = handleSubmit(async (values) => {
-	console.log(values);
 	alertStore.clearNotifications();
-
-	validateImages();
 
 	const payload = {
 		id: values.name.toLowerCase().replace(/ /g, '-'),
@@ -166,6 +159,10 @@ const saveProduct = handleSubmit(async (values) => {
 	try {
 		if (props.mode === 'add') {
 			await supabase.from('products').insert([payload]);
+			name.value = '';
+			description.value = '';
+			price.value = '';
+			images.value = [];
 			alertStore.addGlobalSuccess('Produto adicionado com sucesso');
 		} else if (props.mode === 'edit') {
 			await supabase
@@ -184,6 +181,8 @@ const saveProduct = handleSubmit(async (values) => {
 watch(
 	() => props.productId,
 	async () => {
+		resetForm();
+		alertStore.clearNotifications();
 		if (props.mode === 'edit' && props.productId) {
 			const product = await userStore.getProduct(props.productId);
 			name.value = product.name;
