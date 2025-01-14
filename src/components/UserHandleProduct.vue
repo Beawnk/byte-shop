@@ -1,145 +1,204 @@
 <template>
 	<div class="modal product-modal">
-		<div class="modal-content" ref="modal"> 
+		<div class="modal-content" ref="modal">
 			<div class="handle-product">
 				<div class="handle-product-form">
-					<form>
+					<form @submit.prevent="handleSubmit(saveProduct)">
 						<div class="input">
 							<label for="name">Nome do produto</label>
-							<input type="text" id="name" v-model="name" />
-							<FieldNotifications :field="'name'"/>
+							<input
+								type="text"
+								id="name"
+								v-model="name"
+								@blur="validateName"
+							/>
+							<FieldNotifications :field="'name'" />
 						</div>
 						<div class="input">
 							<label for="description">Descrição</label>
-							<textarea id="description" rows="4" cols="50" v-model="description"></textarea>
-							<FieldNotifications :field="'description'"/>
+							<textarea
+								id="description"
+								rows="4"
+								cols="50"
+								v-model="description"
+								@blur="validateDescription"
+							></textarea>
+							<FieldNotifications :field="'description'" />
 						</div>
 						<div class="input price">
 							<label for="price">Preço</label>
-							<input type="text" id="price" v-model="price"/>
-							<FieldNotifications :field="'price'"/>
+							<input
+								type="text"
+								id="price"
+								v-model="price"
+								@blur="validatePrice"
+							/>
+							<FieldNotifications :field="'price'" />
 						</div>
 						<div class="input image">
 							<label for="image">Imagem</label>
 							<div class="images">
-								<div class="image" v-for="(image, index) in images" :key="index" @mouseover="imgHoverIndex = index" @mouseleave="imgHoverIndex = null">
+								<div
+									class="image"
+									v-for="(image, index) in images"
+									:key="index"
+									@mouseover="imgHoverIndex = index"
+									@mouseleave="imgHoverIndex = null"
+								>
 									<img :src="image" alt="Imagem do produto" />
-									<button class="remove" v-show="imgHoverIndex === index" @click.prevent="removeImage(index)"></button>
+									<button
+										class="remove"
+										v-show="imgHoverIndex === index"
+										@click.prevent="removeImage(index)"
+									></button>
 								</div>
 								<div class="input-image">
-									<input type="file" id="image" @change="onFileChange" multiple />
+									<input
+										type="file"
+										id="image"
+										@change="onFileChange"
+										multiple
+									/>
 								</div>
 							</div>
-							<FieldNotifications :field="'image'"/>
+							<FieldNotifications :field="'images'" />
+						</div>
+						<div class="actions">
+							<button class="btn secondary cancel" @click="$emit('hideProductModal')">
+								Cancelar
+							</button>
+							<button class="btn primary save" type="submit">
+								Salvar
+							</button>
 						</div>
 					</form>
-				</div>
-				<div class="actions">
-					<button class="btn secondary cancel" @click="$emit('hideProductModal')">Cancelar</button>
-					<button class="btn primary save" @click.prevent="saveProduct">Salvar</button>
 				</div>
 			</div>
 		</div>
 	</div>
-
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useHandleImages } from '@/composables/handleImages';
 import { useUserStore } from '@/stores/UserState';
-import { supabase } from '@/lib/supabaseClient'
+import { supabase } from '@/lib/supabaseClient';
 import { useClickOutside } from '@/composables/clickOutside';
 import { useAlertStore } from '@/stores/alertStore';
+import * as yup from 'yup';
+import { useForm, useField } from 'vee-validate';
 
 const props = defineProps(['productId', 'mode']);
 const emit = defineEmits(['hideProductModal', 'productSaved']);
+
 const userStore = useUserStore();
 const alertStore = useAlertStore();
 
-const name = ref('');
-const description = ref('');
-const price = ref('');
-const images = ref([]);
-
-const modal = ref(null)
-
+const modal = ref(null);
 const imgHoverIndex = ref(null);
 
+const productSchema = yup.object({
+  name: yup.string().required('Insira o nome do produto'),
+  description: yup.string().required('Insira a descrição do produto'),
+  price: yup
+    .number()
+    .typeError('Insira um número válido para o preço')
+    .positive('O preço deve ser positivo')
+    .required('Insira o preço do produto'),
+  images: yup
+    .array()
+    .of(yup.string().required())
+    .min(1, 'Adicione pelo menos uma imagem')
+    .max(5, 'Você só pode adicionar até 5 imagens'),
+});
+
+const { handleSubmit, resetForm } = useForm({
+  validationSchema: productSchema,
+  validateOnMount: false,
+  initialValues: {
+    name: '',
+    description: '',
+    price: '',
+    images: [],
+  },
+});
+
+const { value: name, validate: validateName } = useField('name', undefined, {
+	validateOnValueUpdate: false
+});
+const { value: description, validate: validateDescription } = useField('description', undefined, {
+	validateOnValueUpdate: false
+});
+const { value: price, validate: validatePrice } = useField('price', undefined, {
+	validateOnValueUpdate: false
+});
+const { value: images } = useField('images', undefined, {
+	validateOnValueUpdate: false
+});
+
 const onFileChange = (e) => {
-  	images.value = useHandleImages(images.value, e);
+	console.log(e);
+	console.log(images.value);
+	useHandleImages(images, e);
+	console.log(images.value);
 };
 
 const removeImage = (index) => {
-  	images.value.splice(index, 1);
+	images.value.splice(index, 1);
 };
 
-const saveProduct = async () => {
+const saveProduct = handleSubmit(async (values) => {
+	console.log(values);
 	alertStore.clearNotifications();
 
-	if (!name.value) alertStore.setFieldError('name', 'Insira o nome do produto');
-	if (!description.value) alertStore.setFieldError('description', 'Insira a descrição do produto');
-	if (!price.value) alertStore.setFieldError('price', 'Insira o preço do produto');
-	if (images.value.length === 0) alertStore.setFieldError('image', 'Adicione pelo menos uma imagem do produto');
+	validateImages();
 
-	if (Object.keys(alertStore.fieldErrors).length > 0) return;
+	const payload = {
+		id: values.name.toLowerCase().replace(/ /g, '-'),
+		name: values.name,
+		description: values.description,
+		price: values.price,
+		image_url: values.images,
+		vendor_id: userStore.user.id,
+		sold: false
+	};
 
-	if (props.mode === 'add') {
-  		const { data, error } = await supabase
-		.from('products')
-		.insert([
-		  	{
-				id: name.value.toLowerCase().replace(/ /g, '-'),
-				name: name.value,
-				description: description.value,
-				price: price.value,
-				image_url: images.value,
-				vendor_id: userStore.user.id,
-				sold: false
-		  	}
-		]);
-		
-  		if (error) {
-			alertStore.addGlobalError('Erro ao adicionar produto');
-  		} else {
+	try {
+		if (props.mode === 'add') {
+			await supabase.from('products').insert([payload]);
 			alertStore.addGlobalSuccess('Produto adicionado com sucesso');
-			emit('hideProductModal');
-			emit('productSaved');
-  		}
-	} else if (props.mode === 'edit') {
-    	const { data, error } = await supabase
-    	  .from('products')
-    	  .update({
-    	    name: name.value,
-    	    description: description.value,
-    	    price: price.value,
-    	    image_url: images.value,
-    	  })
-    	  .eq('id', props.productId);
-    	if (error) {
-    	  	alertStore.addGlobalError('Erro ao atualizar produto');
-    	} else {
-		  	alertStore.addGlobalSuccess('Produto atualizado com sucesso');
-			emit('hideProductModal');
-  			emit('productSaved');	
+		} else if (props.mode === 'edit') {
+			await supabase
+				.from('products')
+				.update(payload)
+				.eq('id', props.productId);
+			alertStore.addGlobalSuccess('Produto atualizado com sucesso');
 		}
-  	}
-};
+		emit('hideProductModal');
+		emit('productSaved');
+	} catch (error) {
+		alertStore.addGlobalError('Erro ao salvar produto');
+	}
+});
 
-watch(() => props.productId, async () => {
-	if (props.mode === 'edit' && props.productId) {
-		const product = await userStore.getProduct(props.productId);
-		name.value = product.name;
-		description.value = product.description;
-		price.value = product.price;
-		images.value = product.image_url;
-  	} else if (props.mode === 'add') {
-		name.value = '';
-		description.value = '';
-		price.value = '';
-		images.value = [];
-  	}
-},{ immediate: true });
+watch(
+	() => props.productId,
+	async () => {
+		if (props.mode === 'edit' && props.productId) {
+			const product = await userStore.getProduct(props.productId);
+			name.value = product.name;
+			description.value = product.description;
+			price.value = product.price;
+			images.value = product.image_url;
+		} else {
+			name.value = '';
+			description.value = '';
+			price.value = '';
+			images.value = [];
+		}
+	},
+	{ immediate: true }
+);
 
 onMounted(() => {
 	if (props.mode === 'add') {
@@ -151,6 +210,7 @@ onMounted(() => {
 	useClickOutside(modal, () => emit('hideProductModal'));
 });
 </script>
+
 
 <style lang="scss" scoped>
 .handle-product {

@@ -1,31 +1,38 @@
-import { useAlertStore } from "@/stores/alertStore";
+import { object, array, string } from 'yup';
 
-export function useHandleImages(fileImages, e) {
-  const alertStore = useAlertStore();
+export function useHandleImages(imagesRef, e) {
+  const schema = object({
+    images: array()
+      .of(
+        string()
+          .url()
+          .required('Imagem inválida.')
+      )
+      .max(5, 'Você só pode adicionar até 5 imagens.')
+  });
+
   const files = e.target.files;
-
-  // Check if the number of images exceeds 5
-  if (fileImages.length + files.length > 5) {
-    alertStore.setFieldError('image', 'Você só pode adicionar até 5 imagens.');
-    return fileImages;
-  }
+  const validImages = [...imagesRef];
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
-
-    // Check if the file is an image in PNG, JPG, or JPEG format
     const fileType = file.type;
-    if (fileType !== 'image/png' && fileType !== 'image/jpeg' && fileType !== 'image/jpg') {
-      alertStore.setFieldError('image', 'Apenas imagens em formato PNG, JPG, e JPEG são permitidas.');
-      continue; // Skip invalid file and process the next one
+
+    if (!['image/png', 'image/jpeg', 'image/jpg'].includes(fileType)) {
+      continue; // Skip invalid file
     }
 
-    // Create object URL for the valid image file using FileReader
     const reader = new FileReader();
     reader.onload = (event) => {
-      fileImages.push(event.target.result); // Add the data URL to the array
+      validImages.push(event.target.result); // Add valid image
+      schema
+        .validate({ images: validImages })
+        .then(() => (imagesRef.value = validImages))
+        .catch(() => {
+          // Ignore invalid schema states for now
+        });
     };
-    reader.readAsDataURL(file); // Read the file as a Data URL
+    reader.readAsDataURL(file); // Read file as URL
   }
-  return fileImages; // Return updated array
 }
+

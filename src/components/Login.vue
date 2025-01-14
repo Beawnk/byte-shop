@@ -45,13 +45,11 @@
 <script setup>
 import { useForm, useField } from 'vee-validate';
 import { useUserStore } from '@/stores/UserState';
-import { useAlertStore } from '@/stores/alertStore';
 import * as yup from 'yup';
 
 const emit = defineEmits(['emitSignUpPage']);
 
 const userStore = useUserStore();
-const alertStore = useAlertStore();
 
 const loginSchema = yup.object({
   email: yup.string()

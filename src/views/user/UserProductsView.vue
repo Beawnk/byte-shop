@@ -18,6 +18,7 @@ const fetchProducts = ref(0);
 const editedProduct = ref(null);
 
 const addNewProduct = () => {
+	editedProduct.value = null;
 	handleProductMode.value = 'add';
 	showHandleProduct.value = true;
 };
