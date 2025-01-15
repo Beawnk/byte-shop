@@ -1,5 +1,6 @@
 <template>
     <div class="login-form">
+        <Loader v-if="loading"/>
         <h2>Login</h2>
         <form @submit.prevent="onSubmit">
             <div class="input">
@@ -43,6 +44,7 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { useForm, useField } from 'vee-validate';
 import { useUserStore } from '@/stores/UserState';
 import * as yup from 'yup';
@@ -50,6 +52,8 @@ import * as yup from 'yup';
 const emit = defineEmits(['emitSignUpPage']);
 
 const userStore = useUserStore();
+
+const loading = ref(false);
 
 const loginSchema = yup.object({
   email: yup.string()
@@ -85,6 +89,7 @@ const validateField = (fieldName) => {
 // Handle form submission
 const onSubmit = handleSubmit(async (values) => {
   try {
+    loading.value = true;
     await userStore.login(values.email, values.password);
   } catch (error) {
     // Error handling is already done in userStore

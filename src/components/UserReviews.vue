@@ -162,7 +162,6 @@ onMounted(async () => {
 		  background-color: var(--white-color);
 		  padding: 20px;
 		  border-radius: var(--border-radius);
-		  box-shadow: var(--shadow);
 		  .user {
 			display: flex;
 			gap: 20px;

@@ -10,7 +10,6 @@ export const useAlertStore = defineStore('notification', () => {
   // Add a global error
   const addGlobalError = (message) => {
     globalErrors.value.push(message);
-    console.log(globalErrors.value);
     setTimeout(() => {
       globalErrors.value.shift(); // Auto-remove after 5 seconds
     }, 5000);
@@ -19,7 +18,6 @@ export const useAlertStore = defineStore('notification', () => {
   // Add a global success
   const addGlobalSuccess = (message) => {
     globalSuccesses.value.push(message);
-    console.log(globalSuccesses.value);
     setTimeout(() => {
       globalSuccesses.value.shift(); // Auto-remove after 5 seconds
     }, 5000);

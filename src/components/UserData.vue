@@ -1,5 +1,6 @@
 <template>
   <form class="user-form">
+    <Loader v-if="loading"/>
     <div class="user-info" v-show="!route.path.startsWith('/comprar')">
       <div class="profile-pic">
         <img v-if="profilePicUrl" :src="profilePicUrl" alt="Profile Picture" />
@@ -148,6 +149,7 @@ const props = defineProps(['mode']);
 const userStore = useUserStore();
 const alertStore = useAlertStore();
 const route = useRoute();
+const loading = ref(false);
 
 // Initialize form with validation schema
 const { handleSubmit } = useForm({
@@ -260,6 +262,7 @@ const fillCep = async () => {
 };
 
 const updateUserStore = handleSubmit(async (values) => {
+  loading.value = true;
   alertStore.clearNotifications();
   
   try {
@@ -276,11 +279,14 @@ const updateUserStore = handleSubmit(async (values) => {
 
     if (props.mode === 'edit') {
       await userStore.updateAccount();
+      loading.value = false;
     } else if (props.mode === 'create') {
       await userStore.createAccount(values.email, values.password);
+      loading.value = false;
     }
   } catch (error) {
     // Erros estão no arquivo userState.js
+    loading.value = false;
   }
 });
 </script>
