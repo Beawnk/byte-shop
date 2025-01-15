@@ -19,6 +19,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { useUserStore } from '@/stores/UserState';
+import { useAlertStore } from '@/stores/alertStore';
 import UserProductItem from '@/components/UserProductItem.vue';
 import { gsap } from "gsap";
 
@@ -27,6 +28,7 @@ const props = defineProps(["fetchProducts"]);
 const emit = defineEmits(["handleProductModeEdit"]);
 
 const userStore = useUserStore();
+const alertStore = useAlertStore();
 const products = ref([]);
 const loading = ref(false);
 

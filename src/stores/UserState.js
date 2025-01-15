@@ -263,7 +263,7 @@ export const useUserStore = defineStore('user', () => {
 	};
 
 	const loadProducts = async () => {
-		alertStore.clearNotifications();
+		// alertStore.clearNotifications();
 		try {
 		   	const { data, error } = await supabase
 			.from('products')

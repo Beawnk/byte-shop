@@ -178,6 +178,52 @@ const saveProduct = handleSubmit(async (values) => {
 	}
 });
 
+// const saveProduct = handleSubmit(async (values) => {
+// 	alertStore.clearNotifications();
+
+// 	if (props.mode === 'add') {
+//   		const { data, error } = await supabase
+// 		.from('products')
+// 		.insert([
+// 		  	{
+// 				id: values.name.toLowerCase().replace(/ /g, '-'),
+// 				name: values.name,
+// 				description: values.description,
+// 				price: values.price,
+// 				image_url: values.images,
+// 				vendor_id: userStore.user.id,
+// 				sold: false
+// 		  	}
+// 		]);
+		
+//   		if (error) {
+// 			alertStore.addGlobalError('Erro ao salvar produto', error);
+//   		} else {
+// 			emit('hideProductModal');
+// 			emit('productSaved');
+// 			alertStore.addGlobalSuccess('Produto adicionado com sucesso');
+//   		}
+// 	} else if (props.mode === 'edit') {
+//     	const { data, error } = await supabase
+//     	  .from('products')
+//     	  .update({
+//     	    name: values.name,
+// 			description: values.description,
+// 			price: values.price,
+// 			image_url: values.images,
+//     	  })
+//     	  .eq('id', props.productId);
+//     	if (error) {
+// 		  alertStore.addGlobalError('Erro ao salvar produto', error);
+//     	} else {
+// 			emit('hideProductModal');
+//   			emit('productSaved');	
+// 			alertStore.addGlobalSuccess('Produto atualizado com sucesso');
+// 		}
+//   	}
+// });
+
+
 watch(
 	() => props.productId,
 	async () => {

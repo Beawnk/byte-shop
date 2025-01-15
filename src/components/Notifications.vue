@@ -29,7 +29,7 @@ const props = defineProps({
   	display: flex;
   	flex-direction: column;
   	align-items: flex-end;
-  	z-index: 1000;
+  	z-index: 2000;
   	width: 300px;
 	.alert {
 		color: var(--white-color);
