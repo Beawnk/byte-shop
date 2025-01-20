@@ -1,17 +1,22 @@
 <template>
-  	<button @click.prevent="toggleFavorite" :class="{ saved: isFavorite }" class="btn save"></button>
+  	<button v-if="userStore.logged" @click.prevent="toggleFavorite" :class="{ saved: isFavorite }" class="btn save"></button>
+    <router-link v-else :to="{name: 'user', query: {redirect: `produtos/${props.productId}`}}" class="btn save"></router-link>
 </template>
 
 <script setup>
 import { useFavoritesStore } from '@/stores/favoritesStore';
+import { useUserStore } from '@/stores/UserState';
 import { onMounted, computed } from 'vue';
 
 const props = defineProps(['productId']);
 
 const favoritesStore = useFavoritesStore();
+const userStore = useUserStore();
 
 onMounted(() => {
-  favoritesStore.fetchFavorites();
+  if (userStore.logged) {
+    favoritesStore.fetchFavorites();
+  }
 });
 
 const isFavorite = computed(() => favoritesStore.isFavorite(props.productId));
