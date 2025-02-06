@@ -9,6 +9,8 @@
 </script>
 
 <style lang="scss" scoped>
+@use '@/assets/style/main.scss' as m;
+
 footer {
     display: flex;
     justify-content: center;
@@ -18,6 +20,10 @@ footer {
     color: var(--white-color);
     position: relative;
     top: 60px;
+    @include m.media(540px) {
+        top: 40px;
+        height: 40px;
+    }
     .gradient & {
       background-color: var(--secondary-color);
       top: 0;

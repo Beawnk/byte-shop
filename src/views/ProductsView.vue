@@ -177,6 +177,8 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
+@use '@/assets/style/main.scss' as m;
+
 #products-list {
   .wrapper {
     position: relative;
@@ -206,6 +208,9 @@ onMounted(async () => {
         height: 400px;
         object-fit: cover;
         overflow: hidden;
+        @include m.media(540px) {
+          height: 300px;
+        }
         img {
           width: 100%;
           height: 100%;

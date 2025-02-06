@@ -42,6 +42,9 @@ watch(() => props.vendorName, (newValue) => {
     @include m.media(900px) {
         width: 100%;
     }
+    @include m.media(540px) {
+        margin: 0 auto 20px;
+    }
     input#search {
         border-color: transparent;
         margin-right: 10px;
@@ -58,6 +61,9 @@ watch(() => props.vendorName, (newValue) => {
         background-size: 30px;
         background-repeat: no-repeat;
         background-position: center;
+        @include m.media(540px) {
+            background-size: 25px;
+        }
         &:hover {
             background-image: url('../assets/img/icons/search-hover.png');
         }

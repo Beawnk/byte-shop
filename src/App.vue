@@ -131,6 +131,9 @@ input, textarea {
   font-size: var(--text-medium);
   transition: var(--transition);
   color: var(--text-color);
+  @include m.media(540px) {
+    padding: 10px;
+  }
 }
 
 input:focus, textarea:focus {
