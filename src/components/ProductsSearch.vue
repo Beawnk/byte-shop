@@ -30,6 +30,8 @@ watch(() => props.vendorName, (newValue) => {
 </script>
 
 <style lang="scss" scoped>
+@use '@/assets/style/main.scss' as m;
+
 .search-products {
     display: flex;
     justify-content: center;
@@ -37,6 +39,9 @@ watch(() => props.vendorName, (newValue) => {
     position: relative;
     width: fit-content;
     margin: 0 auto 40px;
+    @include m.media(900px) {
+        width: 100%;
+    }
     input#search {
         border-color: transparent;
         margin-right: 10px;

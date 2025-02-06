@@ -184,15 +184,22 @@ button {
     flex-direction: column;
 }
 
-@media only screen and (max-width: 800px) {
+@media only screen and (max-width: 900px) {
     :root {
         --title-big: 30px;
+
+        --section: 40px;
+        --side: 60px;
     }
 }
 
 @media only screen and (max-width: 540px) {
     :root {
+        --header-height: 80px;
+        --side: 30px;
+
         /* font sizes */
+        --title-super: 38px;
         --title-big: 24px;
         --title-medium: 22px;
         --title-small: 20px;

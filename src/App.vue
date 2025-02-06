@@ -42,6 +42,8 @@ watch(route, () => {
 </script>
 
 <style lang="scss">
+@use '@/assets/style/main.scss' as m;
+
 .down-enter-active,
 .down-leave-active {
   transition: opacity, transform 0.5s ease;
@@ -79,6 +81,9 @@ main {
   border: 2px solid transparent;
   cursor: pointer;
   font-size: var(--text-medium);
+  @include m.media(540px) {
+    padding: 10px 15px;
+  }
   &.primary {
     background-color: var(--primary-color);
     border-color: var(--primary-color);

@@ -47,6 +47,8 @@ watch(route, () => {
 </script>
 
 <style lang="scss" scoped>
+@use '@/assets/style/main.scss' as m;
+
 header {
     display: flex;
     justify-content: space-between;
@@ -59,6 +61,9 @@ header {
     width: 100%;
     box-shadow: var(--shadow);
     z-index: 10;
+    @include m.media(540px) {
+        padding: 20px;
+    }
     .gradient & {
         box-shadow: none;
     }
@@ -88,6 +93,10 @@ header {
                 transition-property: overlay, display, width;
                 transition-duration: 0.3s;
                 transition-behavior: allow-discrete;
+                @include m.media(540px) {
+                    left: 40px;
+                    height: 2px;
+                }
             }
             .gradient &::after {
                 background-color: var(--white-color);
@@ -97,6 +106,9 @@ header {
                 &::after {
                     display: block;
                     width: 55px;
+                    @include m.media(540px) {
+                        width: 45px;
+                    }
                     @starting-style {
                         width: 0;
                     }
@@ -105,6 +117,9 @@ header {
             img {
                 width: 40px;
                 margin-right: 10px;
+                @include m.media(540px) {
+                    width: 30px;
+                }
             }
         }
     }
@@ -126,6 +141,9 @@ header {
             transition: var(--transition);
             padding: 10px;
             border-radius: 30px;
+            @include m.media(540px) {
+                padding: 6px;
+            }
             &:last-child {
                 margin-right: 0;
             }
