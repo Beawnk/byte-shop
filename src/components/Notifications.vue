@@ -30,7 +30,8 @@ const props = defineProps({
   	flex-direction: column;
   	align-items: flex-end;
   	z-index: 2000;
-  	width: 300px;
+	width: fit-content;
+  	max-width: 600px;
 	.alert {
 		color: var(--white-color);
 		padding: 10px 40px 10px 10px;

@@ -10,6 +10,7 @@ export const useUserStore = defineStore('user', () => {
   	const router = useRouter();
   	const page = ref('login');
   	const logged = ref(false);
+	let userToken = ref(null);
 
   	const user = reactive({
     	id: '',
@@ -239,28 +240,39 @@ export const useUserStore = defineStore('user', () => {
 	const resetPassword = async (newPassword) => {
 		alertStore.clearNotifications();
 		try {
-		  	const accessToken = route.query.access_token;
+		//   // First, check for the token in query parameters
+		//   let accessToken = route.query.access_token;
 	  
-		  	if (!accessToken) {
-				alertStore.addGlobalError('Token de acesso não encontrado.');
-				throw new Error('Missing access token.');
-			}
+		//   // If not found, extract it from the URL fragment (#access_token)
+		//   if (!accessToken) {
+		// 	const fragment = window.location.hash.substring(1); // Get everything after #
+		// 	const params = new URLSearchParams(fragment);
+		// 	accessToken = params.get('access_token');
+		//   }
 	  
-		  	const { error } = await supabase.auth.updateUser({
-				password: newPassword,
-		  	});
+		  if (!userToken) {
+			alertStore.addGlobalError('Token de acesso não encontrado.');
+			throw new Error('Missing access token.');
+		  }
 	  
-		  	if (error) { 
-				alertStore.addGlobalError('Erro ao redefinir senha.', error.message);
-				throw new Error(error.message);
-			}
-
-		  	alertStore.addGlobalSuccess('Senha redefinida com sucesso.');
+		  const { error } = await supabase.auth.updateUser({
+			password: newPassword,
+		  });
+	  
+		  if (error) {
+			alertStore.addGlobalError('Erro ao redefinir senha.', error.message);
+			throw new Error(error.message);
+		  }
+	  
+		  alertStore.addGlobalSuccess('Senha redefinida com sucesso.');
 		} catch (error) {
-		  	alertStore.addGlobalError('Erro ao redefinir senha.', error.message);
-		  	throw error;
+		  alertStore.addGlobalError('Erro ao redefinir senha.', error.message);
+		  throw error;
+		} finally {
+			userToken.value = null;
 		}
 	};
+	  
 
 	const loadProducts = async () => {
 		// alertStore.clearNotifications();

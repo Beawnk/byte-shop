@@ -20,6 +20,8 @@ const userStore = useUserStore();
 </script>
 
 <style lang="scss" scoped>
+@use '@/assets/style/main.scss' as m;
+
 #home {
     background-image: linear-gradient(180deg, var(--primary-color) 10%, var(--secondary-color) 90%);
     height: 100vh;
@@ -37,6 +39,7 @@ const userStore = useUserStore();
         p {
             font-size: var(--subtitle-big);
             color: var(--white-color);
+            text-align: center;
         }
         .buttons {
             display: flex;

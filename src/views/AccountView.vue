@@ -4,8 +4,10 @@
         <div class="wrapper">
             <UserMenu v-if="userStore.logged" />
             <div class="account-wrapper">
-                <Transition mode="out-in" appear><Login v-if="!userStore.logged && userStore.page == 'login'"  @emit-sign-up-page="onSignUpPage"/></Transition>
+                <Transition mode="out-in" appear><Login v-if="!userStore.logged && userStore.page == 'login'"  @emit-sign-up-page="onSignUpPage" @emit-forgot-pass-page="onForgotPassPage"/></Transition>
                 <Transition mode="out-in" appear><SignUp v-if="!userStore.logged && userStore.page == 'signup'" @emit-login-page="onLoginPage"/></Transition>
+                <Transition mode="out-in" appear><ForgotPass v-if="!userStore.logged && userStore.page == 'forgot-pass'" @emit-login-page="onLoginPage"/></Transition>
+                <Transition mode="out-in" appear><ChangePass v-if="!userStore.logged && userStore.page == 'change-pass'" @emit-login-page="onLoginPage"/></Transition>
                 <Transition mode="out-in" appear><User v-if="userStore.logged"/></Transition>
             </div>
         </div>
@@ -21,6 +23,8 @@ import User from '@/components/User.vue';
 import UserMenu from '@/components/UserMenu.vue';
 import { useUserStore } from '@/stores/UserState';
 import { useRoute, useRouter } from 'vue-router'
+import ForgotPass from '@/components/ForgotPass.vue';
+import ChangePass from '@/components/ChangePass.vue';
 
 const userStore = useUserStore();
 const route = useRoute()
@@ -36,17 +40,86 @@ const onLoginPage = () => {
     router.replace({ query: { page: 'login' } }) 
 };
 
+const onForgotPassPage = () => {
+    userStore.page = 'forgot-pass';
+    router.replace({ query: { page: 'email-nova-senha' } })
+};
+
+// function handleLoggedInUser() {
+//     if (!route.path.startsWith('/usuario/alterar-senha')) {
+//         console.log('1');
+//         userStore.page = 'user';
+//     }
+// }
+
+// function handleLoggedOutUser() {
+//     console.log(route.path);
+//     if (!route.path.startsWith('/usuario/alterar-senha')) {
+//         if (route.query.page === 'signup') {
+//             userStore.page = 'signup';
+//             console.log('2');
+//         } else if (userStore.page === 'login' && !redirect) {
+//             if (route.query.page !== 'login') {
+//                 router.replace({ query: { page: 'login' } });
+//             }
+//             console.log('3');
+//         }
+//     } else {
+//         handleAccessToken();
+//     }
+// }
+
+// function handleAccessToken() {
+//     let accessToken = route.query.access_token;
+//     if (!accessToken) {
+//         const fragment = window.location.hash.substring(1);
+//         const params = new URLSearchParams(fragment);
+//         accessToken = params.get('access_token');
+//     }
+//     console.log(accessToken);
+//     userStore.userToken = accessToken;
+//     userStore.page = 'change-pass';
+//     console.log('4');
+// }
+
+// onMounted(() => {
+//     if (userStore.logged) {
+//         handleLoggedInUser();
+//     } else {
+//         handleLoggedOutUser();
+//     }
+// });
+
 onMounted(() => {
     const redirect = route.query.redirect;
-    if (route.query.page === 'signup') {
-        userStore.page = 'signup';
-    } else if (userStore.page === 'login' && !redirect) {
-        router.replace({ query: { page: 'login' } })
-    }
     if (userStore.logged) {
-        userStore.page = 'user';
-        if (route.path !== '/usuario/alterar-senha') {
-            router.replace({ query: { user: userStore.user.name } })
+        if (!route.path.startsWith('/usuario/alterar-senha')) {
+            console.log('1')
+            userStore.page = 'user';
+        }
+    } else {
+        console.log(route.path)
+        if (!route.path.startsWith('/usuario/alterar-senha')) {
+            if (route.query.page === 'signup') {
+                userStore.page = 'signup';
+                console.log('2')
+            } else if (userStore.page === 'login' && !redirect) {
+                router.replace({ query: { page: 'login' } })
+                console.log('3')
+            }
+        } else {
+            let accessToken = route.query.access_token;
+	  
+		    // If not found, extract it from the URL fragment (#access_token)
+		    if (!accessToken) {
+		    	const fragment = window.location.hash.substring(1); // Get everything after #
+		    	const params = new URLSearchParams(fragment);
+		    	accessToken = params.get('access_token');
+		    }
+            console.log(accessToken)
+            userStore.userToken = accessToken;
+            userStore.page = 'change-pass';
+            console.log('4')
         }
     }
 });

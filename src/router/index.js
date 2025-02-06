@@ -64,10 +64,10 @@ const router = createRouter({
         {
           path: 'alterar-senha',
           name: 'change-password',
-          component: () => import('@/views/user/UserChangePassView.vue'),
-        }
+          component: () => import('@/views/AccountView.vue'),
+        },
       ]
-    }
+    },
   ],
 })
 

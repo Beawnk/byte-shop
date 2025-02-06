@@ -40,7 +40,7 @@
         <FieldNotifications field="password"/>
       </div>
       <div class="change-pass" v-else>
-        <button class="btn primary" @click.prevent="userStore.sendPasswordResetEmail(userStore.user.email)">
+        <button class="btn primary" @click.prevent="changePass">
           Alterar senha
         </button>
       </div>
@@ -259,6 +259,11 @@ const fillCep = async () => {
     validateField('city');
     validateField('state');
   }
+};
+
+const changePass = () => {
+  userStore.sendPasswordResetEmail(userStore.user.email);
+  userStore.logout();
 };
 
 const updateUserStore = handleSubmit(async (values) => {

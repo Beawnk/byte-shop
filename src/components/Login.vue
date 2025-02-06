@@ -2,7 +2,7 @@
     <div class="login-form">
         <Loader v-if="loading"/>
         <h2>Login</h2>
-        <form @submit.prevent="onSubmit">
+        <form>
             <div class="input">
                 <label for="email">Email</label>
                 <input 
@@ -26,10 +26,10 @@
                   @blur="validateField('password')"
                 />
                 <FieldNotifications field="password"/>
-                <span class="lost-pass"><router-link to="/">Esqueceu a senha?</router-link></span>
+                <span class="lost-pass"><a href="" @click.prevent="$emit('emitForgotPassPage')">Esqueceu a senha?</a></span>
             </div>
             <div class="action">
-                <button type="submit" class="btn primary login">
+                <button class="btn primary login" @click.prevent="onSubmit">
                   Entrar
                 </button>
             </div>
@@ -49,7 +49,7 @@ import { useForm, useField } from 'vee-validate';
 import { useUserStore } from '@/stores/UserState';
 import * as yup from 'yup';
 
-const emit = defineEmits(['emitSignUpPage']);
+const emit = defineEmits(['emitSignUpPage', 'emitForgotPassPage']);
 
 const userStore = useUserStore();
 
