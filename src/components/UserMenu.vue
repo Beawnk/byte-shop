@@ -19,8 +19,15 @@ const userStore = useUserStore();
 </script>
 
 <style lang="scss" scoped>
+@use '@/assets/style/main.scss' as m;
+
 .user-menu {
 	width: 200px;
+	@include m.media(758px) {
+		position: absolute;
+		top: var(--section);
+		left: 0;
+	}
 	ul {
 		display: flex;
 		flex-direction: column;

@@ -3,7 +3,7 @@
     <transition name="down" mode="out-in" appear>
       <div class="wrapper">
         <ProductsSearch @emit-search-products="onSearchProducts" :searchValue="searchValue" :vendorName="vendorName"/>
-        <div class="grid" v-if="products">
+        <div class="grid" v-if="products.length">
           <TransitionGroup name="grid" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave">
             <div class="product" v-for="(product, index) in products" :key="product.id" :data-index="index">
               <router-link :to="{name: 'product', params: {id: product.id}}" class="product-link">
@@ -21,7 +21,7 @@
             </div>
           </TransitionGroup>
         </div>
-        <div class="no-products" v-else-if="products === null && !loading">
+        <div class="no-products" v-else-if="!products.length && !loading">
           <h4>Nenhum produto encontrado</h4>
         </div>
         <div class="pagination" v-if="products && !loading">
@@ -106,6 +106,8 @@ const onSearchProducts = async (search) => {
   const { data, error } = await supabase
     .from('products')
     .select('*')
+    .eq('sold', false)
+    .order('created_date', { ascending: false })
     .ilike('name', `%${cleanedSearch}%`) // Case-insensitive partial match
     .range(0, itemsPerPage - 1); // Pagination
 
@@ -161,8 +163,8 @@ function onLeave(el, done) {
   gsap.to(el, {
     opacity: 0,
     y: -30,
-    duration: 0.5,
-    delay: parseInt(el.dataset.index) * 0.15, // Stagger based on index
+    duration: 0.2,
+    delay: parseInt(el.dataset.index) * 0.1, // Stagger based on index
     onComplete: done,
   });
 }

@@ -129,6 +129,7 @@ onMounted(() => {
 #account {
     background-image: linear-gradient(180deg, var(--primary-color) 10%, var(--secondary-color) 90%);
     min-height: 100vh;
+    position: relative;
     &.signup {
         .wrapper {
             padding-top: var(--section);

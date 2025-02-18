@@ -79,6 +79,9 @@ watch(() => props.vendorName, (newValue) => {
         right: 85px;
         top: 50%;
         transform: translateY(-50%);
+        @include m.media(540px) {
+            right: 75px;
+        }
     }
 }
 </style>
