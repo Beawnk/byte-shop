@@ -159,6 +159,10 @@ input::placeholder {
 .input-group {
   display: flex;
   gap: 20px;
+  @include m.media(758px) { 
+    flex-direction: column;
+    gap: 0;
+  }
   .input {
     flex: 1;
   }

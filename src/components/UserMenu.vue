@@ -32,6 +32,12 @@ const userStore = useUserStore();
 		display: flex;
 		flex-direction: column;
 		gap: 5px;
+		@include m.media(758px) {
+			background-color: var(--background-color);
+			border-radius: var(--border-radius);
+			padding: 10px;
+			box-shadow: var(--shadow);
+		}
 		li {
 			background-color: var(--background-color);
 			border-radius: var(--border-radius);
