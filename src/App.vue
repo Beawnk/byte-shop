@@ -222,6 +222,10 @@ input::placeholder {
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
+
+      &:hover {
+        background-image: url('@/assets/img/icons/clear-hover.png');
+      }
     }
   }
 }
