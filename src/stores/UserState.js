@@ -221,6 +221,7 @@ export const useUserStore = defineStore('user', () => {
 		alertStore.clearNotifications();
 		try {
 			const redirectUrl = `${window.location.origin}${router.resolve({ name: 'change-password' }).href}`;
+			console.log('Redirect URL:', redirectUrl);
 		  	const { error } = await supabase.auth.resetPasswordForEmail(email, {
 				redirectTo: redirectUrl,
 		  	});

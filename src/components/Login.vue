@@ -92,6 +92,7 @@ const onSubmit = handleSubmit(async (values) => {
     loading.value = true;
     await userStore.login(values.email, values.password);
   } catch (error) {
+    loading.value = false;
     // Error handling is already done in userStore
   }
 });

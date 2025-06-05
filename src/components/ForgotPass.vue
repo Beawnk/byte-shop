@@ -71,6 +71,7 @@ const sendEmail = handleSubmit(async (values) => {
 		loading.value = false;
 		emit('emitLoginPage');
 	}
+	loading.value = false;
 });
 </script>
 
