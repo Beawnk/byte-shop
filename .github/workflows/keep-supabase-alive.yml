@@ -1,0 +1,24 @@
+name: keep-supabase-alive
+
+on:
+  schedule:
+    # 2x por semana às 12:00 UTC (09:00 em America/Sao_Paulo)
+    - cron: "0 12 * * 1,4"
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL_PROJECT_A }}
+      SUPABASE_ANON: ${{ secrets.SUPABASE_ANON_PROJECT_A }}
+    steps:
+      - name: Ping RPC healthcheck
+        run: |
+          set -e
+          curl -sS -X POST "$SUPABASE_URL/rest/v1/rpc/healthcheck" \
+            -H "apikey: $SUPABASE_ANON" \
+            -H "Authorization: Bearer $SUPABASE_ANON" \
+            -H "Content-Type: application/json" \
+            -d '{}' \
+          | jq .
