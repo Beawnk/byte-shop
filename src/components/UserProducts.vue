@@ -122,6 +122,14 @@ onMounted(async () => {
             opacity: 0;
           }
         }
+
+        @include m.media(600px) {
+          .actions {
+            display: none !important;
+            width: 0 !important;
+            opacity: 0 !important;
+          }
+        }
       }
       &.show-actions {
         .actions {

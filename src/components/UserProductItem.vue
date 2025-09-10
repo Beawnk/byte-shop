@@ -86,4 +86,12 @@ const truncatedText = (string, letters, end = '') => {
 	}
 }
 
+.sold {
+	@include m.media(600px) {
+		.product-link {
+			padding-bottom: 0;
+		}
+	}
+}
+
 </style>

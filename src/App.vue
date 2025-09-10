@@ -224,7 +224,7 @@ input::placeholder {
       padding-top: 40px;
       max-height: 100vh;
       min-height: 100vh;
-      overflow-y: auto;
+      overflow-y: auto !important;
     }
 
     .close {
