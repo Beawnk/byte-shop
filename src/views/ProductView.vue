@@ -131,6 +131,11 @@ onMounted(() => {
                 padding: 20px;
                 box-shadow: var(--shadow);
                 height: 700px;
+
+                @include m.media(600px) {
+                    height: 400px;
+                }
+
                 img {
                     object-fit: cover;
                     width: 100%;
@@ -154,6 +159,13 @@ onMounted(() => {
                     padding: 10px;
                     overflow: hidden;
                     box-shadow: var(--shadow);
+
+                    @include m.media(600px) {
+                        width: 80px;
+                        height: 80px;
+                        padding: 5px;
+                    }
+
                     img {
                         object-fit: cover;
                         width: 100%;
