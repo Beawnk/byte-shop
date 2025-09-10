@@ -94,6 +94,10 @@ onMounted(async () => {
       width: 100%;
       position: relative;
 
+      @include m.media(600px) {
+        position: relative;
+      }
+
       &:last-child {
         margin-bottom: 0;
       }
@@ -152,8 +156,15 @@ onMounted(async () => {
           opacity: 1 !important;
           visibility: visible !important;
           pointer-events: auto !important;
-          display: inline-flex !important;
-          width: fit-content !important;
+          display: flex !important;
+          width: 100% !important;
+          flex-direction: row-reverse;
+          justify-content: space-around;
+          position: absolute;
+          bottom: 0px;
+          left: 0;
+          border-top: 1px solid var(--shadow-color);
+          padding: 5px;
         }
 
         button {
@@ -171,7 +182,9 @@ onMounted(async () => {
             opacity: 1 !important;
             visibility: visible !important;
             pointer-events: auto !important;
-            width: 50px !important;
+            width: 40px !important;
+            height: 40px;
+            background-size: 17px;
           }
 
           &.delete {

@@ -23,6 +23,8 @@ const truncatedText = (string, letters, end = '') => {
 </script>
 
 <style lang="scss" scoped>
+@use '@/assets/style/main.scss' as m;
+
 .product-link {
 	width: 100%;
 	background-color: var(--white-color);
@@ -32,6 +34,12 @@ const truncatedText = (string, letters, end = '') => {
 	display: flex;
 	align-items: center;
 	transition: width 0.5s ease;
+
+	@include m.media(600px) {
+		flex-direction: column;
+		padding-bottom: 50px;
+	}
+
 	.product-image {
 		width: 150px;
 		height: 150px;
@@ -71,6 +79,10 @@ const truncatedText = (string, letters, end = '') => {
 	}
 	.product-link {
     	width: calc(100% - 50px);
+
+		@include m.media(600px) {
+			width: 100%;
+		}
 	}
 }
 

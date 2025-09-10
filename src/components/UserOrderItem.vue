@@ -47,6 +47,8 @@ const truncatedText = (string, letters, end = '') => {
 </script>
 
 <style lang="scss" scoped>
+@use '@/assets/style/main.scss' as m;
+
 .id-date {
 	display: flex;
 	gap: 10px;
