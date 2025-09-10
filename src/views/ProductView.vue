@@ -96,15 +96,32 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@use '@/assets/style/main.scss' as m;
+
 #product-page {
     padding: calc(var(--section) + var(--header-height)) 200px var(--section) 200px;
     position: relative;
     min-height: 600px;
+
+    @include m.media(1450px) {
+        padding: calc(var(--section) + var(--header-height)) 50px var(--section) 50px;
+    }
+
     .product {
         display: flex;
         gap: 40px;
+
+        @include m.media(1051px) {
+            flex-direction: column;
+        }
+
         .images {
             width: calc(50% - 40px);
+
+            @include m.media(1051px) {
+                width: 100%;
+            }
+
             .img {
                 width: 100%;
                 height: 100%;
@@ -124,6 +141,11 @@ onMounted(() => {
                 display: flex;
                 gap: 10px;
                 margin-top: 20px;
+
+                @include m.media(1051px) {
+                    justify-content: center;
+                }
+
                 .thumb {
                     width: 120px;
                     height: 120px;
@@ -150,6 +172,11 @@ onMounted(() => {
             flex-direction: column;
             gap: 40px;
             width: calc(50% - 40px);
+
+            @include m.media(1051px) {
+                width: 100%;
+            }
+
             .product-info {
               display: flex;
               flex-direction: column;
