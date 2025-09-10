@@ -58,6 +58,8 @@ onMounted(async () => {
 </script>
 
 <style lang="scss">
+@use '@/assets/style/main.scss' as m;
+
 .user-favorites {
 	position: relative;
 	min-height: 400px;
@@ -112,6 +114,13 @@ onMounted(async () => {
 					background-size: 20px;
 					background-repeat: no-repeat;
 					background-position: center;
+
+					@include m.media(600px) {
+						opacity: 1 !important;
+    					visibility: visible !important;
+    					pointer-events: auto !important;
+    					display: inline-flex !important;
+					}
 				}
 			}
 		}

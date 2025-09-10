@@ -107,6 +107,7 @@ h6 {
 }
 
 label {
+    font-size: var(--text-medium);
     font-family: var(--ff-primary);
 }
 

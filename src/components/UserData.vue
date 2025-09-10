@@ -297,6 +297,8 @@ const updateUserStore = handleSubmit(async (values) => {
 </script>
 
 <style lang="scss">
+@use '@/assets/style/main.scss' as m;
+
 .user-form {
   h4 {
     margin-bottom: 20px;
@@ -314,6 +316,12 @@ const updateUserStore = handleSubmit(async (values) => {
     margin: 0 auto 20px auto;
     position: relative;
     border: 3px solid var(--primary-color);
+
+    @include m.media(600px) {
+      width: 150px;
+      height: 150px;
+    }
+    
     &:hover {
       &::after {
         content: '';

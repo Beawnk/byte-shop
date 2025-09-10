@@ -146,10 +146,16 @@ input::placeholder {
 
 .input {
   margin-bottom: 20px;
+  @include m.media(600px) {
+    margin-bottom: 15px;
+  }
   label {
     display: block;
     margin-bottom: 10px;
     color: var(--text-color);
+    @include m.media(600px) {
+      margin-bottom: 5px;
+    }
   }
   input, textarea {
     width: 100%;

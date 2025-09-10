@@ -126,6 +126,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+@use '@/assets/style/main.scss' as m;
+
 #account {
     background-image: linear-gradient(180deg, var(--primary-color) 10%, var(--secondary-color) 90%);
     min-height: 100vh;
@@ -161,6 +163,11 @@ onMounted(() => {
             padding: 40px;
             border-radius: 10px;
             transition: max-width 0.5s ease;
+
+            @include m.media(600px) {
+                padding: 30px;
+                max-width: 100%;
+            }
         }
         .border {
             width: 100%;

@@ -79,6 +79,8 @@ onMounted(async () => {
 </script>
 
 <style lang="scss" scoped>
+@use '@/assets/style/main.scss' as m;
+
 .products {
   position: relative;
   min-height: 300px;
@@ -91,6 +93,7 @@ onMounted(async () => {
       align-items: center;
       width: 100%;
       position: relative;
+
       &:last-child {
         margin-bottom: 0;
       }
@@ -144,6 +147,15 @@ onMounted(async () => {
         transition-property: overlay, display, opacity, width;
         transition-duration: 0.5s;
         transition-behavior: allow-discrete;
+
+        @include m.media(600px) {
+          opacity: 1 !important;
+          visibility: visible !important;
+          pointer-events: auto !important;
+          display: inline-flex !important;
+          width: fit-content !important;
+        }
+
         button {
           height: 50px;
           background-size: 20px;
@@ -154,6 +166,14 @@ onMounted(async () => {
           transition-property: overlay, opacity, width, transform;
           transition-duration: 0.5s;
           transition-behavior: allow-discrete;
+
+          @include m.media(600px) {
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+            width: 50px !important;
+          }
+
           &.delete {
             background-image: url('../assets/img/icons/remove.png');
           }

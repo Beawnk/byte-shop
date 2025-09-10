@@ -20,10 +20,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useUserStore } from '@/stores/UserState';
+import { useRoute } from 'vue-router';
 
 const userStore = useUserStore();
+const route = useRoute();
+
+watch(route, () => {
+	menuOpen.value = false;
+});
 
 const menuOpen = ref(false);
 </script>
