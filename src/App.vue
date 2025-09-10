@@ -218,6 +218,15 @@ input::placeholder {
     transition-property: overlay, display, opacity, transform;
     transition-duration: 0.3s;
     transition-behavior: allow-discrete;
+
+    @include m.media(600px) {
+      padding: 20px;
+      padding-top: 40px;
+      max-height: 100vh;
+      min-height: 100vh;
+      overflow-y: auto;
+    }
+
     .close {
       position: absolute;
       top: 15px;
@@ -228,6 +237,11 @@ input::placeholder {
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
+
+      @include m.media(600px) {
+        top: 10px;
+        right: 10px;
+      }
 
       &:hover {
         background-image: url('@/assets/img/icons/clear-hover.png');
