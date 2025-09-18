@@ -134,17 +134,28 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
+@use '@/assets/style/main.scss' as m;
+
 #buy {
 	.buy-page {
 		display: flex;
 		justify-content: space-between;
 		gap: 20px;
+
+		@include m.media(1051px) {
+			flex-direction: column;
+		}
 	}
 	.user-info {
 		width: 70%;
 		background-color: var(--white-color);
 		padding: 20px;
 		border-radius: var(--border-radius);
+
+		@include m.media(1051px) {
+			width: 100%;
+		}
+
 		.user-form {
 			h4 {
 				margin-top: 0;
@@ -157,15 +168,30 @@ onMounted(() => {
 	.product-info {
 		width: 30%;
 		height: 100%;
+
+		@include m.media(1051px) {
+			width: 100%;
+		}
+
 		.product {
 			display: flex;
 			gap: 20px;
 			background-color: var(--white-color);
 			padding: 20px;
 			border-radius: var(--border-radius);
+
+			@include m.media(480px) {
+				flex-direction: column;
+			}
+
 			.img {
 				width: 40%;
 				max-height: 300px;
+
+				@include m.media(480px) {
+					width: 100%;
+				}
+
 				img {
 					width: 100%;
 					height: 100%;
@@ -174,6 +200,10 @@ onMounted(() => {
 			}
 			.info {
 				width: 60%;
+
+				@include m.media(480px) {
+					width: 100%;
+				}
 				h4 {
 					color: var(--text-color);
 					margin-bottom: 20px;
