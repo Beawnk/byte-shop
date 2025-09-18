@@ -63,12 +63,23 @@ const truncatedText = (string, letters, end = '') => {
 .order-wrapper {
 	display: flex;
 	justify-content: space-between;
+
+	@include m.media(900px) {
+		flex-direction: column;
+	}
+
 	.product-item {
 		display: flex;
 		align-items: flex-start;
 		margin-bottom: 20px;
 		gap: 20px;
 		width: 50%;
+
+		@include m.media(900px) {
+			width: 100%;
+			flex-direction: column;
+		}
+
 		&:hover {
 			h5 {
 				text-decoration: underline;
@@ -79,6 +90,11 @@ const truncatedText = (string, letters, end = '') => {
 			height: 150px;
 			border-radius: var(--border-radius);
 			overflow: hidden;
+
+			@include m.media(900px) {
+				margin: 0 auto;
+			}
+	
 			img {
 				width: 150px;
 				height: 150px;
@@ -90,6 +106,12 @@ const truncatedText = (string, letters, end = '') => {
 			flex-direction: column;
 			justify-content: center;
 			width: calc(100% - 170px);
+
+			@include m.media(900px) {
+				width: 100%;
+				text-align: center;
+			}
+
 			h5 {
 				color: var(--text-color);
 				font-family: var(--ff-primary-semiBold);
@@ -110,6 +132,16 @@ const truncatedText = (string, letters, end = '') => {
 	.order-item {
 		border-left: 1px solid var(--gray-color);
 		padding-left: 20px;
+
+		@include m.media(900px) {
+			border-left: none;
+			padding-left: 0;
+			margin-top: 20px;
+			border-top: 1px solid var(--gray-color);
+			padding-top: 20px;
+			margin-bottom: 20px;
+		}
+
 		.address {
 			p {
 				color: var(--text-color);
