@@ -52,6 +52,7 @@ const getActiveComponent = () => components[activeTab.value];
 			text-align: center;
 			transition: var(--transition);
 			color: var(--text-color);
+			font-size: var(--text-medium);
 			&.active {
 				background-color: var(--primary-color);
 				color: var(--white-color);

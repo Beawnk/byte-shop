@@ -214,3 +214,21 @@ button {
         --text-small: 12px;
     }
 }
+
+@media only screen and (max-width: 400px) {
+    :root {
+        /* font sizes */
+        --title-super: 38px;
+        --title-big: 24px;
+        --title-medium: 22px;
+        --title-small: 20px;
+
+        --subtitle-big: 18px;
+        --subtitle-medium: 14px;
+        --subtitle-small: 12px;
+
+        --text-big: 14px;
+        --text-medium: 12px;
+        --text-small: 11px;
+    }
+}

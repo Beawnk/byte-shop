@@ -11,7 +11,7 @@
             </div>
             <div class="user-info">
               <div class="name-date">
-                <h5>{{ review.user_name }}</h5>
+                <h5>{{ getUserName(review.user_name) }}</h5>
                 <span class="date">{{ review.date }}</span>
               </div>
               <div class="stars">
@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import VendorInfo from '@/components/VendorInfo.vue'
 import { useGetVendorStars } from '@/composables/getVendorStars'
@@ -116,6 +116,10 @@ const fetchReviews = async () => {
       }
     }
   }
+}
+
+const getUserName = (name) => {
+  return name.split(' ').slice(0, 2).join(' ')
 }
 
 const fetchProductName = async (productId) => {
