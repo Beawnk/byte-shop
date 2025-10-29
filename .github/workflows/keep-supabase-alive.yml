@@ -1,9 +1,9 @@
-name: keep-supabase-alive
+name: keep-supabase-alive (twice daily)
 
 on:
   schedule:
-    # 2x por semana às 12:00 UTC (09:00 em America/Sao_Paulo)
-    - cron: "0 12 * * 1,4"
+    - cron: "0 6 * * *"    # 06:00 UTC
+    - cron: "0 18 * * *"   # 18:00 UTC
   workflow_dispatch: {}
 
 jobs:
@@ -20,5 +20,4 @@ jobs:
             -H "apikey: $SUPABASE_ANON" \
             -H "Authorization: Bearer $SUPABASE_ANON" \
             -H "Content-Type: application/json" \
-            -d '{}' \
-          | jq .
+            -d '{}' | jq .
