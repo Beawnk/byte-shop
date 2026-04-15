@@ -14,10 +14,16 @@ jobs:
       SUPABASE_ANON: ${{ secrets.SUPABASE_ANON_PROJECT_A }}
     steps:
       - name: Ping RPC healthcheck
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL_PROJECT_A }}
+          SUPABASE_ANON: ${{ secrets.SUPABASE_ANON_PROJECT_A }}
         run: |
           set -e
-          curl -sS -X POST "$SUPABASE_URL/rest/v1/rpc/healthcheck" \
+          echo "URL: $SUPABASE_URL"
+          echo "TOKEN SIZE: ${#SUPABASE_ANON}"
+        
+          curl -v -X POST "$SUPABASE_URL/rest/v1/rpc/healthcheck" \
             -H "apikey: $SUPABASE_ANON" \
             -H "Authorization: Bearer $SUPABASE_ANON" \
             -H "Content-Type: application/json" \
-            -d '{}' | jq .
+            -d '{}'
