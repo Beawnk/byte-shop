@@ -10,8 +10,8 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL_PROJECT_A }}
-      SUPABASE_ANON: ${{ secrets.SUPABASE_ANON_PROJECT_A }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON: ${{ secrets.SUPABASE_ANON }}
     steps:
       - name: Ping RPC healthcheck
         run: |
