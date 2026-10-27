@@ -1,9 +1,8 @@
-name: keep-supabase-alive (twice daily)
+name: keep-supabase-alive (4x daily)
 
 on:
   schedule:
-    - cron: "0 6 * * *"    # 06:00 UTC
-    - cron: "0 18 * * *"   # 18:00 UTC
+    - cron: "0 */6 * * *"  # 00:00, 06:00, 12:00, 18:00 UTC
   workflow_dispatch: {}
 
 jobs:
@@ -13,17 +12,13 @@ jobs:
       SUPABASE_URL: ${{ secrets.SUPABASE_URL_PROJECT_A }}
       SUPABASE_ANON: ${{ secrets.SUPABASE_ANON_PROJECT_A }}
     steps:
-      - name: Ping RPC healthcheck
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL_PROJECT_A }}
-          SUPABASE_ANON: ${{ secrets.SUPABASE_ANON_PROJECT_A }}
+      - name: Query products table
         run: |
           set -e
-          echo "URL: $SUPABASE_URL"
-          echo "TOKEN SIZE: ${#SUPABASE_ANON}"
-        
-          curl -v -X POST "$SUPABASE_URL/rest/v1/rpc/healthcheck" \
+          # Real read on a user table: a constant RPC (select 1) may not count as database activity.
+          # --fail-with-body turns any HTTP error into a failed job instead of a silent success.
+          curl -sS --fail-with-body \
+            -w "\nHTTP %{http_code}\n" \
+            "$SUPABASE_URL/rest/v1/products?select=id&limit=1" \
             -H "apikey: $SUPABASE_ANON" \
-            -H "Authorization: Bearer $SUPABASE_ANON" \
-            -H "Content-Type: application/json" \
-            -d '{}'
+            -H "Authorization: Bearer $SUPABASE_ANON"
