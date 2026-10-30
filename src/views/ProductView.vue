@@ -8,7 +8,9 @@
           </div>
           <div class="thumbnails">
             <div class="thumb" v-for="(image, index) in product.image_url" :key="index">
-              <img :src="image" :alt="`${product.name} - image ${index + 1}`" @click="selectImage(image)" :class="{ active: selectedImage === image }" />
+              <button type="button" class="thumb-button" :aria-label="`Ver imagem ${index + 1}`" :aria-pressed="selectedImage === image" @click="selectImage(image)">
+                <img :src="image" :alt="`${product.name} - imagem ${index + 1}`" :class="{ active: selectedImage === image }" />
+              </button>
             </div>
           </div>
         </div>
@@ -119,7 +121,7 @@ watch(() => props.id, fetchProduct, { immediate: true })
     position: relative;
     min-height: 600px;
 
-    @include m.media(1450px) {
+    @include m.media(xxl) {
         padding: calc(var(--section) + var(--header-height)) 50px var(--section) 50px;
     }
 
@@ -127,14 +129,14 @@ watch(() => props.id, fetchProduct, { immediate: true })
         display: flex;
         gap: 40px;
 
-        @include m.media(1051px) {
+        @include m.media(xl) {
             flex-direction: column;
         }
 
         .images {
             width: calc(50% - 40px);
 
-            @include m.media(1051px) {
+            @include m.media(xl) {
                 width: 100%;
             }
 
@@ -148,7 +150,7 @@ watch(() => props.id, fetchProduct, { immediate: true })
                 box-shadow: var(--shadow);
                 height: 700px;
 
-                @include m.media(600px) {
+                @include m.media(sm) {
                     height: 400px;
                 }
 
@@ -163,7 +165,7 @@ watch(() => props.id, fetchProduct, { immediate: true })
                 gap: 10px;
                 margin-top: 20px;
 
-                @include m.media(1051px) {
+                @include m.media(xl) {
                     justify-content: center;
                 }
 
@@ -176,7 +178,7 @@ watch(() => props.id, fetchProduct, { immediate: true })
                     overflow: hidden;
                     box-shadow: var(--shadow);
 
-                    @include m.media(600px) {
+                    @include m.media(sm) {
                         width: 80px;
                         height: 80px;
                         padding: 5px;
@@ -201,7 +203,7 @@ watch(() => props.id, fetchProduct, { immediate: true })
             gap: 40px;
             width: calc(50% - 40px);
 
-            @include m.media(1051px) {
+            @include m.media(xl) {
                 width: 100%;
             }
 
@@ -236,5 +238,11 @@ watch(() => props.id, fetchProduct, { immediate: true })
     padding: var(--section) 0;
     text-align: center;
     color: var(--text-color);
+}
+
+#product-page .thumb-button {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 </style>

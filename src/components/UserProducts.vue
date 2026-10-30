@@ -3,9 +3,10 @@
 		<TransitionGroup class="products-list" v-if="products.length" name="list" tag="div" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave" appear>
 			<div v-for="(product, index) in products" :key="product.id" :data-index="index" class="product" @mouseover="productHoverIndex = index" @mouseleave="productHoverIndex = null" :class="{'show-actions': productHoverIndex === index, sold: product.sold}">
 				<UserProductItem :product="product" />
-        <div class="actions" v-show="productHoverIndex === index">
-          <button class="delete" @click.prevent="deleteProduct(product)"></button>
-          <button class="edit" @click.prevent="$emit('handleProductModeEdit', product.id, product.sold)"></button>
+        <!-- Always in the DOM so keyboard users can reach them; CSS reveals them on hover/focus. -->
+        <div class="actions">
+          <button class="delete" type="button" :aria-label="`Excluir ${product.name}`" @click="deleteProduct(product)"></button>
+          <button class="edit" type="button" :aria-label="`Editar ${product.name}`" @click="$emit('handleProductModeEdit', product.id, product.sold)"></button>
         </div>
 			</div>
 		</TransitionGroup>
@@ -104,7 +105,7 @@ onMounted(load);
       width: 100%;
       position: relative;
 
-      @include m.media(600px) {
+      @include m.media(sm) {
         position: relative;
       }
 
@@ -125,7 +126,8 @@ onMounted(load);
           border-radius: 0 var(--border-radius) 0 var(--border-radius);
           font-size: var(--text-small);
         }
-        &.show-actions {
+        &.show-actions,
+        &:focus-within {
           .actions {
             display: none;
             width: 0;
@@ -133,7 +135,7 @@ onMounted(load);
           }
         }
 
-        @include m.media(600px) {
+        @include m.media(sm) {
           .actions {
             display: none !important;
             width: 0 !important;
@@ -141,7 +143,8 @@ onMounted(load);
           }
         }
       }
-      &.show-actions {
+      &.show-actions,
+      &:focus-within {
         .actions {
           width: fit-content;
           opacity: 1;
@@ -170,7 +173,7 @@ onMounted(load);
         transition-duration: 0.5s;
         transition-behavior: allow-discrete;
 
-        @include m.media(600px) {
+        @include m.media(sm) {
           opacity: 1 !important;
           visibility: visible !important;
           pointer-events: auto !important;
@@ -196,7 +199,7 @@ onMounted(load);
           transition-duration: 0.5s;
           transition-behavior: allow-discrete;
 
-          @include m.media(600px) {
+          @include m.media(sm) {
             opacity: 1 !important;
             visibility: visible !important;
             pointer-events: auto !important;

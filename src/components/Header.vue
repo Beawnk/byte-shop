@@ -1,10 +1,11 @@
 <template>
-    <header v-if="logo">
+    <header>
         <div class="logo">
-            <router-link to="/" exact><img :src="logo" alt="Byte" />byte</router-link>
+            <!-- alt="" because the visible text "byte" already names the link. -->
+            <router-link to="/" aria-label="Byte Shop, página inicial"><img :src="logo" alt="" />byte</router-link>
         </div>
-        <nav>
-            <router-link to="/" exact>Home</router-link>
+        <nav aria-label="Principal">
+            <router-link to="/">Home</router-link>
             <router-link to="/produtos">Produtos</router-link>
         </nav>
         <div class="user">
@@ -15,35 +16,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue';
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '@/stores/UserState';
 
 const userStore = useUserStore();
 const route = useRoute();
-const logo = ref('');
-
 const logoWhite = new URL('@/assets/img/logo-white.png', import.meta.url).href;
 const logoDefault = new URL('@/assets/img/logo.png', import.meta.url).href;
 
 const isLogged = computed(() => userStore.logged);
 const userName = computed(() => (userStore.user.name ?? '').replace(/ .*/, ''));
 
-const updateLogo = () => {
-    if (route.path === '/' || route.path.startsWith('/usuario')) {
-        logo.value = logoWhite;
-    } else {
-        logo.value = logoDefault;
-    }
-};
-
-onMounted(() => {
-    updateLogo();
-});
-
-watch(route, () => {
-    updateLogo();
-});
+// White logo over the gradient pages (home and account). Computed from the route, so the
+// header renders right away instead of waiting for mount to pick a logo.
+const logo = computed(() =>
+    route.path === '/' || route.path.startsWith('/usuario') ? logoWhite : logoDefault
+);
 </script>
 
 <style lang="scss" scoped>
@@ -61,7 +50,7 @@ header {
     width: 100%;
     box-shadow: var(--shadow);
     z-index: 10;
-    @include m.media(540px) {
+    @include m.media(xs) {
         padding: 20px;
     }
     .gradient & {
@@ -93,7 +82,7 @@ header {
                 transition-property: overlay, display, width;
                 transition-duration: 0.3s;
                 transition-behavior: allow-discrete;
-                @include m.media(540px) {
+                @include m.media(xs) {
                     left: 40px;
                     height: 2px;
                 }
@@ -106,7 +95,7 @@ header {
                 &::after {
                     display: block;
                     width: 55px;
-                    @include m.media(540px) {
+                    @include m.media(xs) {
                         width: 45px;
                     }
                     @starting-style {
@@ -117,7 +106,7 @@ header {
             img {
                 width: 40px;
                 margin-right: 10px;
-                @include m.media(540px) {
+                @include m.media(xs) {
                     width: 30px;
                 }
             }
@@ -141,7 +130,7 @@ header {
             transition: var(--transition);
             padding: 10px;
             border-radius: 30px;
-            @include m.media(540px) {
+            @include m.media(xs) {
                 padding: 6px;
             }
             &:last-child {

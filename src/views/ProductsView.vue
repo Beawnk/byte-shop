@@ -10,17 +10,18 @@
         <div class="grid" v-if="products.length">
           <TransitionGroup name="grid" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave">
             <div class="product" v-for="(product, index) in products" :key="product.id" :data-index="index">
+              <!-- The actions sit outside the card link: a link or button inside another link is invalid HTML. -->
               <router-link :to="{name: 'product', params: {id: product.id}}" class="product-link">
                 <div class="img">
-                  <img :src="product.image_url?.[0]" :alt="product.name" />
+                  <img :src="product.image_url?.[0]" :alt="product.name" loading="lazy" decoding="async" />
                 </div>
                 <h2>{{ truncatedText(product.name, 30) }}</h2>
                 <p>{{ formatCurrency(product.price) }}</p>
-                <div class="actions">
-                  <router-link :to="{name: 'buy', params: {id: product.id}}" class="btn primary buy-now">Comprar</router-link>
-                  <FavoriteButton :productId="product.id" @click.stop />
-                </div>
               </router-link>
+              <div class="actions">
+                <router-link :to="{name: 'buy', params: {id: product.id}}" class="btn primary buy-now">Comprar</router-link>
+                <FavoriteButton :productId="product.id" />
+              </div>
             </div>
           </TransitionGroup>
         </div>
@@ -75,7 +76,7 @@ const emptyMessage = computed(() => {
 })
 
 // % and _ are wildcards in LIKE; typed by the user they should match literally.
-const escapeLike = (value) => value.replace(/[\%_]/g, (char) => `\${char}`)
+const escapeLike = (value) => value.replace(/[\\%_]/g, (char) => `\\${char}`)
 
 let latestRequest = 0
 
@@ -191,26 +192,41 @@ watch(
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 20px;
     .product {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: var(--white-color);
+      padding: 10px;
       border-radius: var(--border-radius);
       box-shadow: var(--shadow);
       transition: var(--transition);
       overflow: hidden;
-      &:hover {
+      &:hover,
+      &:focus-within {
         transform: scale(1.02);
+      }
+    }
+    .actions {
+      display: flex;
+      margin-top: 10px;
+      .btn {
+        margin-right: 10px;
+        &:last-child {
+          margin-right: 0;
+        }
       }
     }
     .product-link {
       display: flex;
       flex-direction: column;
       align-items: center;
-      background-color: var(--white-color);
-      padding: 10px;
+      width: 100%;
       .img {
         width: 100%;
         height: 400px;
         object-fit: cover;
         overflow: hidden;
-        @include m.media(540px) {
+        @include m.media(xs) {
           height: 300px;
         }
         img {
@@ -229,16 +245,6 @@ watch(
         font-size: var(--subtitle-small);
         color: var(--text-color);
         font-family: var(--ff-primary);
-      }
-      .actions {
-        display: flex;
-        margin-top: 10px;
-        .btn {
-          margin-right: 10px;
-          &:last-child {
-            margin-right: 0;
-          }
-        }
       }
     }
   }

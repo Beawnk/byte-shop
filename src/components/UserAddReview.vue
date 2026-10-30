@@ -1,20 +1,24 @@
 <template>
 	<div class="modal add-review">
 		<div class="modal-content" ref="modal">
-			<button class="close" @click="$emit('closeModal')"></button>
+			<button class="close" type="button" aria-label="Fechar" @click="$emit('closeModal')"></button>
 			<h4>Adicionar avaliação ao vendedor</h4>
 			<form class="review-form">
-				<div class="star-rating">
-        		  	<span 
-        		  	  v-for="n in 5" 
-        		  	  :key="n" 
-        		  	  class="star" 
+				<div class="star-rating" role="group" aria-label="Nota">
+        		  	<button
+        		  	  v-for="n in 5"
+        		  	  :key="n"
+        		  	  type="button"
+        		  	  class="star"
         		  	  :class="{ filled: n <= (hoverRating || rating) }"
+        		  	  :aria-label="`${n} ${n === 1 ? 'estrela' : 'estrelas'}`"
+        		  	  :aria-pressed="rating === n"
         		  	  @click="setRating(n)"
         		  	  @mouseover="hoverRating = n"
         		  	  @mouseleave="hoverRating = 0"
-        		  	>
-        		  	</span>
+        		  	  @focus="hoverRating = n"
+        		  	  @blur="hoverRating = 0"
+        		  	></button>
 					<p class="rating">{{ rating }}</p>
         		</div>
 				<FieldNotifications :field="'stars'"/>

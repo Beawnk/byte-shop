@@ -14,9 +14,6 @@
 </template>
 
 <script setup>
-import { useUserStore } from '@/stores/UserState';
-
-const userStore = useUserStore();
 </script>
 
 <style lang="scss" scoped>

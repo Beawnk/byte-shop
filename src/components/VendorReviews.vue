@@ -1,7 +1,7 @@
 <template>
   <div class="modal modal-reviews" v-if="vendorId">
     <div class="modal-content" ref="modal">
-      <button class="close" @click="closeModal"></button>
+      <button class="close" type="button" aria-label="Fechar avaliações" @click="closeModal"></button>
       <VendorInfo v-if="vendor" :vendor="vendor" />
       <div class="reviews" v-if="reviews.length">
         <div class="review" v-for="review in reviews" :key="review.id">
@@ -14,9 +14,7 @@
                 <h5>{{ getUserName(review.user_name) }}</h5>
                 <span class="date">{{ review.date }}</span>
               </div>
-              <div class="stars">
-                <span v-for="(star, index) in useGetVendorStars(review.stars)" :key="index" class="star" :class="{full: star == 'full', half: star == 'half', empty: star == 'empty'}"></span>
-              </div>
+              <StarRating :rating="Number(review.stars)" />
             </div>
           </div>
           <div class="text">
@@ -38,12 +36,12 @@
 import { ref, watch } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import VendorInfo from '@/components/VendorInfo.vue'
-import { useGetVendorStars } from '@/composables/getVendorStars'
+import StarRating from '@/components/StarRating.vue'
 import { useClickOutside } from '@/composables/clickOutside';
 import { fetchVendor } from '@/composables/fetchVendor';
 import { useAlertStore } from '@/stores/alertStore';
 import { DEFAULT_AVATAR } from '@/stores/UserState';
-import { DateTime } from 'luxon';
+import { formatDate } from '@/utils/formatDate';
 
 const props = defineProps(['vendorId'])
 
@@ -75,7 +73,7 @@ const fetchReviews = async () => {
     const product = await fetchProductName(review.product_id);
     return {
       ...review,
-      date: dateTime(review.created_at),
+      date: formatDate(review.created_at),
       user_name: userData?.name ?? 'Usuário',
       user_avatar: userData?.avatar ?? DEFAULT_AVATAR,
       product_name: product,
@@ -111,10 +109,6 @@ const fetchProductName = async (productId) => {
   } else {
     return data.name
   }
-}
-
-const dateTime = (date) => {
-  return DateTime.fromISO(date, { zone: 'utc' }).setZone('America/Sao_Paulo').toFormat('dd/MM/yyyy HH:mm')
 }
 
 const closeModal = () => {

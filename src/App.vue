@@ -91,7 +91,7 @@ main {
   border: 2px solid transparent;
   cursor: pointer;
   font-size: var(--text-medium);
-  @include m.media(540px) {
+  @include m.media(xs) {
     padding: 10px 15px;
   }
   &.primary {
@@ -141,7 +141,7 @@ input, textarea {
   font-size: var(--text-medium);
   transition: var(--transition);
   color: var(--text-color);
-  @include m.media(540px) {
+  @include m.media(xs) {
     padding: 10px;
   }
 }
@@ -156,14 +156,14 @@ input::placeholder {
 
 .input {
   margin-bottom: 20px;
-  @include m.media(600px) {
+  @include m.media(sm) {
     margin-bottom: 15px;
   }
   label {
     display: block;
     margin-bottom: 10px;
     color: var(--text-color);
-    @include m.media(600px) {
+    @include m.media(sm) {
       margin-bottom: 5px;
     }
   }
@@ -175,7 +175,7 @@ input::placeholder {
 .input-group {
   display: flex;
   gap: 20px;
-  @include m.media(758px) { 
+  @include m.media(md) { 
     flex-direction: column;
     gap: 0;
   }
@@ -229,7 +229,7 @@ input::placeholder {
     transition-duration: 0.3s;
     transition-behavior: allow-discrete;
 
-    @include m.media(600px) {
+    @include m.media(sm) {
       padding: 20px;
       padding-top: 40px;
       max-height: 100vh;
@@ -248,7 +248,7 @@ input::placeholder {
       background-repeat: no-repeat;
       background-position: center;
 
-      @include m.media(600px) {
+      @include m.media(sm) {
         top: 10px;
         right: 10px;
       }

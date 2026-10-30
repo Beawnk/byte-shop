@@ -45,7 +45,7 @@ const goTo = (page) => {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @use '@/assets/style/main.scss' as m;
 
 #account {
@@ -84,12 +84,12 @@ const goTo = (page) => {
             border-radius: 10px;
             transition: max-width 0.5s ease;
 
-            @include m.media(600px) {
+            @include m.media(sm) {
                 padding: 30px;
                 max-width: 100%;
             }
         }
-        .border {
+        :deep(.border) {
             width: 100%;
             text-align: center;
             display: flex;
@@ -114,7 +114,7 @@ const goTo = (page) => {
                 margin-left: 10px;
             }
         }
-        .action {
+        :deep(.action) {
             width: 100%;
             display: flex;
             justify-content: center;

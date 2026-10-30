@@ -1,17 +1,15 @@
 <template>
     <div class="rating" v-if="vendor">
         <p class="rating-number">{{ vendor.rating }}</p>
-        <div class="stars">
-            <span v-for="(star, index) in useGetVendorStars(vendor.rating)" :key="index" class="star" :class="{full: star == 'full', half: star == 'half', empty: star == 'empty'}"></span>
-        </div>
+        <StarRating :rating="vendor.rating" />
         <p class="total-reviews">{{ vendor.reviews }} avaliações</p>
     </div>
 </template>
 
 <script setup>
-import { useGetVendorStars } from '@/composables/getVendorStars';
+import StarRating from '@/components/StarRating.vue';
 
-const props = defineProps({
+defineProps({
     vendor: {
         type: Object,
         required: true
@@ -19,7 +17,7 @@ const props = defineProps({
 })
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .rating {
     display: flex;
     gap: 10px;
@@ -31,7 +29,7 @@ const props = defineProps({
         color: var(--text-color);
     }
     &:hover {
-        .star {
+        :deep(.star) {
             &.full {
                 background-image: url('../assets/img/icons/star-full-hover.png');
             }
@@ -48,27 +46,6 @@ const props = defineProps({
         font-size: var(--text-small);
         color: var(--text-color);
         margin-left: 10px;
-    }
-}
-.stars {
-    display: flex;
-    gap: 5px;
-    .star {
-        width: 20px;
-        height: 20px;
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-        transition: var(--transition);
-        &.full {
-            background-image: url('../assets/img/icons/star-full.png');
-        }
-        &.half {
-            background-image: url('../assets/img/icons/star-half.png');
-        }
-        &.empty {
-            background-image: url('../assets/img/icons/star-empty.png');
-        }
     }
 }
 </style>

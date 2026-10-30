@@ -2,10 +2,9 @@
   	<div class="user-favorites">
   		<h2>Seus favoritos</h2>
   		<div class="favorites" v-if="favoriteProducts.length">
-  		  <div v-for="(product, index) in favoriteProducts" :key="product.id" class="favorite" @mouseover="productHoverIndex = index" @mouseleave="productHoverIndex = null">
-  		    <UserProductItem :product="product">
-				<button class="btn remove" v-show="productHoverIndex === index" @click.prevent="removeProduct(product.id)"></button>
-			</UserProductItem>
+  		  <div v-for="product in favoriteProducts" :key="product.id" class="favorite">
+  		    <UserProductItem :product="product" />
+			<button class="btn remove" type="button" :aria-label="`Remover ${product.name} dos favoritos`" @click="removeProduct(product.id)"></button>
   		  </div>
   		</div>
 		<div class="no-favorites" v-else-if="favoriteProducts.length === 0 && !loading">
@@ -26,7 +25,6 @@ const favoritesStore = useFavoritesStore();
 const alertStore = useAlertStore();
 
 const favoriteProducts = ref([]);
-const productHoverIndex = ref(null);
 const loading = ref(false);
 
 const fetchFavoriteProducts = async () => {
@@ -53,7 +51,7 @@ const removeProduct = async (productId) => {
 onMounted(fetchFavoriteProducts);
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @use '@/assets/style/main.scss' as m;
 
 .user-favorites {
@@ -68,11 +66,11 @@ onMounted(fetchFavoriteProducts);
 		grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
 		gap: 1rem;
 		.favorite {
-			.product-link {
+			position: relative;
+			:deep(.product-link) {
 				flex-direction: column;
 				align-items: center;
 				min-height: 250px;
-				position: relative;
 				.product-image {
 					width: 100%;
 					height: 150px;
@@ -97,27 +95,29 @@ onMounted(fetchFavoriteProducts);
 						margin-top: 0;
 					}
 				}
-				.remove {
-					position: absolute;
-					top: 0;
-					right: 0;
-					width: 30px;
-					height: 30px;
-					background-color: var(--white-color);
-					border-radius: 0 var(--border-radius) 0 var(--border-radius);
-					box-shadow: var(--shadow);
-					background-image: url('@/assets/img/icons/remove.png');
-					background-size: 20px;
-					background-repeat: no-repeat;
-					background-position: center;
-
-					@include m.media(600px) {
-						opacity: 1 !important;
-    					visibility: visible !important;
-    					pointer-events: auto !important;
-    					display: inline-flex !important;
-					}
+			}
+			// Hidden until hover or keyboard focus; always visible on touch screens (no hover there).
+			.remove {
+				position: absolute;
+				top: 0;
+				right: 0;
+				width: 30px;
+				height: 30px;
+				background-color: var(--white-color);
+				border-radius: 0 var(--border-radius) 0 var(--border-radius);
+				box-shadow: var(--shadow);
+				background-image: url('@/assets/img/icons/remove.png');
+				background-size: 20px;
+				background-repeat: no-repeat;
+				background-position: center;
+				opacity: 0;
+				@media (hover: none) {
+					opacity: 1;
 				}
+			}
+			&:hover .remove,
+			&:focus-within .remove {
+				opacity: 1;
 			}
 		}
  	}

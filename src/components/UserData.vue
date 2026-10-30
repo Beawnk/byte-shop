@@ -3,8 +3,8 @@
     <Loader v-if="loading"/>
     <div class="user-info" v-if="props.mode !== 'address'">
       <div class="profile-pic">
-        <img v-if="profilePicUrl" :src="profilePicUrl" alt="Profile Picture" />
-        <input type="file" @change="onFileChange" />
+        <img v-if="profilePicUrl" :src="profilePicUrl" alt="Foto de perfil" />
+        <input type="file" accept="image/png,image/jpeg" aria-label="Trocar foto de perfil" @change="onFileChange" />
       </div>
       <div class="input">
         <label for="email">Email</label>
@@ -328,7 +328,7 @@ const updateUserStore = handleSubmit(async (values) => {
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @use '@/assets/style/main.scss' as m;
 
 .user-form {
@@ -349,7 +349,7 @@ const updateUserStore = handleSubmit(async (values) => {
     position: relative;
     border: 3px solid var(--primary-color);
 
-    @include m.media(600px) {
+    @include m.media(sm) {
       width: 150px;
       height: 150px;
     }

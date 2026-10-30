@@ -14,7 +14,7 @@
 </template>
   
 <script setup>
-const props = defineProps({
+defineProps({
   	errors: Array,
   	successes: Array,
 });

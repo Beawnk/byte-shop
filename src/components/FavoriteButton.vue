@@ -1,6 +1,6 @@
 <template>
-  	<button v-if="userStore.logged" @click.prevent="toggleFavorite" :class="{ saved: isFavorite }" class="btn save"></button>
-    <router-link v-else :to="{name: 'user', query: {page: 'login', redirect: `/produtos/${props.productId}`}}" class="btn save"></router-link>
+  	<button v-if="userStore.logged" type="button" @click.prevent="toggleFavorite" :class="{ saved: isFavorite }" class="btn save" :aria-pressed="isFavorite" :aria-label="isFavorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos'"></button>
+    <router-link v-else :to="{name: 'user', query: {page: 'login', redirect: `/produtos/${props.productId}`}}" class="btn save" aria-label="Entre para favoritar"></router-link>
 </template>
 
 <script setup>

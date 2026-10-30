@@ -41,10 +41,10 @@ watch(() => props.searchValue, (value) => {
     position: relative;
     width: fit-content;
     margin: 0 auto 40px;
-    @include m.media(900px) {
+    @include m.media(lg) {
         width: 100%;
     }
-    @include m.media(540px) {
+    @include m.media(xs) {
         margin: 0 auto 20px;
     }
     input#search {
@@ -63,7 +63,7 @@ watch(() => props.searchValue, (value) => {
         background-size: 30px;
         background-repeat: no-repeat;
         background-position: center;
-        @include m.media(540px) {
+        @include m.media(xs) {
             background-size: 25px;
         }
         &:hover {
@@ -81,7 +81,7 @@ watch(() => props.searchValue, (value) => {
         right: 85px;
         top: 50%;
         transform: translateY(-50%);
-        @include m.media(540px) {
+        @include m.media(xs) {
             right: 75px;
         }
     }

@@ -8,14 +8,13 @@
 			<p class="description">{{ truncatedText(product.description, 150, '...') }}</p>
 			<p class="price">{{ formatCurrency(product.price) }}</p>
 		</div>
-		<slot></slot>
 	</router-link>
 </template>
 
 <script setup>
 import { formatCurrency } from '@/composables/formatCurrency';
 
-const props = defineProps(['product'])
+defineProps(['product'])
 
 const truncatedText = (string, letters, end = '') => {
 	return string.substring(0, letters) + end
@@ -35,7 +34,7 @@ const truncatedText = (string, letters, end = '') => {
 	align-items: center;
 	transition: width 0.5s ease;
 
-	@include m.media(600px) {
+	@include m.media(sm) {
 		flex-direction: column;
 		padding-bottom: 50px;
 	}
@@ -80,14 +79,14 @@ const truncatedText = (string, letters, end = '') => {
 	.product-link {
     	width: calc(100% - 50px);
 
-		@include m.media(600px) {
+		@include m.media(sm) {
 			width: 100%;
 		}
 	}
 }
 
 .sold {
-	@include m.media(600px) {
+	@include m.media(sm) {
 		.product-link {
 			padding-bottom: 0;
 		}

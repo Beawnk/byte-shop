@@ -6,7 +6,7 @@
 	<div class="order-wrapper">
 		<router-link :to="{name: 'product', params: {id: order.product_id}}" class="product-item" v-if="order.product">
 			<div class="product-image">
-			  	<img :src="order.product.pictures[0]" alt="Product image" />
+			  	<img :src="order.product.pictures[0]" :alt="order.product.name" />
 			</div>
 			<div class="product-info">
 				<h5>{{ order.product.name }}</h5>
@@ -32,15 +32,13 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { formatCurrency } from '@/composables/formatCurrency';
-import { DateTime } from 'luxon';
+import { formatDate } from '@/utils/formatDate';
 
 const props = defineProps(['order'])
 
-const dateTime = DateTime.fromISO(props.order.created_at, { zone: 'utc' }).setZone('America/Sao_Paulo');
-
-const dateTimeFormatted = dateTime.toFormat('dd/MM/yyyy HH:mm:ss')
-
+const dateTimeFormatted = computed(() => formatDate(props.order.created_at));
 const truncatedText = (string, letters, end = '') => {
 	return string.substring(0, letters) + end
 }
@@ -64,7 +62,7 @@ const truncatedText = (string, letters, end = '') => {
 	display: flex;
 	justify-content: space-between;
 
-	@include m.media(900px) {
+	@include m.media(lg) {
 		flex-direction: column;
 	}
 
@@ -75,7 +73,7 @@ const truncatedText = (string, letters, end = '') => {
 		gap: 20px;
 		width: 50%;
 
-		@include m.media(900px) {
+		@include m.media(lg) {
 			width: 100%;
 			flex-direction: column;
 		}
@@ -91,7 +89,7 @@ const truncatedText = (string, letters, end = '') => {
 			border-radius: var(--border-radius);
 			overflow: hidden;
 
-			@include m.media(900px) {
+			@include m.media(lg) {
 				margin: 0 auto;
 			}
 	
@@ -107,7 +105,7 @@ const truncatedText = (string, letters, end = '') => {
 			justify-content: center;
 			width: calc(100% - 170px);
 
-			@include m.media(900px) {
+			@include m.media(lg) {
 				width: 100%;
 				text-align: center;
 			}
@@ -133,7 +131,7 @@ const truncatedText = (string, letters, end = '') => {
 		border-left: 1px solid var(--gray-color);
 		padding-left: 20px;
 
-		@include m.media(900px) {
+		@include m.media(lg) {
 			border-left: none;
 			padding-left: 0;
 			margin-top: 20px;

@@ -1,7 +1,7 @@
 <template>
 	<div class="modal modal-reviews" v-if="vendorId">
 	  <div class="modal-content" ref="modal">
-		<button class="close" @click="closeModal"></button>
+		<button class="close" type="button" aria-label="Fechar" @click="closeModal"></button>
 		<div class="reviews" v-if="reviews.length">
 		  <div class="review" v-for="review in reviews" :key="review.id">
 			<div class="user">
@@ -9,9 +9,7 @@
 				<div class="name-date">
 				  <span class="date">{{ review.date }}</span>
 				</div>
-				<div class="stars">
-				  <span v-for="(star, index) in useGetVendorStars(review.stars)" :key="index" class="star" :class="{full: star == 'full', half: star == 'half', empty: star == 'empty'}"></span>
-				</div>
+				<StarRating :rating="Number(review.stars)" />
 			  </div>
 			</div>
 			<div class="text">
@@ -32,9 +30,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
-import { useGetVendorStars } from '@/composables/getVendorStars'
+import StarRating from '@/components/StarRating.vue'
 import { useAlertStore } from '@/stores/alertStore';
-import { DateTime } from 'luxon';
+import { formatDate } from '@/utils/formatDate';
 
 // Reviews this user wrote. Shown inline in the "Avaliações enviadas" tab.
 const props = defineProps(['vendorId'])
@@ -56,7 +54,7 @@ const fetchReviews = async () => {
 
 	reviews.value = await Promise.all(data.map(async (review) => ({
 		...review,
-		date: dateTime(review.created_at),
+		date: formatDate(review.created_at),
 		product_name: await fetchProductName(review.product_id),
 	})))
 }
@@ -74,10 +72,6 @@ const fetchProductName = async (productId) => {
 	  return data.name
 	}
 }
-  
-const dateTime = (date) => {
-  return DateTime.fromISO(date, { zone: 'utc' }).setZone('America/Sao_Paulo').toFormat('dd/MM/yyyy HH:mm')
-} 
   
 const closeModal = () => {
 	emit('emitCloseModal')

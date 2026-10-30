@@ -1,9 +1,18 @@
 <template>
 	<div class="user-reviews">
-		<div class="tabs">
-			<div class="tab" v-for="tab in tabs" :key="tab.id" :class="{ active: tab.id === activeTab }" @click="activeTab = tab.id">{{ tab.name }}</div>
+		<div class="tabs" role="tablist">
+			<button
+				v-for="tab in tabs"
+				:key="tab.id"
+				type="button"
+				role="tab"
+				class="tab"
+				:class="{ active: tab.id === activeTab }"
+				:aria-selected="tab.id === activeTab"
+				@click="activeTab = tab.id"
+			>{{ tab.name }}</button>
 		</div>
-		<div class="tab-content">
+		<div class="tab-content" role="tabpanel">
 			<component :is="getActiveComponent()" :vendorId="userStore.user.id" class="open"/>
 		</div>
 	</div>
@@ -36,7 +45,7 @@ const components = {
 const getActiveComponent = () => components[activeTab.value];
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .user-reviews {
 	.tabs {
 		display: flex;
@@ -50,6 +59,7 @@ const getActiveComponent = () => components[activeTab.value];
 			cursor: pointer;
 			width: 50%;
 			text-align: center;
+			font-family: inherit;
 			transition: var(--transition);
 			color: var(--text-color);
 			font-size: var(--text-medium);
@@ -60,7 +70,7 @@ const getActiveComponent = () => components[activeTab.value];
 		}
 	}
 	.tab-content {
-		.modal {
+		:deep(.modal) {
 			position: relative;
 			display: block;
 			background-color: transparent;

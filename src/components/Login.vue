@@ -51,7 +51,7 @@ import { useUserStore } from '@/stores/UserState';
 import { safeRedirect } from '@/utils/safeRedirect';
 import * as yup from 'yup';
 
-const emit = defineEmits(['emitSignUpPage', 'emitForgotPassPage']);
+defineEmits(['emitSignUpPage', 'emitForgotPassPage']);
 
 const userStore = useUserStore();
 const route = useRoute();
@@ -110,13 +110,6 @@ const onSubmit = handleSubmit(async (values) => {
     h2 {
         margin-bottom: 20px;
         color: var(--text-color);
-    }
-    form {
-        .input {
-            input {
-                background-color: var(--);
-            }
-        }
     }
     .lost-pass {
         display: block;

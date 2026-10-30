@@ -70,7 +70,7 @@ const sendEmail = handleSubmit(async (values) => {
 });
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .forgot-pass-form {
 	h2 {
 		color: var(--text-color);

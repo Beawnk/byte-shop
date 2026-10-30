@@ -1,7 +1,7 @@
-@font-face { font-family:'Quicksand-Regular'; src: url('@/assets/fonts/Quicksand-Regular.ttf'); }
-@font-face { font-family:'Quicksand-Light'; src: url('@/assets/fonts/Quicksand-Light.ttf'); }
-@font-face { font-family:'Quicksand-Medium'; src: url('@/assets/fonts/Quicksand-Medium.ttf'); }
-@font-face { font-family:'Quicksand-SemiBold'; src: url('@/assets/fonts/Quicksand-SemiBold.ttf'); }
+@font-face { font-family:'Quicksand-Regular'; src: url('@/assets/fonts/Quicksand-Regular.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family:'Quicksand-Light'; src: url('@/assets/fonts/Quicksand-Light.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family:'Quicksand-Medium'; src: url('@/assets/fonts/Quicksand-Medium.ttf') format('truetype'); font-display: swap; }
+@font-face { font-family:'Quicksand-SemiBold'; src: url('@/assets/fonts/Quicksand-SemiBold.ttf') format('truetype'); font-display: swap; }
 
 :root {
     /* colors  */
@@ -24,10 +24,10 @@
     --shadow: 0px 2px 10px 0px var(--shadow-color);
 
     /* Fonts  */
-    --ff-primary: 'Quicksand-Regular';
-    --ff-primary-light: 'Quicksand-Light';
-    --ff-primary-Medium: 'Quicksand-Medium';
-    --ff-primary-semiBold: 'Quicksand-SemiBold';
+    --ff-primary: 'Quicksand-Regular', system-ui, sans-serif;
+    --ff-primary-light: 'Quicksand-Light', system-ui, sans-serif;
+    --ff-primary-Medium: 'Quicksand-Medium', system-ui, sans-serif;
+    --ff-primary-semiBold: 'Quicksand-SemiBold', system-ui, sans-serif;
 
     /* font sizes */
     --title-super: 48px;
@@ -151,6 +151,15 @@ button {
     background-color: transparent;
     padding: 0;
     transition: var(--transition);
+}
+
+/* Keyboard focus only (not on mouse click): the resets above remove the browser's outline. */
+a:focus-visible,
+button:focus-visible,
+input[type="submit"]:focus-visible,
+[role="tab"]:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
 }
 
 /* width */

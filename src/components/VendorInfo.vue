@@ -5,7 +5,9 @@
             <img :src="vendor.avatar" :alt="vendor.name" />
         </div>
         <h5>{{ vendor.name }}</h5>
-        <VendorRating :vendor="vendor" @click="openReviews"/>
+        <button type="button" class="open-reviews" aria-label="Ver avaliações do vendedor" @click="openReviews">
+            <VendorRating :vendor="vendor" />
+        </button>
         <router-link :to="{ name: 'products', query: { vendedor: vendor.id } }" class="vendor-products btn primary">Ver todos os produtos</router-link>
     </div>
 </template>
@@ -64,5 +66,12 @@ const openReviews = () => {
     .btn {
       margin-top: 10px;
     }
+}
+
+.open-reviews {
+    display: block;
+    margin: 0 auto;
+    color: inherit;
+    font-family: inherit;
 }
 </style>

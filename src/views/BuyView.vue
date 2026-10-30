@@ -119,7 +119,7 @@ onMounted(fetchProduct);
 
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @use '@/assets/style/main.scss' as m;
 
 #buy {
@@ -128,7 +128,7 @@ onMounted(fetchProduct);
 		justify-content: space-between;
 		gap: 20px;
 
-		@include m.media(1051px) {
+		@include m.media(xl) {
 			flex-direction: column;
 		}
 	}
@@ -138,11 +138,11 @@ onMounted(fetchProduct);
 		padding: 20px;
 		border-radius: var(--border-radius);
 
-		@include m.media(1051px) {
+		@include m.media(xl) {
 			width: 100%;
 		}
 
-		.user-form {
+		:deep(.user-form) {
 			h4 {
 				margin-top: 0;
 			}
@@ -155,7 +155,7 @@ onMounted(fetchProduct);
 		width: 30%;
 		height: 100%;
 
-		@include m.media(1051px) {
+		@include m.media(xl) {
 			width: 100%;
 		}
 
@@ -166,7 +166,7 @@ onMounted(fetchProduct);
 			padding: 20px;
 			border-radius: var(--border-radius);
 
-			@include m.media(480px) {
+			@include m.media(xxs) {
 				flex-direction: column;
 			}
 
@@ -174,7 +174,7 @@ onMounted(fetchProduct);
 				width: 40%;
 				max-height: 300px;
 
-				@include m.media(480px) {
+				@include m.media(xxs) {
 					width: 100%;
 				}
 
@@ -187,7 +187,7 @@ onMounted(fetchProduct);
 			.info {
 				width: 60%;
 
-				@include m.media(480px) {
+				@include m.media(xxs) {
 					width: 100%;
 				}
 				h4 {

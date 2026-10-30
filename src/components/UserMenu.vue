@@ -7,10 +7,10 @@
 			<li><router-link :to="{name: 'orders'}">Pedidos</router-link></li>
 			<li><router-link :to="{name: 'sales'}">Vendas</router-link></li>
 			<li><router-link :to="{name: 'reviews'}">Avaliações</router-link></li>
-			<li><button class="logout-btn" @click.prevent="userStore.logout">Sair</button></li>
+			<li><button class="logout-btn" type="button" @click="userStore.logout">Sair</button></li>
 		</ul>
 		<div class="menu-btn">
-			<button @click="menuOpen = !menuOpen">
+			<button type="button" :aria-expanded="menuOpen" aria-label="Menu da conta" @click="menuOpen = !menuOpen">
 				<span></span>
        			<span></span>
        			<span></span>
@@ -39,7 +39,7 @@ const menuOpen = ref(false);
 
 .user-menu {
 	width: 200px;
-	@include m.media(758px) {
+	@include m.media(md) {
 		position: absolute;
 		top: calc(var(--section) + 10px);
 		left: calc(var(--side) * -1 - 200px);
@@ -48,7 +48,7 @@ const menuOpen = ref(false);
 	}
 	
 	&.open {
-		@include m.media(758px) {
+		@include m.media(md) {
 			left: calc(var(--side) * -1 + 10px);
 		}
 	}
@@ -57,7 +57,7 @@ const menuOpen = ref(false);
 		display: flex;
 		flex-direction: column;
 		gap: 5px;
-		@include m.media(758px) {
+		@include m.media(md) {
 			background-color: var(--background-color);
 			border-radius: var(--border-radius) 0 var(--border-radius) var(--border-radius);
 			padding: 10px;
@@ -100,7 +100,7 @@ const menuOpen = ref(false);
 		right: -39px;
 		top: 0;
 		z-index: 15;
-		@include m.media(758px) {
+		@include m.media(md) {
 			display: block;
 		}
 

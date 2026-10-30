@@ -1,32 +1,22 @@
+@use 'sass:map';
+
+// Same values the layouts already used, now named in one place.
+$breakpoints: (
+  xxs: 480px,
+  xs: 540px,
+  sm: 600px,
+  md: 758px,
+  lg: 900px,
+  xl: 1051px,
+  xxl: 1450px,
+);
+
+// Usage: @include m.media(sm) { ... } applies at that width and below.
 @mixin media($size) {
-  @media only screen and (max-width: $size) {
+  @if not map.has-key($breakpoints, $size) {
+    @error "Unknown breakpoint: #{$size}";
+  }
+  @media only screen and (max-width: map.get($breakpoints, $size)) {
     @content;
   }
 }
-
-@mixin keyframes($animation-name) {
-  @-webkit-keyframes #{$animation-name} {
-    @content;
-  }
-  @-moz-keyframes #{$animation-name} {
-    @content;
-  }  
-  @-ms-keyframes #{$animation-name} {
-    @content;
-  }
-  @-o-keyframes #{$animation-name} {
-    @content;
-  }  
-  @keyframes #{$animation-name} {
-    @content;
-  }
-}
-
-@mixin animation($str) {
-    -webkit-animation: #{$str};
-    -moz-animation: #{$str};
-    -ms-animation: #{$str};
-    -o-animation: #{$str};
-    animation: #{$str};      
-}
-  

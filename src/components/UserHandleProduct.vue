@@ -49,6 +49,7 @@
 									<button
 										class="remove"
 										type="button"
+										:aria-label="`Remover imagem ${index + 1}`"
 										v-show="imgHoverIndex === index"
 										@click.prevent="removeImage(index)"
 									></button>
@@ -56,6 +57,7 @@
 								<div class="input-image">
 									<input
 										type="file"
+										accept="image/png,image/jpeg"
 										id="image"
 										@change="onFileChange"
 										multiple

@@ -1,11 +1,11 @@
 <template>
   <footer>
-    <p>&copy; 2024 All rights reserved</p>
+    <p>&copy; {{ year }} Byte Shop. Todos os direitos reservados.</p>
   </footer>
 </template>
 
 <script setup>
-
+const year = new Date().getFullYear();
 </script>
 
 <style lang="scss" scoped>
@@ -20,7 +20,7 @@ footer {
     color: var(--white-color);
     position: relative;
     top: 60px;
-    @include m.media(540px) {
+    @include m.media(xs) {
         top: 40px;
         height: 40px;
     }
