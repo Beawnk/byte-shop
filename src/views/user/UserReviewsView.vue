@@ -13,36 +13,51 @@
 			>{{ tab.name }}</button>
 		</div>
 		<div class="tab-content" role="tabpanel">
-			<component :is="getActiveComponent()" :vendorId="userStore.user.id" class="open"/>
+			<VendorInfo v-if="activeTab === 'received' && vendor" :vendor="vendor" />
+			<ReviewList :reviews="reviews" :loading="loading" :show-author="activeTab === 'received'" />
+			<Loader v-if="loading" />
 		</div>
 	</div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useUserStore } from '@/stores/UserState';
-import VendorReviews from '@/components/VendorReviews.vue';
-import UserReviews from '@/components/UserReviews.vue';
+import { useAlertStore } from '@/stores/alertStore';
+import { useReviews } from '@/composables/useReviews';
+import { fetchVendor } from '@/composables/fetchVendor';
+import ReviewList from '@/components/ReviewList.vue';
+import VendorInfo from '@/components/VendorInfo.vue';
 
 const userStore = useUserStore();
+const alertStore = useAlertStore();
+const { reviews, loading, load } = useReviews();
 
-// Define tabs with string identifiers
-const tabs = ref([
-	{ id: 'vendor-reviews', name: 'Minhas avaliações' },
-	{ id: 'user-reviews', name: 'Avaliações enviadas' },
-]);
+const tabs = [
+	{ id: 'received', name: 'Minhas avaliações' },
+	{ id: 'sent', name: 'Avaliações enviadas' },
+];
 
-// Default active tab
-const activeTab = ref('vendor-reviews');
+const activeTab = ref('received');
+const vendor = ref(null);
 
-// Map tab IDs to their respective components
-const components = {
-	'vendor-reviews': VendorReviews,
-	'user-reviews': UserReviews,
+const loadTab = async (tab) => {
+	const userId = userStore.user.id;
+
+	if (tab === 'sent') {
+		load({ userId });
+		return;
+	}
+
+	load({ vendorId: userId });
+	try {
+		vendor.value = await fetchVendor(userId);
+	} catch (error) {
+		alertStore.addGlobalError('Erro ao carregar sua nota de vendedor.', error);
+	}
 };
 
-// Get the active component based on the activeTab
-const getActiveComponent = () => components[activeTab.value];
+watch(activeTab, loadTab, { immediate: true });
 </script>
 
 <style lang="scss" scoped>
@@ -70,19 +85,11 @@ const getActiveComponent = () => components[activeTab.value];
 		}
 	}
 	.tab-content {
-		:deep(.modal) {
-			position: relative;
-			display: block;
-			background-color: transparent;
-			.modal-content {
-				max-width: 100%;
-				padding: 0;
-				box-shadow: none;
-				.close {
-					display: none;
-				}
-			}
-		}
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		gap: 20px;
+		min-height: 200px;
 	}
 }
 </style>

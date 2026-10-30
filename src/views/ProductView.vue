@@ -35,7 +35,7 @@
       </div>
     </transition>
     <Loader v-if="loading"/>
-    <VendorReviews v-if="product" v-show="modalReviews" @emit-close-modal="onEmitCloseReviews" :vendor-id="product.vendor_id" :class="{open: modalReviews}"/>
+    <VendorReviews v-if="vendor" v-show="modalReviews" @emit-close-modal="onEmitCloseReviews" :vendor="vendor" :class="{open: modalReviews}"/>
   </section>
 </template>
 

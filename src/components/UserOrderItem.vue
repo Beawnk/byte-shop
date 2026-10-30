@@ -1,16 +1,16 @@
 <template>
 	<div class="id-date">
-		<p><strong>ID:</strong> {{ truncatedText(order.id, 8, '...') }}</p>
+		<p><strong>ID:</strong> {{ truncate(order.id, 8, '...') }}</p>
 		<p><strong>Data:</strong> {{ dateTimeFormatted }}</p>
 	</div>
 	<div class="order-wrapper">
 		<router-link :to="{name: 'product', params: {id: order.product_id}}" class="product-item" v-if="order.product">
 			<div class="product-image">
-			  	<img :src="order.product.pictures[0]" :alt="order.product.name" />
+			  	<img :src="order.product.pictures?.[0]" :alt="order.product.name" />
 			</div>
 			<div class="product-info">
 				<h5>{{ order.product.name }}</h5>
-			  	<p>{{ truncatedText(order.product.description, 70) }}</p>
+			  	<p>{{ truncate(order.product.description, 70) }}</p>
 			  	<p class="price">{{ formatCurrency(order.product.price) }}</p>
 			</div>
   		</router-link>
@@ -34,14 +34,12 @@
 <script setup>
 import { computed } from 'vue';
 import { formatCurrency } from '@/composables/formatCurrency';
+import { truncate } from '@/utils/truncate';
 import { formatDate } from '@/utils/formatDate';
 
 const props = defineProps(['order'])
 
 const dateTimeFormatted = computed(() => formatDate(props.order.created_at));
-const truncatedText = (string, letters, end = '') => {
-	return string.substring(0, letters) + end
-}
 </script>
 
 <style lang="scss" scoped>

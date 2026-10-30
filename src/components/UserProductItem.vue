@@ -4,8 +4,8 @@
 			<img :src="product.image_url?.[0]" :alt="product.name" />
 		</div>
 		<div class="product-info">
-			<h5>{{ truncatedText(product.name, 40) }}</h5>
-			<p class="description">{{ truncatedText(product.description, 150, '...') }}</p>
+			<h5>{{ truncate(product.name, 40) }}</h5>
+			<p class="description">{{ truncate(product.description, 150, '...') }}</p>
 			<p class="price">{{ formatCurrency(product.price) }}</p>
 		</div>
 	</router-link>
@@ -13,12 +13,10 @@
 
 <script setup>
 import { formatCurrency } from '@/composables/formatCurrency';
+import { truncate } from '@/utils/truncate';
 
 defineProps(['product'])
 
-const truncatedText = (string, letters, end = '') => {
-	return string.substring(0, letters) + end
-}
 </script>
 
 <style lang="scss" scoped>

@@ -15,7 +15,7 @@
                 <div class="img">
                   <img :src="product.image_url?.[0]" :alt="product.name" loading="lazy" decoding="async" />
                 </div>
-                <h2>{{ truncatedText(product.name, 30) }}</h2>
+                <h2>{{ truncate(product.name, 30) }}</h2>
                 <p>{{ formatCurrency(product.price) }}</p>
               </router-link>
               <div class="actions">
@@ -46,9 +46,10 @@ import { useRoute, useRouter } from 'vue-router'
 import ProductsSearch from '@/components/ProductsSearch.vue';
 import { supabase } from '@/lib/supabaseClient'
 import { formatCurrency } from '@/composables/formatCurrency';
+import { truncate } from '@/utils/truncate';
 import { useAlertStore } from '@/stores/alertStore';
 import FavoriteButton from '@/components/FavoriteButton.vue';
-import { gsap } from "gsap";
+import { useListAnimation } from '@/composables/useListAnimation';
 
 const PAGE_SIZE = 10
 
@@ -136,40 +137,7 @@ const goToPage = (target) => {
   updateQuery({ pagina: target > 1 ? target : undefined })
 }
 
-const truncatedText = (string, letters, end = '') => {
-	return string.substring(0, letters) + end
-}
-
-// GSAP Hooks
-function onBeforeEnter(el) {
-  el.style.opacity = 0;
-  el.style.transform = "translateY(30px)";
-}
-
-function onEnter(el, done) {
-  gsap.fromTo(
-    el,
-    { opacity: 0, y: 30 },
-    {
-      opacity: 1,
-      y: 0,
-      duration: 0.5,
-      delay: parseInt(el.dataset.index) * 0.15, // Stagger based on index
-      clearProps: "transform",
-      onComplete: done,
-    }
-  );
-}
-
-function onLeave(el, done) {
-  gsap.to(el, {
-    opacity: 0,
-    y: -30,
-    duration: 0.2,
-    delay: parseInt(el.dataset.index) * 0.1, // Stagger based on index
-    onComplete: done,
-  });
-}
+const { onBeforeEnter, onEnter, onLeave } = useListAnimation({ axis: 'y', leaveTo: -30, leaveDuration: 0.2, leaveStagger: 0.1 });
 
 // Refetch whenever the list's query changes; ignore the route change that leaves this page.
 watch(

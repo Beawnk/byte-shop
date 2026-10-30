@@ -19,7 +19,7 @@
 </template>
 
 <script setup>
-import { gsap } from "gsap";
+import { useListAnimation } from '@/composables/useListAnimation';
 import { ref, onMounted } from 'vue';
 import UserOrderItem from '@/components/UserOrderItem.vue';
 import UserAddReview from "@/components/UserAddReview.vue";
@@ -83,36 +83,7 @@ onMounted(() => {
 	fetchUserReviews();
 });
 
-// GSAP Hooks
-function onBeforeEnter(el) {
-  el.style.opacity = 0;
-  el.style.transform = "translateX(-30px)";
-}
-
-function onEnter(el, done) {
-  gsap.fromTo(
-    el,
-    { opacity: 0, x: -30 },
-    {
-      opacity: 1,
-      x: 0,
-      duration: 0.5,
-      delay: parseInt(el.dataset.index) * 0.15, // Stagger based on index
-      clearProps: "transform",
-      onComplete: done,
-    }
-  );
-}
-
-function onLeave(el, done) {
-  gsap.to(el, {
-    opacity: 0,
-    x: 30,
-    duration: 0.5,
-    delay: parseInt(el.dataset.index) * 0.15, // Stagger based on index
-    onComplete: done,
-  });
-}
+const { onBeforeEnter, onEnter, onLeave } = useListAnimation();
 </script>
 
 <style lang="scss" scoped>
