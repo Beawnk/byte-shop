@@ -1,14 +1,14 @@
 <template>
-  <section id="account" class="container" :class="{ login: userStore.page === 'login', signup: userStore.page === 'signup', user: userStore.page === 'user' }">
+  <section id="account" class="container" :class="{ login: view === 'login', signup: view === 'signup', user: view === 'user' }">
     <transition name="down" mode="out-in" appear>
         <div class="wrapper">
-            <UserMenu v-if="userStore.logged" />
+            <UserMenu v-if="view === 'user'" />
             <div class="account-wrapper">
-                <Transition mode="out-in" appear><Login v-if="!userStore.logged && userStore.page == 'login'"  @emit-sign-up-page="onSignUpPage" @emit-forgot-pass-page="onForgotPassPage"/></Transition>
-                <Transition mode="out-in" appear><SignUp v-if="!userStore.logged && userStore.page == 'signup'" @emit-login-page="onLoginPage"/></Transition>
-                <Transition mode="out-in" appear><ForgotPass v-if="!userStore.logged && userStore.page == 'forgot-pass'" @emit-login-page="onLoginPage"/></Transition>
-                <Transition mode="out-in" appear><ChangePass v-if="!userStore.logged && userStore.page == 'change-pass'" @emit-login-page="onLoginPage"/></Transition>
-                <Transition mode="out-in" appear><User v-if="userStore.logged"/></Transition>
+                <Transition mode="out-in" appear><Login v-if="view === 'login'" @emit-sign-up-page="goTo('signup')" @emit-forgot-pass-page="goTo('email-nova-senha')"/></Transition>
+                <Transition mode="out-in" appear><SignUp v-if="view === 'signup'" @emit-login-page="goTo('login')"/></Transition>
+                <Transition mode="out-in" appear><ForgotPass v-if="view === 'forgot-pass'" @emit-login-page="goTo('login')"/></Transition>
+                <Transition mode="out-in" appear><ChangePass v-if="view === 'change-pass'" @emit-login-page="goTo('login')"/></Transition>
+                <Transition mode="out-in" appear><User v-if="view === 'user'"/></Transition>
             </div>
         </div>
     </transition>
@@ -16,7 +16,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { computed } from 'vue';
 import Login from '@/components/Login.vue';
 import SignUp from '@/components/SignUp.vue';
 import User from '@/components/User.vue';
@@ -30,99 +30,19 @@ const userStore = useUserStore();
 const route = useRoute()
 const router = useRouter()
 
-const onSignUpPage = () => {
-    userStore.page = 'signup';
-    router.replace({ query: { page: 'signup' } })
-};
-
-const onLoginPage = () => {
-    userStore.page = 'login';
-    router.replace({ query: { page: 'login' } }) 
-};
-
-const onForgotPassPage = () => {
-    userStore.page = 'forgot-pass';
-    router.replace({ query: { page: 'email-nova-senha' } })
-};
-
-// function handleLoggedInUser() {
-//     if (!route.path.startsWith('/usuario/alterar-senha')) {
-//         console.log('1');
-//         userStore.page = 'user';
-//     }
-// }
-
-// function handleLoggedOutUser() {
-//     console.log(route.path);
-//     if (!route.path.startsWith('/usuario/alterar-senha')) {
-//         if (route.query.page === 'signup') {
-//             userStore.page = 'signup';
-//             console.log('2');
-//         } else if (userStore.page === 'login' && !redirect) {
-//             if (route.query.page !== 'login') {
-//                 router.replace({ query: { page: 'login' } });
-//             }
-//             console.log('3');
-//         }
-//     } else {
-//         handleAccessToken();
-//     }
-// }
-
-// function handleAccessToken() {
-//     let accessToken = route.query.access_token;
-//     if (!accessToken) {
-//         const fragment = window.location.hash.substring(1);
-//         const params = new URLSearchParams(fragment);
-//         accessToken = params.get('access_token');
-//     }
-//     console.log(accessToken);
-//     userStore.userToken = accessToken;
-//     userStore.page = 'change-pass';
-//     console.log('4');
-// }
-
-// onMounted(() => {
-//     if (userStore.logged) {
-//         handleLoggedInUser();
-//     } else {
-//         handleLoggedOutUser();
-//     }
-// });
-
-onMounted(() => {
-    const redirect = route.query.redirect;
-    if (userStore.logged) {
-        if (!route.path.startsWith('/usuario/alterar-senha')) {
-            console.log('1')
-            userStore.page = 'user';
-        }
-    } else {
-        console.log(route.path)
-        if (!route.path.startsWith('/usuario/alterar-senha')) {
-            if (route.query.page === 'signup') {
-                userStore.page = 'signup';
-                console.log('2')
-            } else if (userStore.page === 'login' && !redirect) {
-                router.replace({ query: { page: 'login' } })
-                console.log('3')
-            }
-        } else {
-            let accessToken = route.query.access_token;
-	  
-		    // If not found, extract it from the URL fragment (#access_token)
-		    if (!accessToken) {
-		    	const fragment = window.location.hash.substring(1); // Get everything after #
-		    	const params = new URLSearchParams(fragment);
-		    	accessToken = params.get('access_token');
-		    }
-            console.log(accessToken)
-            userStore.userToken = accessToken;
-            userStore.page = 'change-pass';
-            console.log('4')
-        }
-    }
+// What this page shows comes from the route and the session, so back/forward and reloads keep it.
+const view = computed(() => {
+    if (route.name === 'change-password') return 'change-pass';
+    if (userStore.logged) return 'user';
+    if (route.query.page === 'signup') return 'signup';
+    if (route.query.page === 'email-nova-senha') return 'forgot-pass';
+    return 'login';
 });
+
+// Keeps ?redirect= so the user still lands where they were going after logging in.
+const goTo = (page) => {
+    router.replace({ name: 'user', query: { ...route.query, page } });
+};
 </script>
 
 <style lang="scss">

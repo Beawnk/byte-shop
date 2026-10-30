@@ -46,12 +46,16 @@
 <script setup>
 import { ref } from 'vue';
 import { useForm, useField } from 'vee-validate';
+import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/UserState';
+import { safeRedirect } from '@/utils/safeRedirect';
 import * as yup from 'yup';
 
 const emit = defineEmits(['emitSignUpPage', 'emitForgotPassPage']);
 
 const userStore = useUserStore();
+const route = useRoute();
+const router = useRouter();
 
 const loading = ref(false);
 
@@ -91,9 +95,12 @@ const onSubmit = handleSubmit(async (values) => {
   try {
     loading.value = true;
     await userStore.login(values.email, values.password);
+    const redirect = safeRedirect(route.query.redirect);
+    router.replace(redirect ?? { name: 'data' });
   } catch (error) {
-    loading.value = false;
     // Error handling is already done in userStore
+  } finally {
+    loading.value = false;
   }
 });
 </script>

@@ -32,8 +32,9 @@
 							<p class="price">{{ formatCurrency(product.price) }}</p>
 						</div>
 					</div>
+					<p class="unavailable" v-if="unavailableReason">{{ unavailableReason }}</p>
 					<div class="action">
-						<button class="btn primary buy-now" @click.prevent="completeBuy">Finalizar</button>
+						<button class="btn primary buy-now" @click.prevent="completeBuy" :disabled="!product || !!unavailableReason || buying">Finalizar</button>
 					</div>
 				</div>
 			</div>
@@ -42,7 +43,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import UserData from '@/components/UserData.vue';
 import { useUserStore } from '@/stores/UserState';
 import { useAlertStore } from '@/stores/alertStore';
@@ -58,6 +59,16 @@ const router = useRouter();
 
 const editAddress = ref(false);
 const product = ref(null);
+const buying = ref(false);
+
+// The database checks all of this again (supabase/02-purchase-rpc.sql); here it's just so the
+// button doesn't offer a purchase that will fail.
+const unavailableReason = computed(() => {
+	if (!product.value) return '';
+	if (product.value.sold) return 'Este produto já foi vendido.';
+	if (product.value.vendor_id === userStore.user.id) return 'Você não pode comprar o seu próprio produto.';
+	return '';
+});
 
 const onEditAddress = () => {
 	editAddress.value = !editAddress.value;
@@ -82,54 +93,28 @@ const fetchProduct = async () => {
 	}
 };
 
+// One transaction in the database: price, buyer and address come from there, not from the browser.
 const completeBuy = async () => {
-	const { data, error } = await supabase.from('orders').insert([
-		{
-			buyer_id: userStore.user.id,
-			product_id: product.value.id,
-			product: {
-				name: product.value.name,
-				pictures: product.value.image_url,
-				price: product.value.price,
-				vendor_id: product.value.vendor_id, 
-				description: product.value.description
-			},
-			total: product.value.price,
-			address: {
-				cep: userStore.user.address_cep,
-				street: userStore.user.address_street,
-				number: userStore.user.address_number,
-				district: userStore.user.address_district,
-				city: userStore.user.address_city,
-				state: userStore.user.address_state,
-				country: userStore.user.address_country
-			}
-		},
-	]);
+	if (buying.value) return;
+	buying.value = true;
+	alertStore.clearNotifications();
+
+	const { error } = await supabase.rpc('purchase_products', { p_product_ids: [product.value.id] });
+
+	buying.value = false;
 	if (error) {
-		alertStore.addGlobalError('Erro ao finalizar a compra.', error.message);
-	} else {
-		const { data: productData, error: productError } = await supabase
-			.from('products')
-			.update({ sold: true })
-			.eq('id', product.value.id);
-		if (productError) {
-			alertStore.addGlobalError('Erro ao finalizar a compra.', productError.message);
-		} else {
-			alertStore.addGlobalSuccess('Compra finalizada com sucesso.');
-			router.push({ name: 'orders' });
-		}
+		// The function raises messages written for the buyer (unavailable product, missing address).
+		alertStore.addGlobalError(error.code === 'P0001' || error.code === '22023' ? error.message : 'Erro ao finalizar a compra.');
+		await fetchProduct();
+		return;
 	}
+
+	alertStore.addGlobalSuccess('Compra finalizada com sucesso.');
+	router.push({ name: 'orders' });
 };
 
-onMounted(() => {
-	if (userStore.logged === false) {
-		router.push({ name: 'user', query: { redirect: `comprar/${props.id}` } });
-		userStore.page = 'login';
-	} else {
-		fetchProduct();
-	}
-});
+// The router guard already sends logged-out users to the login page.
+onMounted(fetchProduct);
 
 </script>
 
@@ -216,6 +201,11 @@ onMounted(() => {
 					font-family: var(--ff-primary-Medium);
 				}
 			}
+		}
+		.unavailable {
+			margin-top: 20px;
+			text-align: center;
+			color: var(--text-color);
 		}
 		.action {
 			margin-top: 20px;

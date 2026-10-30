@@ -29,7 +29,6 @@ import { ref } from 'vue';
 import { useForm, useField } from 'vee-validate';
 import { useUserStore } from '@/stores/UserState';
 import { useAlertStore } from '@/stores/alertStore';
-import { supabase } from '@/lib/supabaseClient';
 import * as yup from 'yup';
 
 const emit = defineEmits(['emitLoginPage']);
@@ -54,24 +53,20 @@ const { value: email, validate: validateField } = useField('email', undefined, {
   validateOnValueUpdate: false
 });
 
+// The same message whether or not the email has an account: saying "no account with this
+// email" would let anyone check who is registered.
 const sendEmail = handleSubmit(async (values) => {
 	loading.value = true;
-	const { data, error } = await supabase
-	.from('users')
-	.select('email')
-	.eq('email', values.email)
-	.limit(1);
-
-	if (data.length === 0) {
-		loading.value = false;
-		alertStore.setFieldError('email', 'Você não possui uma conta com esse email');
-		return;
-	} else {
+	alertStore.clearNotifications();
+	try {
 		await userStore.sendPasswordResetEmail(values.email);
-		loading.value = false;
+		alertStore.addGlobalSuccess('Se existir uma conta com esse email, você vai receber um link para redefinir a senha.');
 		emit('emitLoginPage');
+	} catch {
+		// The error message is shown by userStore.sendPasswordResetEmail
+	} finally {
+		loading.value = false;
 	}
-	loading.value = false;
 });
 </script>
 

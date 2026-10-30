@@ -13,8 +13,7 @@
                 <h2>{{ truncatedText(product.name, 30) }}</h2>
                 <p>{{ formatCurrency(product.price) }}</p>
                 <div class="actions">
-                  <router-link :to="{name: 'buy', params: {id: product.id}}" class="btn primary buy-now" v-if="userStore.logged === true">Comprar</router-link>
-                  <router-link :to="{name: 'user', query: {redirect: `comprar/${product.id}`}}" class="btn primary buy-now" v-if="userStore.logged === false">Comprar</router-link>
+                  <router-link :to="{name: 'buy', params: {id: product.id}}" class="btn primary buy-now">Comprar</router-link>
                   <FavoriteButton :productId="product.id" @click.stop />
                 </div>
               </router-link>
@@ -37,17 +36,16 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import ProductsSearch from '@/components/ProductsSearch.vue';
 import { supabase } from '@/lib/supabaseClient'
 import { formatCurrency } from '@/composables/formatCurrency';
-import { useUserStore } from '@/stores/UserState';
+import { useAlertStore } from '@/stores/alertStore';
 import FavoriteButton from '@/components/FavoriteButton.vue';
 import { gsap } from "gsap";
 
-const userStore = useUserStore()
+const alertStore = useAlertStore()
 const route = useRoute()
-const router = useRouter()
 const products = ref([])
 const currentPage = ref(1)
 const itemsPerPage = 10
@@ -56,14 +54,29 @@ const searchValue = ref('')
 const vendorName = ref('')
 const loading = ref(false)
 
-const getQuery = async () => {
-  const vendorProducts = JSON.parse(route.query.vendorProducts)
-  vendorName.value = route.query.vendorName
-  const name = vendorName.value
-  products.value = vendorProducts
+// /produtos?vendedor=<id>: the vendor's products come from the database, not from the URL.
+const fetchVendorProducts = async (vendorId) => {
+  loading.value = true
+  const [{ data: vendor }, { data, error }] = await Promise.all([
+    supabase.from('public_profiles').select('name').eq('id', vendorId).maybeSingle(),
+    supabase
+      .from('products')
+      .select('*')
+      .eq('vendor_id', vendorId)
+      .eq('sold', false)
+      .order('created_date', { ascending: false }),
+  ])
+  loading.value = false
 
-  router.replace({ query: { vendedor: name } })
+  if (error) {
+    alertStore.addGlobalError('Erro ao carregar os produtos do vendedor.')
+    return
+  }
+
+  vendorName.value = vendor?.name ?? ''
   searchValue.value = vendorName.value
+  products.value = data
+  totalPages.value = 1
 }
 
 const fetchProducts = async (page = 1) => {
@@ -170,8 +183,8 @@ function onLeave(el, done) {
 }
 
 onMounted(async () => {
-  if (route.query.vendorProducts) {
-    await getQuery();
+  if (route.query.vendedor) {
+    await fetchVendorProducts(route.query.vendedor);
   } else {
     await fetchProducts();
   }

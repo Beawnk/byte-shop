@@ -12,7 +12,7 @@
 
 <script setup>
 import { onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/UserState';
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
@@ -20,8 +20,19 @@ import Notifications from '@/components/Notifications.vue';
 import { useAlertStore } from '@/stores/alertStore';
 
 const route = useRoute();
+const router = useRouter();
 const userStore = useUserStore();
 const alertStore = useAlertStore();
+
+// When the session ends (logout, expired, signed out in another tab), leave private pages.
+watch(
+  () => userStore.logged,
+  (logged) => {
+    if (!logged && route.meta.requiresAuth) {
+      router.replace({ name: 'user', query: { page: 'login' } });
+    }
+  }
+);
 
 const updateBodyClass = () => {
   if (route.path === '/' || route.path.startsWith('/usuario')) {
@@ -33,7 +44,6 @@ const updateBodyClass = () => {
 
 onMounted(() => {
   updateBodyClass();
-  userStore.loadUserFromLocalStorage();
 });
 
 watch(route, () => {

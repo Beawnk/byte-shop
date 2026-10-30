@@ -57,7 +57,7 @@ const fetchReviews = async () => {
 		console.log(data)
 		const reviewsWithUser = await Promise.all(data.map(async (review) => {
 		  const { data: userData, error: userError } = await supabase
-			.from('users')
+			.from('public_profiles')
 			.select('name, avatar')
 			.eq('id', review.user_id)
 			.single()
@@ -77,8 +77,8 @@ const fetchReviews = async () => {
 	  
 		getStars(stars)
 		const { data: vendorData, error } = await supabase
-		  .from('users')
-		  .select('*')
+		  .from('public_profiles')
+		  .select('id, name, avatar')
 		  .eq('id', props.vendorId)
 		  .single()
   

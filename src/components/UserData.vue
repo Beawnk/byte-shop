@@ -143,12 +143,13 @@ import { getUserSchema } from '@/composables/userSchema';
 import { useUserStore } from '@/stores/UserState';
 import { useAlertStore } from '@/stores/alertStore';
 import { useGetAddress } from '@/composables/getAddress';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const props = defineProps(['mode']);
 const userStore = useUserStore();
 const alertStore = useAlertStore();
 const route = useRoute();
+const router = useRouter();
 const loading = ref(false);
 
 // Initialize form with validation schema
@@ -261,36 +262,49 @@ const fillCep = async () => {
   }
 };
 
-const changePass = () => {
-  userStore.sendPasswordResetEmail(userStore.user.email);
-  userStore.logout();
+const changePass = async () => {
+  loading.value = true;
+  try {
+    await userStore.sendPasswordResetEmail(userStore.user.email);
+    await userStore.logout();
+    alertStore.addGlobalSuccess('Enviamos um link para o seu email para cadastrar a nova senha.');
+  } catch {
+    // The error message is shown by the store
+  } finally {
+    loading.value = false;
+  }
 };
 
+// The store only changes after the save succeeds, so a failed save never shows unsaved data as saved.
 const updateUserStore = handleSubmit(async (values) => {
   loading.value = true;
-  alertStore.clearNotifications();
-  
-  try {
-    userStore.user.name = values.name;
-    userStore.user.email = values.email;
-    userStore.user.avatar = profilePicUrl.value;
-    userStore.user.address_street = values.street;
-    userStore.user.address_number = values.number;
-    userStore.user.address_district = values.district;
-    userStore.user.address_city = values.city;
-    userStore.user.address_state = values.state;
-    userStore.user.address_country = values.country;
-    userStore.user.address_cep = values.cep;
 
+  const profile = {
+    name: values.name,
+    address_cep: values.cep,
+    address_street: values.street,
+    address_number: values.number,
+    address_district: values.district,
+    address_city: values.city,
+    address_state: values.state,
+    address_country: values.country,
+  };
+
+  try {
     if (props.mode === 'edit') {
-      await userStore.updateAccount();
-      loading.value = false;
+      await userStore.updateAccount({ ...profile, email: values.email, avatar: profilePicUrl.value });
     } else if (props.mode === 'create') {
-      await userStore.createAccount(values.email, values.password);
-      loading.value = false;
+      const { needsConfirmation } = await userStore.createAccount({
+        email: values.email,
+        password: values.password,
+        profile,
+        avatar: profilePicUrl.value,
+      });
+      router.replace(needsConfirmation ? { name: 'user', query: { page: 'login' } } : { name: 'data' });
     }
-  } catch (error) {
-    // Erros estão no arquivo userState.js
+  } catch {
+    // Errors are shown by the store (UserState.js)
+  } finally {
     loading.value = false;
   }
 });

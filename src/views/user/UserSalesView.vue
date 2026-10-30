@@ -66,7 +66,7 @@ const fetchSales = async () => {
   	  	const buyerIds = [...new Set(orders.map((order) => order.buyer_id))];
 
   	  	const { data: buyers, error: buyersError } = await supabase
-  	  	  	.from('users')
+  	  	  	.from('public_profiles')
   	  	  	.select('id, name')
   	  	  	.in('id', buyerIds);
 

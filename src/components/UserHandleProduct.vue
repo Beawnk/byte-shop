@@ -143,85 +143,51 @@ const removeImage = (index) => {
 	images.value.splice(index, 1);
 };
 
+// The id is also the product URL (/produtos/:id). It's created once and never changes on edit,
+// otherwise favorites, orders and reviews pointing at it would break. The random suffix keeps
+// two products with the same name from colliding.
+const createProductId = (productName) => {
+	const slug = productName
+		.normalize('NFD')
+		.replace(/[̀-ͯ]/g, '')
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-+|-+$/g, '')
+		.slice(0, 60);
+	return `${slug || 'produto'}-${crypto.randomUUID().slice(0, 8)}`;
+};
+
 const saveProduct = handleSubmit(async (values) => {
 	alertStore.clearNotifications();
 
-	const payload = {
-		id: values.name.toLowerCase().replace(/ /g, '-'),
+	// Only the columns the seller may edit; id, vendor_id and sold are protected in the database.
+	const fields = {
 		name: values.name,
 		description: values.description,
-		price: values.price,
+		price: Number(values.price),
 		image_url: values.images,
-		vendor_id: userStore.user.id,
-		sold: false
 	};
 
-	try {
-		if (props.mode === 'add') {
-			await supabase.from('products').insert([payload]);
-			name.value = '';
-			description.value = '';
-			price.value = '';
-			images.value = [];
-			alertStore.addGlobalSuccess('Produto adicionado com sucesso');
-		} else if (props.mode === 'edit') {
-			await supabase
-				.from('products')
-				.update(payload)
-				.eq('id', props.productId);
-			alertStore.addGlobalSuccess('Produto atualizado com sucesso');
-		}
-		emit('hideProductModal');
-		emit('productSaved');
-	} catch (error) {
-		alertStore.addGlobalError('Erro ao salvar produto');
+	// supabase-js returns { error } instead of throwing, so it has to be checked.
+	const { error } = props.mode === 'add'
+		? await supabase
+			.from('products')
+			.insert([{ ...fields, id: createProductId(values.name), vendor_id: userStore.user.id }])
+		: await supabase
+			.from('products')
+			.update(fields)
+			.eq('id', props.productId);
+
+	if (error) {
+		alertStore.addGlobalError('Erro ao salvar produto.');
+		return;
 	}
+
+	alertStore.addGlobalSuccess(props.mode === 'add' ? 'Produto adicionado com sucesso.' : 'Produto atualizado com sucesso.');
+	if (props.mode === 'add') resetForm();
+	emit('hideProductModal');
+	emit('productSaved');
 });
-
-// const saveProduct = handleSubmit(async (values) => {
-// 	alertStore.clearNotifications();
-
-// 	if (props.mode === 'add') {
-//   		const { data, error } = await supabase
-// 		.from('products')
-// 		.insert([
-// 		  	{
-// 				id: values.name.toLowerCase().replace(/ /g, '-'),
-// 				name: values.name,
-// 				description: values.description,
-// 				price: values.price,
-// 				image_url: values.images,
-// 				vendor_id: userStore.user.id,
-// 				sold: false
-// 		  	}
-// 		]);
-		
-//   		if (error) {
-// 			alertStore.addGlobalError('Erro ao salvar produto', error);
-//   		} else {
-// 			emit('hideProductModal');
-// 			emit('productSaved');
-// 			alertStore.addGlobalSuccess('Produto adicionado com sucesso');
-//   		}
-// 	} else if (props.mode === 'edit') {
-//     	const { data, error } = await supabase
-//     	  .from('products')
-//     	  .update({
-//     	    name: values.name,
-// 			description: values.description,
-// 			price: values.price,
-// 			image_url: values.images,
-//     	  })
-//     	  .eq('id', props.productId);
-//     	if (error) {
-// 		  alertStore.addGlobalError('Erro ao salvar produto', error);
-//     	} else {
-// 			emit('hideProductModal');
-//   			emit('productSaved');	
-// 			alertStore.addGlobalSuccess('Produto atualizado com sucesso');
-// 		}
-//   	}
-// });
 
 
 watch(

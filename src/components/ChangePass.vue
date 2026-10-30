@@ -25,13 +25,9 @@
 import { ref } from 'vue';
 import { useForm, useField } from 'vee-validate';
 import { useUserStore } from '@/stores/UserState';
-import { useRoute, useRouter } from 'vue-router';
 import * as yup from 'yup';
 
 const emit = defineEmits(['emitLoginPage']);
-
-const route = useRoute();
-const router = useRouter();
 
 const userStore = useUserStore();
 
@@ -65,10 +61,8 @@ const changePass = handleSubmit(async (values) => {
 	try {
 		await userStore.resetPassword(values.newPass);
 		emit('emitLoginPage');
-		userStore.page = 'login';
-		router.replace({path: '/usuario', query: { page: 'login' } });
-	} catch (error) {
-		
+	} catch {
+		// The error message is shown by userStore.resetPassword
 	} finally {
 		loading.value = false;
 	}
