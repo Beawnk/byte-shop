@@ -29,7 +29,7 @@
 					<FieldNotifications :field="'review'"/>
 				</div>
 				<div class="actions">
-					<button class="btn primary" @click.prevent="sendReview">Enviar</button>
+					<button class="btn primary" @click.prevent="sendReview" :disabled="sending">Enviar</button>
 				</div>
 			</form>
 		</div>
@@ -37,7 +37,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useUserStore } from '@/stores/UserState';
 import { supabase } from '@/lib/supabaseClient';
 import { useClickOutside } from '@/composables/clickOutside';
@@ -56,6 +56,9 @@ const rating = ref(0);
 const hoverRating = ref(0);
 const title = ref('');
 const review = ref('');
+const sending = ref(false);
+
+useClickOutside(modal, () => emit('closeModal'));
 
 const setRating = (value) => {
   	rating.value = value;
@@ -68,9 +71,10 @@ const sendReview = async () => {
 	if (!title.value) alertStore.setFieldError('title', 'Digite um título');
 	if (!review.value) alertStore.setFieldError('review', 'Digite uma avaliação');
 
-	if (!rating.value || !title.value || !review.value) return;
+	if (!rating.value || !title.value || !review.value || sending.value) return;
 
-	const { data, error } = await supabase
+	sending.value = true;
+	const { error } = await supabase
 	.from('reviews')
 	.insert([
 		{
@@ -83,19 +87,18 @@ const sendReview = async () => {
 		}
 	]);
 
+	sending.value = false;
+
 	if (error) {
-		alertStore.addGlobalError('Erro ao enviar avaliação', error.message);
+		// 23505 = unique violation: one review per product (supabase/04-constraints-defaults.sql).
+		alertStore.addGlobalError(error.code === '23505' ? 'Você já avaliou este produto.' : 'Erro ao enviar avaliação.', error);
 	} else {
-		alertStore.addGlobalSuccess('Avaliação enviada com sucesso');
+		alertStore.addGlobalSuccess('Avaliação enviada com sucesso.');
 
 		emit('closeModal');
 		emit('reviewedOrder');
 	}
 }
-
-onMounted(() => {
-	useClickOutside(modal, () => emit('closeModal'));
-});
 </script>
 
 <style lang="scss" scoped>

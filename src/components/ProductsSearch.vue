@@ -1,15 +1,16 @@
 <template>
-    <div class="search-products"> 
-        <input type="text" id="search" name="search" placeholder="Pesquisar produtos" v-model="search" @keyup.enter.prevent="searchProducts"/>
-        <input class="btn primary hover search-btn" type="submit" @click.prevent="searchProducts" @keyup.enter.prevent="searchProducts" value=""/>
-        <button class="clear" @click="clearSearch" v-show="search"></button>
-    </div>
+    <!-- A real form: Enter and the button both submit once (before, Enter fired the search twice). -->
+    <form class="search-products" role="search" @submit.prevent="searchProducts">
+        <input type="text" id="search" name="search" placeholder="Pesquisar produtos" aria-label="Pesquisar produtos" v-model="search"/>
+        <input class="btn primary hover search-btn" type="submit" value="" aria-label="Buscar"/>
+        <button class="clear" type="button" aria-label="Limpar busca" @click="clearSearch" v-show="search"></button>
+    </form>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue';
 
-const props = defineProps(['searchValue', 'vendorName']);
+const props = defineProps(['searchValue']);
 
 const emit = defineEmits(['emitSearchProducts']);
 
@@ -24,9 +25,10 @@ const clearSearch = () => {
     emit('emitSearchProducts', search.value);
 }
 
-watch(() => props.vendorName, (newValue) => {
-    search.value = newValue;
-});
+// Keeps the field in sync with ?busca= (back/forward, links).
+watch(() => props.searchValue, (value) => {
+    search.value = value ?? '';
+}, { immediate: true });
 </script>
 
 <style lang="scss" scoped>

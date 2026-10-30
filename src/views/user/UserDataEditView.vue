@@ -1,7 +1,7 @@
 <template>
 	<h2>Seus dados</h2>
-	<UserData v-slot="{ update }" :mode="'edit'">
-		<button class="btn primary" @click.prevent="update">Salvar</button>
+	<UserData v-slot="{ saving }" :mode="'edit'">
+		<button class="btn primary" type="submit" :disabled="saving">Salvar</button>
 	</UserData>
 </template>
 

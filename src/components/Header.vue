@@ -27,7 +27,7 @@ const logoWhite = new URL('@/assets/img/logo-white.png', import.meta.url).href;
 const logoDefault = new URL('@/assets/img/logo.png', import.meta.url).href;
 
 const isLogged = computed(() => userStore.logged);
-const userName = computed(() => userStore.user.name.replace(/ .*/, ''));
+const userName = computed(() => (userStore.user.name ?? '').replace(/ .*/, ''));
 
 const updateLogo = () => {
     if (route.path === '/' || route.path.startsWith('/usuario')) {

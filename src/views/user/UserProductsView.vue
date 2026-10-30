@@ -2,7 +2,8 @@
 	<div class="user-products">
 		<h2>Seus produtos</h2>
 		<button class="btn primary add" v-if="!showHandleProduct" @click="addNewProduct">Adicionar produto</button>
-		<transition name="down" mode="out-in" appear><UserHandleProduct v-show="showHandleProduct" :productId="editedProduct" :mode="handleProductMode" @hide-product-modal="showHandleProduct = false" @product-saved="fetchProducts++" :class="[{open: showHandleProduct}, handleProductMode]"/></transition>
+		<!-- v-if (not v-show): the form mounts fresh on every open, so it never shows stale values. -->
+		<transition name="down" mode="out-in" appear><UserHandleProduct v-if="showHandleProduct" :key="editedProduct ?? 'new'" :productId="editedProduct" :mode="handleProductMode" @hide-product-modal="showHandleProduct = false" @product-saved="fetchProducts++" :class="[{open: showHandleProduct}, handleProductMode]"/></transition>
 		<UserProducts :fetchProducts="fetchProducts" @handle-product-mode-edit="editProduct" />
 	</div>
 </template>
@@ -11,6 +12,9 @@
 import { ref } from 'vue';
 import UserHandleProduct from '@/components/UserHandleProduct.vue';
 import UserProducts from '@/components/UserProducts.vue';
+import { useAlertStore } from '@/stores/alertStore';
+
+const alertStore = useAlertStore();
 
 const showHandleProduct = ref(false);
 const handleProductMode = ref('');
@@ -29,7 +33,7 @@ const editProduct = (productId, isSold) => {
 		handleProductMode.value = 'edit';
 		showHandleProduct.value = true;
 	} else {
-		alert('Produto vendido não pode ser editado');
+		alertStore.addGlobalError('Produto vendido não pode ser editado.');
 	}
 };
 </script>

@@ -4,7 +4,7 @@
 			<div v-for="(product, index) in products" :key="product.id" :data-index="index" class="product" @mouseover="productHoverIndex = index" @mouseleave="productHoverIndex = null" :class="{'show-actions': productHoverIndex === index, sold: product.sold}">
 				<UserProductItem :product="product" />
         <div class="actions" v-show="productHoverIndex === index">
-          <button class="delete" @click.prevent="userStore.deleteProduct(product.id, product.sold)"></button>
+          <button class="delete" @click.prevent="deleteProduct(product)"></button>
           <button class="edit" @click.prevent="$emit('handleProductModeEdit', product.id, product.sold)"></button>
         </div>
 			</div>
@@ -19,16 +19,14 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { useUserStore } from '@/stores/UserState';
-import { useAlertStore } from '@/stores/alertStore';
 import UserProductItem from '@/components/UserProductItem.vue';
 import { gsap } from "gsap";
 
 const props = defineProps(["fetchProducts"]);
 
-const emit = defineEmits(["handleProductModeEdit"]);
+defineEmits(["handleProductModeEdit"]);
 
 const userStore = useUserStore();
-const alertStore = useAlertStore();
 const products = ref([]);
 const loading = ref(false);
 
@@ -65,17 +63,29 @@ function onLeave(el, done) {
   });
 }
 
-watch(() => props.fetchProducts, async () => {
-  products.value = await userStore.loadProducts();
-});
-
-onMounted(async () => {
+const load = async () => {
   loading.value = true;
-	if(userStore.user.id) {
-		products.value = await userStore.loadProducts();
+  try {
+    products.value = [...await userStore.loadProducts()];
+  } catch {
+    // The error message is shown by userStore.loadProducts
+  } finally {
     loading.value = false;
-	}
-});
+  }
+};
+
+const deleteProduct = async (product) => {
+  try {
+    await userStore.deleteProduct(product.id, product.sold);
+    products.value = [...userStore.userProducts];
+  } catch {
+    // The error message is shown by the store
+  }
+};
+
+// The parent bumps `fetchProducts` after a save; the route guard guarantees a logged-in user here.
+watch(() => props.fetchProducts, load);
+onMounted(load);
 </script>
 
 <style lang="scss" scoped>

@@ -48,6 +48,7 @@
 									<img :src="image" alt="Imagem do produto" />
 									<button
 										class="remove"
+										type="button"
 										v-show="imgHoverIndex === index"
 										@click.prevent="removeImage(index)"
 									></button>
@@ -64,10 +65,10 @@
 							<FieldNotifications :field="'images'" />
 						</div>
 						<div class="actions">
-							<button class="btn secondary cancel" @click="$emit('hideProductModal')">
+							<button class="btn secondary cancel" type="button" @click="$emit('hideProductModal')">
 								Cancelar
 							</button>
-							<button class="btn primary save" type="submit">
+							<button class="btn primary save" type="submit" :disabled="saving">
 								Salvar
 							</button>
 						</div>
@@ -79,7 +80,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue';
+import { ref } from 'vue';
 import { useHandleImages } from '@/composables/handleImages';
 import { useUserStore } from '@/stores/UserState';
 import { supabase } from '@/lib/supabaseClient';
@@ -96,6 +97,7 @@ const alertStore = useAlertStore();
 
 const modal = ref(null);
 const imgHoverIndex = ref(null);
+const saving = ref(false);
 
 const productSchema = yup.object({
   name: yup.string().required('Insira o nome do produto'),
@@ -149,7 +151,7 @@ const removeImage = (index) => {
 const createProductId = (productName) => {
 	const slug = productName
 		.normalize('NFD')
-		.replace(/[̀-ͯ]/g, '')
+		.replace(/[\u0300-\u036f]/g, '')
 		.toLowerCase()
 		.replace(/[^a-z0-9]+/g, '-')
 		.replace(/^-+|-+$/g, '')
@@ -158,6 +160,8 @@ const createProductId = (productName) => {
 };
 
 const saveProduct = handleSubmit(async (values) => {
+	if (saving.value) return;
+	saving.value = true;
 	alertStore.clearNotifications();
 
 	// Only the columns the seller may edit; id, vendor_id and sold are protected in the database.
@@ -178,48 +182,33 @@ const saveProduct = handleSubmit(async (values) => {
 			.update(fields)
 			.eq('id', props.productId);
 
+	saving.value = false;
 	if (error) {
 		alertStore.addGlobalError('Erro ao salvar produto.');
 		return;
 	}
 
 	alertStore.addGlobalSuccess(props.mode === 'add' ? 'Produto adicionado com sucesso.' : 'Produto atualizado com sucesso.');
-	if (props.mode === 'add') resetForm();
 	emit('hideProductModal');
 	emit('productSaved');
 });
 
+// The parent mounts this component fresh on every open (v-if + key), so the form is
+// filled once here. The image list is copied: editing it must not change the store's
+// product until the save succeeds.
+const editedProduct = props.mode === 'edit' ? userStore.getProduct(props.productId) : null;
+if (editedProduct) {
+	resetForm({
+		values: {
+			name: editedProduct.name,
+			description: editedProduct.description,
+			price: editedProduct.price,
+			images: [...(editedProduct.image_url ?? [])],
+		},
+	});
+}
 
-watch(
-	() => props.productId,
-	async () => {
-		resetForm();
-		alertStore.clearNotifications();
-		if (props.mode === 'edit' && props.productId) {
-			const product = await userStore.getProduct(props.productId);
-			name.value = product.name;
-			description.value = product.description;
-			price.value = product.price;
-			images.value = product.image_url;
-		} else {
-			name.value = '';
-			description.value = '';
-			price.value = '';
-			images.value = [];
-		}
-	},
-	{ immediate: true }
-);
-
-onMounted(() => {
-	if (props.mode === 'add') {
-		name.value = '';
-		description.value = '';
-		price.value = '';
-		images.value = [];
-	}
-	useClickOutside(modal, () => emit('hideProductModal'));
-});
+useClickOutside(modal, () => emit('hideProductModal'));
 </script>
 
 

@@ -17,13 +17,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useUserStore } from '@/stores/UserState';
 import { useFavoritesStore } from '@/stores/favoritesStore';
 import { useAlertStore } from '@/stores/alertStore';
 import UserProductItem from '@/components/UserProductItem.vue';
 import { supabase } from '@/lib/supabaseClient';
 
-const userStore = useUserStore();
 const favoritesStore = useFavoritesStore();
 const alertStore = useAlertStore();
 
@@ -32,14 +30,16 @@ const productHoverIndex = ref(null);
 const loading = ref(false);
 
 const fetchFavoriteProducts = async () => {
-  await favoritesStore.fetchFavorites(userStore.user.id);
+  loading.value = true;
+  await favoritesStore.fetchFavorites();
   const { data, error } = await supabase
     .from('products')
     .select('*')
     .in('id', favoritesStore.favorites);
+  loading.value = false;
 
   if (error) {
-    alertStore.addGlobalError('Erro ao buscar favoritos', error.message);
+    alertStore.addGlobalError('Erro ao buscar favoritos.', error);
   } else {
     favoriteProducts.value = data;
   }
@@ -47,14 +47,10 @@ const fetchFavoriteProducts = async () => {
 
 const removeProduct = async (productId) => {
   await favoritesStore.removeFavorite(productId);
-  fetchFavoriteProducts();
+  favoriteProducts.value = favoriteProducts.value.filter((product) => product.id !== productId);
 };
 
-onMounted(async () => {
-	loading.value = true;
-  	await fetchFavoriteProducts();
-	loading.value = false;
-});
+onMounted(fetchFavoriteProducts);
 </script>
 
 <style lang="scss">

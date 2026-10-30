@@ -16,15 +16,16 @@
 						<button class="btn primary edit" @click="onEditAddress">Editar</button>
 					</div>
 					<div class="edit-address" v-if="editAddress">
-						<UserData v-slot="{ update }" :mode="'edit'">
-							<button class="btn primary" @click.prevent="onAddressSave(update)">Salvar</button>
+						<UserData v-slot="{ saving }" :mode="'address'" @saved="editAddress = false">
+							<button class="btn primary" type="submit" :disabled="saving">Salvar</button>
 						</UserData>
 					</div>
 				</div>
 				<div class="product-info">
+					<Loader v-if="loading || buying" />
 					<div class="product" v-if="product">
 						<div class="img">
-							<img :src="product.image_url[0]" :alt="product.name" />
+							<img :src="product.image_url?.[0]" :alt="product.name" />
 						</div>
 						<div class="info">
 							<h4>{{ product.name }}</h4>
@@ -60,6 +61,7 @@ const router = useRouter();
 const editAddress = ref(false);
 const product = ref(null);
 const buying = ref(false);
+const loading = ref(false);
 
 // The database checks all of this again (supabase/02-purchase-rpc.sql); here it's just so the
 // button doesn't offer a purchase that will fail.
@@ -74,20 +76,19 @@ const onEditAddress = () => {
 	editAddress.value = !editAddress.value;
 };
 
-const onAddressSave = (callback) => {
-	callback();
-	editAddress.value = !editAddress.value;
-};
-
 const fetchProduct = async () => {
+	loading.value = true;
 	const { data, error } = await supabase
 		.from('products')
 		.select('*')
 		.eq('id', props.id)
-		.single();
+		.maybeSingle();
+	loading.value = false;
 
 	if (error) {
-		alertStore.addGlobalError('Erro ao carregar o produto.')
+		alertStore.addGlobalError('Erro ao carregar o produto.', error);
+	} else if (!data) {
+		alertStore.addGlobalError('Produto não encontrado.');
 	} else {
 		product.value = data;
 	}

@@ -2,13 +2,17 @@
   <section id="products-list" class="container">
     <transition name="down" mode="out-in" appear>
       <div class="wrapper">
-        <ProductsSearch @emit-search-products="onSearchProducts" :searchValue="searchValue" :vendorName="vendorName"/>
+        <ProductsSearch :searchValue="search" @emit-search-products="onSearchProducts" />
+        <p class="vendor-filter" v-if="vendorId">
+          Produtos de <strong>{{ vendorName || 'vendedor' }}</strong>
+          <router-link :to="{ name: 'products', query: search ? { busca: search } : {} }">Ver todos</router-link>
+        </p>
         <div class="grid" v-if="products.length">
           <TransitionGroup name="grid" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave">
             <div class="product" v-for="(product, index) in products" :key="product.id" :data-index="index">
               <router-link :to="{name: 'product', params: {id: product.id}}" class="product-link">
                 <div class="img">
-                  <img :src="product.image_url[0]" :alt="product.name" />
+                  <img :src="product.image_url?.[0]" :alt="product.name" />
                 </div>
                 <h2>{{ truncatedText(product.name, 30) }}</h2>
                 <p>{{ formatCurrency(product.price) }}</p>
@@ -20,13 +24,14 @@
             </div>
           </TransitionGroup>
         </div>
-        <div class="no-products" v-else-if="!products.length && !loading">
-          <h4>Nenhum produto encontrado</h4>
+        <div class="no-products" v-else-if="!loading">
+          <h4>{{ emptyMessage }}</h4>
+          <button v-if="loadError" class="btn primary" type="button" @click="fetchProducts">Tentar de novo</button>
         </div>
-        <div class="pagination" v-if="products && !loading">
-          <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
-          <span>Page {{ currentPage }} of {{ totalPages }}</span>
-          <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+        <div class="pagination" v-if="totalPages > 1 && !loading">
+          <button type="button" @click="goToPage(page - 1)" :disabled="page === 1">Anterior</button>
+          <span>Página {{ page }} de {{ totalPages }}</span>
+          <button type="button" @click="goToPage(page + 1)" :disabled="page === totalPages">Próxima</button>
         </div>
         <Loader v-if="loading" />
       </div>
@@ -35,8 +40,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import ProductsSearch from '@/components/ProductsSearch.vue';
 import { supabase } from '@/lib/supabaseClient'
 import { formatCurrency } from '@/composables/formatCurrency';
@@ -44,107 +49,90 @@ import { useAlertStore } from '@/stores/alertStore';
 import FavoriteButton from '@/components/FavoriteButton.vue';
 import { gsap } from "gsap";
 
+const PAGE_SIZE = 10
+
 const alertStore = useAlertStore()
 const route = useRoute()
+const router = useRouter()
+
 const products = ref([])
-const currentPage = ref(1)
-const itemsPerPage = 10
-const totalPages = ref(1)
-const searchValue = ref('')
+const total = ref(0)
 const vendorName = ref('')
 const loading = ref(false)
+const loadError = ref(false)
 
-// /produtos?vendedor=<id>: the vendor's products come from the database, not from the URL.
-const fetchVendorProducts = async (vendorId) => {
+// Search, page and vendor live in the URL (?busca=&pagina=&vendedor=), so reload, back/forward
+// and shared links show the same list.
+const search = computed(() => (route.query.busca ?? '').toString())
+const page = computed(() => Math.max(1, parseInt(route.query.pagina, 10) || 1))
+const vendorId = computed(() => (route.query.vendedor ?? '').toString())
+const totalPages = computed(() => Math.max(1, Math.ceil(total.value / PAGE_SIZE)))
+
+const emptyMessage = computed(() => {
+  if (loadError.value) return 'Não foi possível carregar os produtos.'
+  if (search.value) return `Nenhum produto encontrado para "${search.value}".`
+  return 'Nenhum produto encontrado'
+})
+
+// % and _ are wildcards in LIKE; typed by the user they should match literally.
+const escapeLike = (value) => value.replace(/[\%_]/g, (char) => `\${char}`)
+
+let latestRequest = 0
+
+const fetchProducts = async () => {
+  const request = ++latestRequest
   loading.value = true
-  const [{ data: vendor }, { data, error }] = await Promise.all([
-    supabase.from('public_profiles').select('name').eq('id', vendorId).maybeSingle(),
-    supabase
-      .from('products')
-      .select('*')
-      .eq('vendor_id', vendorId)
-      .eq('sold', false)
-      .order('created_date', { ascending: false }),
-  ])
-  loading.value = false
+  loadError.value = false
 
-  if (error) {
-    alertStore.addGlobalError('Erro ao carregar os produtos do vendedor.')
-    return
-  }
-
-  vendorName.value = vendor?.name ?? ''
-  searchValue.value = vendorName.value
-  products.value = data
-  totalPages.value = 1
-}
-
-const fetchProducts = async (page = 1) => {
-  loading.value = true
-  const from = (page - 1) * itemsPerPage;
-  const to = from + itemsPerPage - 1;
-
-  const { data, error, count } = await supabase
+  const from = (page.value - 1) * PAGE_SIZE
+  let query = supabase
     .from('products')
     .select('*', { count: 'exact' })
     .eq('sold', false)
     .order('created_date', { ascending: false })
-    .range(from, to);
+    .range(from, from + PAGE_SIZE - 1)
+
+  if (search.value) query = query.ilike('name', `%${escapeLike(search.value)}%`)
+  if (vendorId.value) query = query.eq('vendor_id', vendorId.value)
+
+  const vendorQuery = vendorId.value
+    ? supabase.from('public_profiles').select('name').eq('id', vendorId.value).maybeSingle()
+    : Promise.resolve({ data: null })
+
+  const [{ data, error, count }, { data: vendor }] = await Promise.all([query, vendorQuery])
+
+  // A slower, older request (e.g. the previous page) must not overwrite a newer one.
+  if (request !== latestRequest) return
+  loading.value = false
 
   if (error) {
-    console.error(error);
-  } else if (data.length === 0) {
-    products.value = null;
-  } else {
-    products.value = data;
-    totalPages.value = Math.ceil(count / itemsPerPage);
-    loading.value = false;
+    loadError.value = true
+    products.value = []
+    alertStore.addGlobalError('Erro ao carregar os produtos.', error)
+    return
   }
-};
 
-const cleanSearchValue = (value) => {
-  // Normalize input by removing diacritics and spaces
-  return value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Remove accents
-    .replace(/\s+/g, '') // Remove spaces
-    .toLowerCase(); // Convert to lowercase
-};
-
-const onSearchProducts = async (search) => {
-  // Clean the search value
-  const cleanedSearch = cleanSearchValue(search);
-
-  // Query Supabase for products by name
-  const { data, error } = await supabase
-    .from('products')
-    .select('*')
-    .eq('sold', false)
-    .order('created_date', { ascending: false })
-    .ilike('name', `%${cleanedSearch}%`) // Case-insensitive partial match
-    .range(0, itemsPerPage - 1); // Pagination
-
-  if (error) {
-    console.error(error);
-  } else {
-    // Update products list and pagination
-    products.value = data;
-    totalPages.value = 1; // Adjust as needed if total results are tracked
-  }
-};
-
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--
-    fetchProducts(currentPage.value)
-  }
+  products.value = data
+  total.value = count ?? data.length
+  vendorName.value = vendor?.name ?? ''
 }
 
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++
-    fetchProducts(currentPage.value)
-  }
+const updateQuery = (changes) => {
+  const query = { ...route.query, ...changes }
+  Object.keys(query).forEach((key) => {
+    if (query[key] === '' || query[key] === undefined || query[key] === null) delete query[key]
+  })
+  router.push({ name: 'products', query })
+}
+
+const onSearchProducts = (term) => {
+  // A new search starts back at page 1.
+  updateQuery({ busca: term.trim(), pagina: undefined })
+}
+
+const goToPage = (target) => {
+  if (target < 1 || target > totalPages.value) return
+  updateQuery({ pagina: target > 1 ? target : undefined })
 }
 
 const truncatedText = (string, letters, end = '') => {
@@ -182,13 +170,12 @@ function onLeave(el, done) {
   });
 }
 
-onMounted(async () => {
-  if (route.query.vendedor) {
-    await fetchVendorProducts(route.query.vendedor);
-  } else {
-    await fetchProducts();
-  }
-});
+// Refetch whenever the list's query changes; ignore the route change that leaves this page.
+watch(
+  () => (route.name === 'products' ? route.fullPath : null),
+  (path) => { if (path) fetchProducts() },
+  { immediate: true }
+)
 </script>
 
 <style lang="scss" scoped>
@@ -255,11 +242,24 @@ onMounted(async () => {
       }
     }
   }
+  .vendor-filter {
+    text-align: center;
+    margin: -20px 0 30px;
+    color: var(--text-color);
+    a {
+      margin-left: 10px;
+      color: var(--primary-color);
+      text-decoration: underline;
+    }
+  }
   .no-products {
     display: flex;
+    flex-direction: column;
+    gap: 20px;
     justify-content: center;
     align-items: center;
     height: 60vh;
+    text-align: center;
     h4 {
       font-size: var(--subtitle-big);
       color: var(--text-color);

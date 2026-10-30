@@ -22,73 +22,54 @@ import { gsap } from "gsap";
 import { ref, onMounted } from 'vue';
 import UserOrderItem from '@/components/UserOrderItem.vue';
 import { useUserStore } from '@/stores/UserState';
+import { useAlertStore } from '@/stores/alertStore';
 import { supabase } from '@/lib/supabaseClient';
 
 const userStore = useUserStore();
+const alertStore = useAlertStore();
 
 const sales = ref([]);
 const loading = ref(false);
 
 const fetchSales = async () => {
 	loading.value = true;
-  	try {
-  	  	// Step 1: Fetch all products where the vendor_id matches the current user
-  	  	const { data: products, error: productsError } = await supabase
-  	  	  	.from('products')
-  	  	  	.select('id')
-  	  	  	.eq('vendor_id', userStore.user.id);
+	try {
+		// Products of this vendor, then the orders for them (RLS lets the vendor read those orders).
+		const { data: products, error: productsError } = await supabase
+			.from('products')
+			.select('id')
+			.eq('vendor_id', userStore.user.id);
+		if (productsError) throw productsError;
 
-  	  	if (productsError) {
-  	  	  	console.error('Error fetching products:', productsError);
-  	  	  	return;
-  	  	}
+		if (!products.length) {
+			sales.value = [];
+			return;
+		}
 
-  	  	if (!products || products.length === 0) {
-  	  	  	console.log('No products found for this vendor.');
-  	  	  	sales.value = [];
-  	  	  	return;
-  	  	}
+		const { data: orders, error: ordersError } = await supabase
+			.from('orders')
+			.select('*')
+			.in('product_id', products.map((product) => product.id))
+			.order('created_at', { ascending: false });
+		if (ordersError) throw ordersError;
 
-  	  	// Step 2: Fetch orders where the product ID matches one of the fetched products
-  	  	const productIds = products.map((product) => product.id);
+		// All buyers' public names in one query.
+		const buyerIds = [...new Set(orders.map((order) => order.buyer_id))];
+		const { data: buyers, error: buyersError } = buyerIds.length
+			? await supabase.from('public_profiles').select('id, name').in('id', buyerIds)
+			: { data: [], error: null };
+		if (buyersError) throw buyersError;
 
-  	  	const { data: orders, error: ordersError } = await supabase
-  	  	  	.from('orders')
-  	  	  	.select('*')
-  	  	  	.in('product_id', productIds); // Assuming 'product' in 'orders' references the product ID
-
-  	  	if (ordersError) {
-  	  	 	console.error('Error fetching orders:', ordersError);
-  	  	 	return;
-  	  	}
-
-  	  	// Step 3: Fetch all buyers in a single query
-  	  	const buyerIds = [...new Set(orders.map((order) => order.buyer_id))];
-
-  	  	const { data: buyers, error: buyersError } = await supabase
-  	  	  	.from('public_profiles')
-  	  	  	.select('id, name')
-  	  	  	.in('id', buyerIds);
-
-  	  	if (buyersError) {
-  	  	  	console.error('Error fetching buyers:', buyersError);
-  	  	  	return;
-  	  	}
-
-  	  	// Step 4: Map buyer data to the orders
-  	  	const buyerMap = Object.fromEntries(buyers.map((buyer) => [buyer.id, buyer.name]));
-
-  	  	sales.value = orders.map((order) => ({
-  	  	  	...order,
-  	  	  	buyer: { name: buyerMap[order.buyer_id] || 'Desconhecido' },
-  	  	}));
-
-  	  	console.log('Sales:', sales.value);
-  	} catch (error) {
-  	  	console.error('Error in fetchSales:', error);
-  	} finally {
-  	  	loading.value = false;
-  	}
+		const buyerMap = Object.fromEntries(buyers.map((buyer) => [buyer.id, buyer.name]));
+		sales.value = orders.map((order) => ({
+			...order,
+			buyer: { name: buyerMap[order.buyer_id] || 'Desconhecido' },
+		}));
+	} catch (error) {
+		alertStore.addGlobalError('Erro ao carregar suas vendas.', error);
+	} finally {
+		loading.value = false;
+	}
 };
 
 onMounted(() => {

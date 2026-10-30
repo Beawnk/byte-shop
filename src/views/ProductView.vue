@@ -1,7 +1,7 @@
 <template>
   <section id="product-page" class="container">
     <transition name="down" mode="out-in" appear>
-      <div class="product" v-if="product && vendor">
+      <div class="product" v-if="product">
         <div class="images">
           <div class="img">
             <img :src="selectedImage" :alt="product.name" />
@@ -23,22 +23,28 @@
               <FavoriteButton :productId="product.id" />
             </div>
           </div>
-          <VendorInfo :vendor="vendor" @emitOpenReviews="onEmitOpenReviews" />
+          <VendorInfo v-if="vendor" :vendor="vendor" @emitOpenReviews="onEmitOpenReviews" />
         </div>
+      </div>
+      <div class="not-found" v-else-if="notFound">
+        <h2>Produto não encontrado</h2>
+        <p>Ele pode ter sido removido ou o link está incorreto.</p>
+        <router-link :to="{ name: 'products' }" class="btn primary">Ver produtos</router-link>
       </div>
     </transition>
     <Loader v-if="loading"/>
-    <VendorReviews v-if="product" v-show="modalReviews" @emit-vendor-info="onVendorInfo" @emit-close-modal="onEmitCloseReviews" :vendor-id="product.vendor_id" :class="{open: modalReviews}"/>
+    <VendorReviews v-if="product" v-show="modalReviews" @emit-close-modal="onEmitCloseReviews" :vendor-id="product.vendor_id" :class="{open: modalReviews}"/>
   </section>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import { formatCurrency } from '@/composables/formatCurrency';
+import { fetchVendor } from '@/composables/fetchVendor';
+import { useAlertStore } from '@/stores/alertStore';
 import VendorReviews from '@/components/VendorReviews.vue';
 import VendorInfo from '@/components/VendorInfo.vue';
-import { useUserStore } from '@/stores/UserState';
 import FavoriteButton from '@/components/FavoriteButton.vue';
 
 const props = defineProps({
@@ -48,27 +54,43 @@ const props = defineProps({
   }
 })
 
-const userStore = useUserStore()
+const alertStore = useAlertStore()
 
 const product = ref(null)
 const vendor = ref(null)
+const notFound = ref(false)
 const modalReviews = ref(false)
 const selectedImage = ref('');
 const loading = ref(false)
 
 const fetchProduct = async () => {
   loading.value = true
-  const { data, error } = await supabase
-    .from('products')
-    .select('*')
-    .eq('id', props.id)
-    .single()
+  notFound.value = false
+  product.value = null
+  vendor.value = null
+  modalReviews.value = false
 
-  if (error) {
-    console.error(error)
-  } else {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', props.id)
+      .maybeSingle()
+
+    if (error) throw error
+    if (!data) {
+      notFound.value = true
+      return
+    }
+
     product.value = data
-    selectedImage.value = data.image_url[0];
+    document.title = `${data.name} | Byte Shop`
+    selectedImage.value = data.image_url?.[0] ?? '';
+    // The vendor card is secondary: if it fails, the product still shows.
+    vendor.value = await fetchVendor(data.vendor_id).catch(() => null)
+  } catch (error) {
+    alertStore.addGlobalError('Erro ao carregar o produto.', error)
+  } finally {
     loading.value = false
   }
 }
@@ -76,10 +98,6 @@ const fetchProduct = async () => {
 const selectImage = (image) => {
   selectedImage.value = image;
 };
-
-const onVendorInfo = async (vendorInfo) => {
-  vendor.value = await vendorInfo
-}
 
 const onEmitOpenReviews = () => {
   modalReviews.value = !modalReviews.value
@@ -89,9 +107,8 @@ const onEmitCloseReviews = () => {
   modalReviews.value = false
 }
 
-onMounted(() => {
-  fetchProduct()
-})
+// The same component is reused between /produtos/a and /produtos/b, so refetch when the id changes.
+watch(() => props.id, fetchProduct, { immediate: true })
 </script>
 
 <style lang="scss" scoped>
@@ -209,5 +226,15 @@ onMounted(() => {
             }
         }
     }
+}
+
+#product-page .not-found {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: var(--section) 0;
+    text-align: center;
+    color: var(--text-color);
 }
 </style>

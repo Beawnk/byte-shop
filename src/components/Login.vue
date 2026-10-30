@@ -2,7 +2,7 @@
     <div class="login-form">
         <Loader v-if="loading"/>
         <h2>Login</h2>
-        <form>
+        <form @submit.prevent="onSubmit" novalidate>
             <div class="input">
                 <label for="email">Email</label>
                 <input 
@@ -16,7 +16,7 @@
                 <FieldNotifications field="email"/>
             </div>
             <div class="input">
-                <label for="password">Password</label>
+                <label for="password">Senha</label>
                 <input 
                   type="password" 
                   id="password" 
@@ -26,17 +26,17 @@
                   @blur="validateField('password')"
                 />
                 <FieldNotifications field="password"/>
-                <span class="lost-pass"><a href="" @click.prevent="$emit('emitForgotPassPage')">Esqueceu a senha?</a></span>
+                <span class="lost-pass"><button type="button" class="link-button" @click="$emit('emitForgotPassPage')">Esqueceu a senha?</button></span>
             </div>
             <div class="action">
-                <button class="btn primary login" @click.prevent="onSubmit">
+                <button class="btn primary login" type="submit" :disabled="loading">
                   Entrar
                 </button>
             </div>
         </form>
         <p class="border">Ou</p>
         <div class="action">
-            <button class="btn secondary signup" @click="$emit('emitSignUpPage')">
+            <button class="btn secondary signup" type="button" @click="$emit('emitSignUpPage')">
               Crie uma conta
             </button>
         </div>
@@ -121,7 +121,12 @@ const onSubmit = handleSubmit(async (values) => {
     .lost-pass {
         display: block;
         margin-top: 10px;
-        a {
+        .link-button {
+            background: none;
+            border: none;
+            padding: 0;
+            font: inherit;
+            cursor: pointer;
             color: var(--primary-color);
             &:hover {
                 text-decoration: underline;

@@ -2,7 +2,7 @@
 	<div class="forgot-pass-form">
 		<Loader v-if="loading"/>
 		<h2>Enviar email para redefinir a senha</h2>
-		<form>
+		<form @submit.prevent="sendEmail" novalidate>
 			<div class="input">
 				<label for="email">Email</label>
 				<input 
@@ -16,7 +16,7 @@
 				<FieldNotifications field="email"/>
 			</div>
 			<div class="action">
-				<button type="submit" class="btn primary send-email" @click.prevent="sendEmail">
+				<button type="submit" class="btn primary send-email" :disabled="loading">
 				  Enviar email
 				</button>
 			</div>

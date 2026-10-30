@@ -6,7 +6,7 @@
 <script setup>
 import { useFavoritesStore } from '@/stores/favoritesStore';
 import { useUserStore } from '@/stores/UserState';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps(['productId']);
 
@@ -15,11 +15,20 @@ const userStore = useUserStore();
 
 const isFavorite = computed(() => favoritesStore.isFavorite(props.productId));
 
+// Ignore clicks while a toggle is in flight, so a double click doesn't add/remove twice.
+const pending = ref(false);
+
 const toggleFavorite = async () => {
-  if (isFavorite.value) {
-    await favoritesStore.removeFavorite(props.productId);
-  } else {
-    await favoritesStore.addFavorite(props.productId);
+  if (pending.value) return;
+  pending.value = true;
+  try {
+    if (isFavorite.value) {
+      await favoritesStore.removeFavorite(props.productId);
+    } else {
+      await favoritesStore.addFavorite(props.productId);
+    }
+  } finally {
+    pending.value = false;
   }
 };
 </script>

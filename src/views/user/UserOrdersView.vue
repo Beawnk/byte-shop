@@ -24,9 +24,11 @@ import { ref, onMounted } from 'vue';
 import UserOrderItem from '@/components/UserOrderItem.vue';
 import UserAddReview from "@/components/UserAddReview.vue";
 import { useUserStore } from '@/stores/UserState';
+import { useAlertStore } from '@/stores/alertStore';
 import { supabase } from '@/lib/supabaseClient';
 
 const userStore = useUserStore();
+const alertStore = useAlertStore();
 
 const orders = ref([]);
 const showAddReviewModal = ref(false);
@@ -39,24 +41,25 @@ const fetchOrders = async () => {
 	const { data, error } = await supabase
 		.from('orders')
 		.select('*')
-		.eq('buyer_id', userStore.user.id);
+		.eq('buyer_id', userStore.user.id)
+		.order('created_at', { ascending: false });
+	loading.value = false;
 
 	if (error) {
-		console.error(error);
+		alertStore.addGlobalError('Erro ao carregar seus pedidos.', error);
 	} else {
 		orders.value = data;
-		loading.value = false;
 	}
 };
 
 const fetchUserReviews = async () => {
 	const { data, error } = await supabase
 		.from('reviews')
-		.select('*')
+		.select('product_id')
 		.eq('user_id', userStore.user.id);
 
 	if (error) {
-		console.error(error);
+		alertStore.addGlobalError('Erro ao carregar suas avaliações.', error);
 	} else {
 		userReviews.value = data;
 	}

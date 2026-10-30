@@ -1,7 +1,7 @@
 <template>
-  <form class="user-form">
+  <form class="user-form" @submit.prevent="updateUserStore" novalidate>
     <Loader v-if="loading"/>
-    <div class="user-info" v-show="!route.path.startsWith('/comprar')">
+    <div class="user-info" v-if="props.mode !== 'address'">
       <div class="profile-pic">
         <img v-if="profilePicUrl" :src="profilePicUrl" alt="Profile Picture" />
         <input type="file" @change="onFileChange" />
@@ -40,7 +40,7 @@
         <FieldNotifications field="password"/>
       </div>
       <div class="change-pass" v-else>
-        <button class="btn primary" @click.prevent="changePass">
+        <button class="btn primary" type="button" @click="changePass">
           Alterar senha
         </button>
       </div>
@@ -52,8 +52,7 @@
         type="text" 
         id="cep" 
         v-model="cep" 
-        placeholder="Digite seu CEP" 
-        @keyup="fillCep"
+        placeholder="Digite seu CEP"
         @blur="validateField('cep')"
       />
       <FieldNotifications field="cep"/>
@@ -131,7 +130,8 @@
       </div>
     </div>
     <div class="action">
-      <slot :update="updateUserStore"></slot>
+      <!-- The parent passes a type="submit" button; the form handles submit (button click or Enter). -->
+      <slot :saving="loading"></slot>
     </div>
   </form>
 </template>
@@ -140,15 +140,16 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useForm, useField } from 'vee-validate';
 import { getUserSchema } from '@/composables/userSchema';
-import { useUserStore } from '@/stores/UserState';
+import { useUserStore, DEFAULT_AVATAR } from '@/stores/UserState';
 import { useAlertStore } from '@/stores/alertStore';
 import { useGetAddress } from '@/composables/getAddress';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 
+// mode: 'create' (sign up), 'edit' (profile) or 'address' (checkout: only the address part)
 const props = defineProps(['mode']);
+const emit = defineEmits(['saved']);
 const userStore = useUserStore();
 const alertStore = useAlertStore();
-const route = useRoute();
 const router = useRouter();
 const loading = ref(false);
 
@@ -199,7 +200,7 @@ const { value: country, validate: validateCountry } = useField('country', undefi
   validateOnValueUpdate: false
 });
 
-const profilePicUrl = ref('https://tnwvrtitkleeayjechmy.supabase.co/storage/v1/object/public/byte/avatars/profile-default.png');
+const profilePicUrl = ref(DEFAULT_AVATAR);
 
 // Validate single field
 const validateField = (fieldName) => {
@@ -222,6 +223,8 @@ const validateField = (fieldName) => {
 };
 
 onMounted(() => {
+  // The saved CEP already matches the saved address: don't look it up and overwrite it.
+  lastCepLookup = (userStore.user.address_cep ?? '').replace(/\D/g, '');
   email.value = userStore.user.email;
   name.value = userStore.user.name;
   profilePicUrl.value = userStore.user.avatar;
@@ -245,22 +248,31 @@ const onFileChange = (event) => {
   }
 };
 
-const fillCep = async () => {
-  const cepValue = cep.value.replace(/\D/g, '');
-  if (cepValue.length == 8) {
-    const address = await useGetAddress(cepValue);
-    street.value = address.logradouro;
-    district.value = address.bairro;
-    city.value = address.localidade;
-    state.value = address.uf;
-    
-    // Validate filled fields
-    validateField('street');
-    validateField('district');
-    validateField('city');
-    validateField('state');
+// Look the address up once per new 8-digit CEP (not on every keyup), and only fill the
+// fields when ViaCEP actually found it.
+let lastCepLookup = '';
+watch(cep, async (value) => {
+  const cepValue = (value ?? '').replace(/\D/g, '');
+  if (cepValue.length !== 8 || cepValue === lastCepLookup) return;
+  lastCepLookup = cepValue;
+
+  const address = await useGetAddress(cepValue);
+  if (!address || address.erro) {
+    alertStore.setFieldError('cep', 'CEP não encontrado. Confira o número ou preencha o endereço à mão.');
+    return;
   }
-};
+
+  alertStore.clearFieldError('cep');
+  street.value = address.logradouro;
+  district.value = address.bairro;
+  city.value = address.localidade;
+  state.value = address.uf;
+
+  validateField('street');
+  validateField('district');
+  validateField('city');
+  validateField('state');
+});
 
 const changePass = async () => {
   loading.value = true;
@@ -291,8 +303,14 @@ const updateUserStore = handleSubmit(async (values) => {
   };
 
   try {
-    if (props.mode === 'edit') {
+    if (props.mode === 'address') {
+      const address = { ...profile };
+      delete address.name;
+      await userStore.updateAccount(address);
+      emit('saved');
+    } else if (props.mode === 'edit') {
       await userStore.updateAccount({ ...profile, email: values.email, avatar: profilePicUrl.value });
+      emit('saved');
     } else if (props.mode === 'create') {
       const { needsConfirmation } = await userStore.createAccount({
         email: values.email,

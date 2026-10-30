@@ -2,7 +2,7 @@
 	<div class="change-pass-form">
 		<Loader v-if="loading" />
 		<h2>Alterar senha</h2>
-		<form>
+		<form @submit.prevent="changePass" novalidate>
 			<div class="input">
 				<label for="new-pass">Nova senha</label>
 				<input type="password" id="new-pass" name="new-pass" placeholder="Digite sua nova senha" v-model="newPass" @blur="validateNewPass"/>
@@ -14,7 +14,7 @@
 				<FieldNotifications field="confirmPass"/>
 			</div>
 			<div class="action">
-				<button class="btn primary save" @click.prevent="changePass">Salvar</button>
+				<button class="btn primary save" type="submit" :disabled="loading">Salvar</button>
 			</div>	
 		</form>
 		

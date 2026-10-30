@@ -10,7 +10,7 @@
 				  <span class="date">{{ review.date }}</span>
 				</div>
 				<div class="stars">
-				  <span v-for="star in useGetVendorStars(review.stars)" :key="star" class="star" :class="{full: star == 'full', half: star == 'half', empty: star == 'empty'}"></span>
+				  <span v-for="(star, index) in useGetVendorStars(review.stars)" :key="index" class="star" :class="{full: star == 'full', half: star == 'half', empty: star == 'empty'}"></span>
 				</div>
 			  </div>
 			</div>
@@ -33,80 +33,32 @@
 import { ref, onMounted } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import { useGetVendorStars } from '@/composables/getVendorStars'
-import { useClickOutside } from '@/composables/clickOutside';
+import { useAlertStore } from '@/stores/alertStore';
 import { DateTime } from 'luxon';
 
+// Reviews this user wrote. Shown inline in the "Avaliações enviadas" tab.
 const props = defineProps(['vendorId'])
 
+const emit = defineEmits(['emitCloseModal'])
+
 const reviews = ref([])
-const vendor = ref(null)
-const averageRating = ref(0)
 const modal = ref(null)
 const loading = ref(false)
+const alertStore = useAlertStore()
 
 const fetchReviews = async () => {
 	const { data, error } = await supabase
 	  .from('reviews')
 	  .select('*')
 	  .eq('user_id', props.vendorId)
-  
-	if (error) {
-	  console.error(error)
-	} else {
-	  if (data) {
-		console.log(data)
-		const reviewsWithUser = await Promise.all(data.map(async (review) => {
-		  const { data: userData, error: userError } = await supabase
-			.from('public_profiles')
-			.select('name, avatar')
-			.eq('id', review.user_id)
-			.single()
-		
-		  if (userError) {
-			console.error(userError)
-			return review
-		  } else {
-			const product = await fetchProductName(review.product_id);
-			const date = dateTime(review.created_at)
-          	return { ...review, date: date, user_name: userData.name, user_avatar: userData.avatar, product_name: product }
-		  }
-		}))
-	  
-		reviews.value = reviewsWithUser
-		const stars = await Promise.all(reviews.value.map(review => review.stars))
-	  
-		getStars(stars)
-		const { data: vendorData, error } = await supabase
-		  .from('public_profiles')
-		  .select('id, name, avatar')
-		  .eq('id', props.vendorId)
-		  .single()
-  
-		if (error) {
-		  console.error(error)
-		} else {
-		  if (vendorData) {
-			vendor.value = {
-			  id: vendorData.id,
-			  name: vendorData.name,
-			  rating: averageRating.value || 0,
-			  reviews: reviews.value.length,
-			  avatar: vendorData.avatar,
-			}
-			useClickOutside(modal, closeModal)
-		  } else {
-			vendor.value = {
-			  id: data.id,
-			  name: data.name,
-			  rating: 0,
-			  reviews: 0,
-			  avatar: data.avatar,
-			}
-			useClickOutside(modal, closeModal)
-		  }
-		}
-	  }
-	}
+
+	if (error) throw error
+
+	reviews.value = await Promise.all(data.map(async (review) => ({
+		...review,
+		date: dateTime(review.created_at),
+		product_name: await fetchProductName(review.product_id),
+	})))
 }
 
 const fetchProductName = async (productId) => {
@@ -123,15 +75,6 @@ const fetchProductName = async (productId) => {
 	}
 }
   
-const getStars = (stars) => {
-	const averageStars = stars.reduce((acc, star) => acc + star, 0) / stars.length
-	averageRating.value = roundRating(averageStars)
-}
-  
-const roundRating = (rating) => {
-	return Math.round(rating * 2) / 2;
-};
-
 const dateTime = (date) => {
   return DateTime.fromISO(date, { zone: 'utc' }).setZone('America/Sao_Paulo').toFormat('dd/MM/yyyy HH:mm')
 } 
@@ -142,8 +85,13 @@ const closeModal = () => {
   
 onMounted(async () => {
 	loading.value = true
-	await fetchReviews()
-	loading.value = false
+	try {
+		await fetchReviews()
+	} catch (error) {
+		alertStore.addGlobalError('Erro ao carregar suas avaliações.', error)
+	} finally {
+		loading.value = false
+	}
 })
 </script>
   

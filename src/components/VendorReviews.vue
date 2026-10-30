@@ -2,7 +2,7 @@
   <div class="modal modal-reviews" v-if="vendorId">
     <div class="modal-content" ref="modal">
       <button class="close" @click="closeModal"></button>
-      <VendorInfo :vendor="vendor" />
+      <VendorInfo v-if="vendor" :vendor="vendor" />
       <div class="reviews" v-if="reviews.length">
         <div class="review" v-for="review in reviews" :key="review.id">
           <div class="user">
@@ -15,7 +15,7 @@
                 <span class="date">{{ review.date }}</span>
               </div>
               <div class="stars">
-                <span v-for="star in useGetVendorStars(review.stars)" :key="star" class="star" :class="{full: star == 'full', half: star == 'half', empty: star == 'empty'}"></span>
+                <span v-for="(star, index) in useGetVendorStars(review.stars)" :key="index" class="star" :class="{full: star == 'full', half: star == 'half', empty: star == 'empty'}"></span>
               </div>
             </div>
           </div>
@@ -35,22 +35,27 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, watch } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import VendorInfo from '@/components/VendorInfo.vue'
 import { useGetVendorStars } from '@/composables/getVendorStars'
 import { useClickOutside } from '@/composables/clickOutside';
+import { fetchVendor } from '@/composables/fetchVendor';
+import { useAlertStore } from '@/stores/alertStore';
+import { DEFAULT_AVATAR } from '@/stores/UserState';
 import { DateTime } from 'luxon';
 
 const props = defineProps(['vendorId'])
 
-const emit = defineEmits(['emitVendorInfo', 'emitCloseModal'])
+const emit = defineEmits(['emitCloseModal'])
 
 const reviews = ref([])
 const vendor = ref(null)
-const averageRating = ref(0)
 const modal = ref(null)
 const loading = ref(false)
+const alertStore = useAlertStore()
+
+useClickOutside(modal, () => emit('emitCloseModal'))
 
 const fetchReviews = async () => {
   const { data, error } = await supabase
@@ -58,63 +63,35 @@ const fetchReviews = async () => {
     .select('*')
     .eq('vendor_id', props.vendorId)
 
-  if (error) {
-    console.error(error)
-  } else {
-    if (data) {
-      const reviewsWithUser = await Promise.all(data.map(async (review) => {
-        const { data: userData, error: userError } = await supabase
-          .from('public_profiles')
-          .select('name, avatar')
-          .eq('id', review.user_id)
-          .single()
-      
-        if (userError) {
-          console.error(userError)
-          return review
-        } else {
-          const product = await fetchProductName(review.product_id);
-          const date = dateTime(review.created_at)
-          return { ...review, date: date, user_name: userData.name, user_avatar: userData.avatar, product_name: product }
-        }
-      }))
-    
-      reviews.value = reviewsWithUser
-      const stars = await Promise.all(reviews.value.map(review => review.stars))
-    
-      getStars(stars)
-      const { data: vendorData, error } = await supabase
-        .from('public_profiles')
-        .select('id, name, avatar')
-        .eq('id', props.vendorId)
-        .single()
+  if (error) throw error
 
-      if (error) {
-        console.error(error)
-      } else {
-        if (vendorData) {
-          vendor.value = {
-            id: vendorData.id,
-            name: vendorData.name,
-            rating: averageRating.value || 0,
-            reviews: reviews.value.length,
-            avatar: vendorData.avatar,
-          }
-          emit('emitVendorInfo', vendor.value)
-          useClickOutside(modal, closeModal)
-        } else {
-          vendor.value = {
-            id: data.id,
-            name: data.name,
-            rating: 0,
-            reviews: 0,
-            avatar: data.avatar,
-          }
-          emit('emitVendorInfo', vendor.value)
-          useClickOutside(modal, closeModal)
-        }
-      }
+  reviews.value = await Promise.all(data.map(async (review) => {
+    const { data: userData } = await supabase
+      .from('public_profiles')
+      .select('name, avatar')
+      .eq('id', review.user_id)
+      .maybeSingle()
+
+    const product = await fetchProductName(review.product_id);
+    return {
+      ...review,
+      date: dateTime(review.created_at),
+      user_name: userData?.name ?? 'Usuário',
+      user_avatar: userData?.avatar ?? DEFAULT_AVATAR,
+      product_name: product,
     }
+  }))
+}
+
+const load = async () => {
+  loading.value = true
+  try {
+    const [vendorData] = await Promise.all([fetchVendor(props.vendorId), fetchReviews()])
+    vendor.value = vendorData
+  } catch (error) {
+    alertStore.addGlobalError('Erro ao carregar as avaliações.', error)
+  } finally {
+    loading.value = false
   }
 }
 
@@ -136,28 +113,16 @@ const fetchProductName = async (productId) => {
   }
 }
 
-const getStars = (stars) => {
-    const averageStars = stars.reduce((acc, star) => acc + star, 0) / stars.length
-    averageRating.value = roundRating(averageStars)
-}
-
-const roundRating = (rating) => {
-    return Math.round(rating * 2) / 2;
-};
-
 const dateTime = (date) => {
   return DateTime.fromISO(date, { zone: 'utc' }).setZone('America/Sao_Paulo').toFormat('dd/MM/yyyy HH:mm')
-} 
+}
 
 const closeModal = () => {
   emit('emitCloseModal')
 }
 
-onMounted(async () => {
-  loading.value = true
-  await fetchReviews()
-  loading.value = false
-})
+// Reload when the same component is reused for another vendor (e.g. navigating between products).
+watch(() => props.vendorId, (id) => { if (id) load() }, { immediate: true })
 </script>
 
 <style lang="scss" scoped>
