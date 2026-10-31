@@ -97,7 +97,7 @@ npm run dev
 
 Os scripts em [`supabase/`](supabase) são alterações sobre as tabelas já existentes (`users`, `products`, `orders`, `reviews` e `favorites`). A criação inicial dessas tabelas não está versionada: use [00-inspect.sql](supabase/00-inspect.sql) para ver o schema de um projeto em funcionamento.
 
-Em um projeto com as tabelas prontas, rode no SQL Editor, nesta ordem: `02`, `03`, `04`, depois `01` e `05`. Os dois últimos bloqueiam o fluxo antigo, então entram junto com o deploy do front.
+Em um projeto com as tabelas prontas, rode no SQL Editor, nesta ordem: `02`, `03`, `04`, depois `01` e `05`. Os dois últimos bloqueiam o fluxo antigo, então entram junto com o deploy do front. Depois rode o `07`, que cria o bucket de imagens, e o `08`.
 
 ## Licença e créditos
 

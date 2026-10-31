@@ -137,7 +137,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useForm, useField } from 'vee-validate';
 import { getUserSchema } from '@/composables/userSchema';
 import { useUserStore, DEFAULT_AVATAR } from '@/stores/UserState';
@@ -237,16 +237,23 @@ onMounted(() => {
   country.value = userStore.user.address_country;
 });
 
+// The photo only goes to Storage when the form is saved: until then it's just a preview.
+let avatarFile = null;
+
+const revokePreview = () => {
+  if (avatarFile) URL.revokeObjectURL(profilePicUrl.value);
+};
+
 const onFileChange = (event) => {
   const file = event.target.files[0];
   if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      profilePicUrl.value = e.target.result;
-    };
-    reader.readAsDataURL(file);
+    revokePreview();
+    avatarFile = file;
+    profilePicUrl.value = URL.createObjectURL(file);
   }
 };
+
+onBeforeUnmount(revokePreview);
 
 // Look the address up once per new 8-digit CEP (not on every keyup), and only fill the
 // fields when ViaCEP actually found it.
@@ -309,14 +316,20 @@ const updateUserStore = handleSubmit(async (values) => {
       await userStore.updateAccount(address);
       emit('saved');
     } else if (props.mode === 'edit') {
-      await userStore.updateAccount({ ...profile, email: values.email, avatar: profilePicUrl.value });
+      if (avatarFile) {
+        await userStore.saveAvatar(avatarFile);
+        revokePreview();
+        avatarFile = null; // Saving again without a new photo must not upload it twice.
+        profilePicUrl.value = userStore.user.avatar;
+      }
+      await userStore.updateAccount({ ...profile, email: values.email });
       emit('saved');
     } else if (props.mode === 'create') {
       const { needsConfirmation } = await userStore.createAccount({
         email: values.email,
         password: values.password,
         profile,
-        avatar: profilePicUrl.value,
+        avatarFile,
       });
       router.replace(needsConfirmation ? { name: 'user', query: { page: 'login' } } : { name: 'data' });
     }

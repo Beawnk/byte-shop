@@ -82,8 +82,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onBeforeUnmount } from 'vue';
 import { useHandleImages } from '@/composables/handleImages';
+import { uploadImage, removeImages } from '@/composables/imageStorage';
 import { useUserStore } from '@/stores/UserState';
 import { supabase } from '@/lib/supabaseClient';
 import { useClickOutside } from '@/composables/clickOutside';
@@ -100,6 +101,8 @@ const alertStore = useAlertStore();
 const modal = ref(null);
 const imgHoverIndex = ref(null);
 const saving = ref(false);
+// Images picked but not saved yet (preview URL -> File). See useHandleImages.
+const pendingFiles = new Map();
 
 const productSchema = yup.object({
   name: yup.string().required('Insira o nome do produto'),
@@ -139,12 +142,13 @@ const { value: images } = useField('images', undefined, {
 	validateOnValueUpdate: false
 });
 
-const onFileChange = async (e) => {
-	images.value = await useHandleImages(images.value, e);
+const onFileChange = (e) => {
+	images.value = useHandleImages(images.value, e, pendingFiles);
 };
 
 const removeImage = (index) => {
-	images.value.splice(index, 1);
+	const [removed] = images.value.splice(index, 1);
+	if (pendingFiles.delete(removed)) URL.revokeObjectURL(removed);
 };
 
 // The id is also the product URL (/produtos/:id). It's created once and never changes on edit,
@@ -166,28 +170,51 @@ const saveProduct = handleSubmit(async (values) => {
 	saving.value = true;
 	alertStore.clearNotifications();
 
-	// Only the columns the seller may edit; id, vendor_id and sold are protected in the database.
-	const fields = {
-		name: values.name,
-		description: values.description,
-		price: Number(values.price),
-		image_url: values.images,
-	};
+	const uploaded = [];
+	try {
+		// One at a time, keeping the order the seller sees. What was already saved keeps its URL.
+		const imageUrls = [];
+		for (const image of values.images) {
+			const file = pendingFiles.get(image);
+			if (!file) {
+				imageUrls.push(image);
+				continue;
+			}
+			const url = await uploadImage(file, userStore.user.id);
+			uploaded.push(url);
+			imageUrls.push(url);
+		}
 
-	// supabase-js returns { error } instead of throwing, so it has to be checked.
-	const { error } = props.mode === 'add'
-		? await supabase
-			.from('products')
-			.insert([{ ...fields, id: createProductId(values.name), vendor_id: userStore.user.id }])
-		: await supabase
-			.from('products')
-			.update(fields)
-			.eq('id', props.productId);
+		// Only the columns the seller may edit; id, vendor_id and sold are protected in the database.
+		const fields = {
+			name: values.name,
+			description: values.description,
+			price: Number(values.price),
+			image_url: imageUrls,
+		};
 
-	saving.value = false;
-	if (error) {
-		alertStore.addGlobalError('Erro ao salvar produto.');
+		const query = props.mode === 'add'
+			? supabase
+				.from('products')
+				.insert([{ ...fields, id: createProductId(values.name), vendor_id: userStore.user.id }])
+			: supabase
+				.from('products')
+				.update(fields)
+				.eq('id', props.productId);
+
+		// supabase-js returns { error } instead of throwing, and an update blocked by RLS returns
+		// no error at all, just no rows: both have to be checked.
+		const { data, error } = await query.select('id');
+		if (error || !data.length) throw error ?? new Error('Product not saved');
+
+		// Only after the save, so a failure never leaves the product pointing at a deleted file.
+		await removeImages((editedProduct?.image_url ?? []).filter((url) => !imageUrls.includes(url)));
+	} catch (error) {
+		await removeImages(uploaded); // Otherwise they'd stay in the bucket with nothing using them.
+		alertStore.addGlobalError('Erro ao salvar produto.', error);
 		return;
+	} finally {
+		saving.value = false;
 	}
 
 	alertStore.addGlobalSuccess(props.mode === 'add' ? 'Produto adicionado com sucesso.' : 'Produto atualizado com sucesso.');
@@ -211,6 +238,10 @@ if (editedProduct) {
 }
 
 useClickOutside(modal, () => emit('hideProductModal'));
+
+onBeforeUnmount(() => {
+	pendingFiles.forEach((_file, preview) => URL.revokeObjectURL(preview));
+});
 </script>
 
 

@@ -1,6 +1,8 @@
 import { useAlertStore } from "@/stores/alertStore";
 
-export async function useHandleImages(fileImages, e) {
+// Only the preview goes into the form: vee-validate clones its values, which breaks File
+// objects, so the files wait in `pendingFiles` (preview URL -> File) until the save.
+export function useHandleImages(fileImages, e, pendingFiles) {
   const alertStore = useAlertStore();
   alertStore.clearNotifications();
   const files = e.target.files;
@@ -26,15 +28,9 @@ export async function useHandleImages(fileImages, e) {
       continue; // Skip invalid file
     }
 
-    // Read the file as a Data URL using FileReader
-    const fileDataUrl = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => resolve(event.target.result);
-      reader.onerror = (error) => reject(error);
-      reader.readAsDataURL(file);
-    });
-
-    validImages.push(fileDataUrl); // Add valid image
+    const preview = URL.createObjectURL(file);
+    pendingFiles.set(preview, file);
+    validImages.push(preview); // Add valid image
   }
 
   fileImages.push(...validImages); // Update the array with valid images

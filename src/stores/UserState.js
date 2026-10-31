@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, reactive } from 'vue';
 import { supabase } from '@/lib/supabaseClient';
 import { useAlertStore } from '@/stores/alertStore';
+import { uploadImage, removeImages } from '@/composables/imageStorage';
 
 export const DEFAULT_AVATAR = 'https://tnwvrtitkleeayjechmy.supabase.co/storage/v1/object/public/byte/avatars/profile-default.png';
 
@@ -128,9 +129,9 @@ export const useUserStore = defineStore('user', () => {
 	};
 
 	// The profile row is created by a trigger on auth.users (supabase/01-profile-trigger.sql)
-	// from the metadata sent here. The avatar stays out of the metadata: user metadata goes
-	// inside the access token, and a base64 image would bloat every request.
-	const createAccount = async ({ email, password, profile, avatar }) => {
+	// from the metadata sent here. The avatar stays out of it: the upload needs a session, so
+	// it only happens after the account exists.
+	const createAccount = async ({ email, password, profile, avatarFile }) => {
 		alertStore.clearNotifications();
 
 		const { data, error } = await supabase.auth.signUp({
@@ -158,8 +159,12 @@ export const useUserStore = defineStore('user', () => {
 		}
 
 		await fetchProfile(data.user.id);
-		if (avatar && avatar !== DEFAULT_AVATAR) {
-			await updateAccount({ avatar }, { silent: true });
+		if (avatarFile) {
+			try {
+				await saveAvatar(avatarFile);
+			} catch {
+				// The account was created anyway; the error message is already on screen.
+			}
 		}
 
 		alertStore.addGlobalSuccess('Conta criada com sucesso.');
@@ -208,6 +213,28 @@ export const useUserStore = defineStore('user', () => {
 					: 'Informações atualizadas com sucesso.'
 			);
 		}
+	};
+
+	// The old file is only removed at the end, so a failure in any step keeps the current photo.
+	const saveAvatar = async (file) => {
+		const previousAvatar = user.avatar;
+
+		let avatar;
+		try {
+			avatar = await uploadImage(file, user.id);
+		} catch (error) {
+			alertStore.addGlobalError('Erro ao enviar a foto de perfil.', error);
+			throw error;
+		}
+
+		try {
+			await updateAccount({ avatar }, { silent: true });
+		} catch (error) {
+			await removeImages([avatar]);
+			throw error;
+		}
+
+		await removeImages([previousAvatar]);
 	};
 
 	const sendPasswordResetEmail = async (email) => {
@@ -262,6 +289,8 @@ export const useUserStore = defineStore('user', () => {
 
 		if (!window.confirm('Certeza que deseja excluir este produto?')) return;
 
+		const images = getProduct(productId)?.image_url ?? [];
+
 		// A delete blocked by RLS returns no error, just no rows: check what came back.
 		const { data, error } = await supabase.from('products').delete().eq('id', productId).select('id');
 
@@ -270,6 +299,7 @@ export const useUserStore = defineStore('user', () => {
 			throw error ?? new Error('Product not deleted');
 		}
 
+		await removeImages(images);
 		alertStore.addGlobalSuccess('Produto excluído com sucesso.');
 		await loadProducts();
 	};
@@ -284,6 +314,7 @@ export const useUserStore = defineStore('user', () => {
 		logout,
 		createAccount,
 		updateAccount,
+		saveAvatar,
 		sendPasswordResetEmail,
 		resetPassword,
 		loadProducts,
