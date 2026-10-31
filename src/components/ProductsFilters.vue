@@ -97,6 +97,7 @@ watch(
   input,
   select {
     width: 100%;
+    height: 46px;
     padding: 12px;
     border: 1px solid transparent;
     border-radius: var(--border-radius);

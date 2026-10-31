@@ -49,20 +49,20 @@ const stack = [
 
 const decisions = [
   {
-    title: 'A compra acontece no banco',
-    text: 'Uma função Postgres marca os produtos como vendidos e cria os pedidos na mesma transação. Preço, comprador e endereço vêm do banco, não do navegador, e dois compradores não conseguem levar o mesmo item.',
+    title: 'Compra pelo banco de dados',
+    text: 'A compra é feita por uma função no banco, que marca o produto como vendido e cria o pedido na mesma transação. O preço, o comprador e o endereço vêm do próprio banco, o que garante que ninguém altere esses dados pelo navegador, além de impedir que duas pessoas comprem o mesmo produto.',
   },
   {
-    title: 'Regras de acesso no servidor',
-    text: 'Row Level Security e permissões por coluna garantem que cada pessoa só leia e altere o que é seu. A vitrine usa uma view pública só com nome e foto, sem email nem endereço.',
+    title: 'Permissões',
+    text: 'Com Row Level Security e permissões por coluna, cada usuário só consegue ver e alterar o que é dele. Na vitrine eu uso uma view que mostra apenas o nome e a foto do vendedor, assim o email e o endereço de ninguém ficam expostos.',
   },
   {
-    title: 'A sessão do Supabase é a fonte da verdade',
-    text: 'A store apenas espelha a sessão, e o router espera ela ser restaurada antes de decidir o acesso. Assim, recarregar uma página privada não manda ninguém para o login.',
+    title: 'Sessão do usuário',
+    text: 'Quem define se o usuário está logado é a sessão do Supabase, e a store só reflete esse estado. O router espera a sessão ser restaurada antes de liberar uma página, então recarregar uma página privada não manda ninguém pro login sem necessidade.',
   },
   {
-    title: 'Listas que cabem num link',
-    text: 'Busca, filtros, ordenação e página ficam na URL. Recarregar, voltar e compartilhar o link mostram a mesma lista.',
+    title: 'Filtros na URL',
+    text: 'A busca, os filtros, a ordenação e a página ficam salvos na URL, então dá pra recarregar, voltar ou compartilhar o link e ver exatamente a mesma lista.',
   },
 ];
 </script>
