@@ -3,11 +3,22 @@
     <transition name="down" mode="out-in" appear>
       <div class="wrapper">
         <ProductsSearch :searchValue="search" @emit-search-products="onSearchProducts" />
+        <ProductsFilters :minPrice="minPrice" :maxPrice="maxPrice" :sortBy="sortBy" @apply-filters="onApplyFilters" />
         <p class="vendor-filter" v-if="vendorId">
-          Produtos de <strong>{{ vendorName || 'vendedor' }}</strong>
-          <router-link :to="{ name: 'products', query: search ? { busca: search } : {} }">Ver todos</router-link>
+          <span class="chip">
+            <span>Produtos de <strong>{{ vendorName || 'vendedor' }}</strong></span>
+            <button type="button" aria-label="Remover filtro de vendedor" @click="updateQuery({ vendedor: undefined, pagina: undefined })">&times;</button>
+          </span>
         </p>
-        <div class="grid" v-if="products.length">
+        <div class="grid" v-if="loading && !products.length" aria-hidden="true">
+          <div class="product skeleton" v-for="n in 6" :key="n">
+            <div class="img skeleton-block"></div>
+            <div class="line title skeleton-block"></div>
+            <div class="line price skeleton-block"></div>
+            <div class="line action skeleton-block"></div>
+          </div>
+        </div>
+        <div class="grid" v-else-if="products.length">
           <TransitionGroup name="grid" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave">
             <div class="product" v-for="(product, index) in products" :key="product.id" :data-index="index">
               <!-- The actions sit outside the card link: a link or button inside another link is invalid HTML. -->
@@ -19,7 +30,7 @@
                 <p>{{ formatCurrency(product.price) }}</p>
               </router-link>
               <div class="actions">
-                <router-link :to="{name: 'buy', params: {id: product.id}}" class="btn primary buy-now">Comprar</router-link>
+                <AddToCartButton v-if="product.vendor_id !== userStore.user.id" compact :productId="product.id" :productName="product.name" />
                 <FavoriteButton :productId="product.id" />
               </div>
             </div>
@@ -29,12 +40,22 @@
           <h4>{{ emptyMessage }}</h4>
           <button v-if="loadError" class="btn primary" type="button" @click="fetchProducts">Tentar de novo</button>
         </div>
-        <div class="pagination" v-if="totalPages > 1 && !loading">
+        <nav class="pagination" aria-label="Páginas de produtos" v-if="totalPages > 1 && !loading">
           <button type="button" @click="goToPage(page - 1)" :disabled="page === 1">Anterior</button>
-          <span>Página {{ page }} de {{ totalPages }}</span>
+          <template v-for="(item, index) in pageItems" :key="index">
+            <span v-if="item === null" aria-hidden="true">&hellip;</span>
+            <button
+              v-else
+              type="button"
+              :class="{ current: item === page }"
+              :aria-label="`Página ${item}`"
+              :aria-current="item === page ? 'page' : undefined"
+              @click="goToPage(item)"
+            >{{ item }}</button>
+          </template>
           <button type="button" @click="goToPage(page + 1)" :disabled="page === totalPages">Próxima</button>
-        </div>
-        <Loader v-if="loading" />
+        </nav>
+        <Loader v-if="loading && products.length" />
       </div>
     </transition>
   </section>
@@ -44,16 +65,29 @@
 import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ProductsSearch from '@/components/ProductsSearch.vue';
+import ProductsFilters from '@/components/ProductsFilters.vue';
 import { supabase } from '@/lib/supabaseClient'
 import { formatCurrency } from '@/composables/formatCurrency';
 import { truncate } from '@/utils/truncate';
+import { pageRange } from '@/utils/pageRange';
 import { useAlertStore } from '@/stores/alertStore';
 import FavoriteButton from '@/components/FavoriteButton.vue';
+import AddToCartButton from '@/components/AddToCartButton.vue';
+import { useUserStore } from '@/stores/UserState';
 import { useListAnimation } from '@/composables/useListAnimation';
 
-const PAGE_SIZE = 10
+// Divides evenly into the 5 columns of a 1920px screen and the 3 of a 1366px one.
+const PAGE_SIZE = 15
+
+// ?ordem= value -> column and direction
+const SORT_OPTIONS = {
+  recentes: { column: 'created_date', ascending: false },
+  menor: { column: 'price', ascending: true },
+  maior: { column: 'price', ascending: false },
+}
 
 const alertStore = useAlertStore()
+const userStore = useUserStore()
 const route = useRoute()
 const router = useRouter()
 
@@ -63,16 +97,25 @@ const vendorName = ref('')
 const loading = ref(false)
 const loadError = ref(false)
 
-// Search, page and vendor live in the URL (?busca=&pagina=&vendedor=), so reload, back/forward
-// and shared links show the same list.
+// Search, filters, page and vendor live in the URL, so reload, back/forward and shared links
+// show the same list.
 const search = computed(() => (route.query.busca ?? '').toString())
 const page = computed(() => Math.max(1, parseInt(route.query.pagina, 10) || 1))
 const vendorId = computed(() => (route.query.vendedor ?? '').toString())
+const priceParam = (value) => {
+  const price = parseFloat(value)
+  return Number.isFinite(price) && price >= 0 ? String(price) : ''
+}
+const minPrice = computed(() => priceParam(route.query.preco_min))
+const maxPrice = computed(() => priceParam(route.query.preco_max))
+const sortBy = computed(() => (SORT_OPTIONS[route.query.ordem] ? route.query.ordem : 'recentes'))
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / PAGE_SIZE)))
+const pageItems = computed(() => pageRange(page.value, totalPages.value))
 
 const emptyMessage = computed(() => {
   if (loadError.value) return 'Não foi possível carregar os produtos.'
   if (search.value) return `Nenhum produto encontrado para "${search.value}".`
+  if (minPrice.value || maxPrice.value) return 'Nenhum produto nessa faixa de preço.'
   return 'Nenhum produto encontrado'
 })
 
@@ -91,11 +134,13 @@ const fetchProducts = async () => {
     .from('products')
     .select('*', { count: 'exact' })
     .eq('sold', false)
-    .order('created_date', { ascending: false })
+    .order(SORT_OPTIONS[sortBy.value].column, { ascending: SORT_OPTIONS[sortBy.value].ascending })
     .range(from, from + PAGE_SIZE - 1)
 
   if (search.value) query = query.ilike('name', `%${escapeLike(search.value)}%`)
   if (vendorId.value) query = query.eq('vendor_id', vendorId.value)
+  if (minPrice.value) query = query.gte('price', minPrice.value)
+  if (maxPrice.value) query = query.lte('price', maxPrice.value)
 
   const vendorQuery = vendorId.value
     ? supabase.from('public_profiles').select('name').eq('id', vendorId.value).maybeSingle()
@@ -132,12 +177,21 @@ const onSearchProducts = (term) => {
   updateQuery({ busca: term.trim(), pagina: undefined })
 }
 
+const onApplyFilters = ({ min, max, sort }) => {
+  updateQuery({
+    preco_min: min,
+    preco_max: max,
+    ordem: sort === 'recentes' ? undefined : sort,
+    pagina: undefined,
+  })
+}
+
 const goToPage = (target) => {
   if (target < 1 || target > totalPages.value) return
   updateQuery({ pagina: target > 1 ? target : undefined })
 }
 
-const { onBeforeEnter, onEnter, onLeave } = useListAnimation({ axis: 'y', leaveTo: -30, leaveDuration: 0.2, leaveStagger: 0.1 });
+const { onBeforeEnter, onEnter, onLeave } = useListAnimation({ axis: 'y', enterFrom: 20, enterDuration: 0.3, enterStagger: 0.04, leaveDuration: 0 });
 
 // Refetch whenever the list's query changes; ignore the route change that leaves this page.
 watch(
@@ -216,14 +270,55 @@ watch(
       }
     }
   }
+  .skeleton {
+    .img {
+      width: 100%;
+      height: 400px;
+      @include m.media(xs) {
+        height: 300px;
+      }
+    }
+    .line {
+      margin-top: 10px;
+      height: 20px;
+      &.title {
+        width: 60%;
+      }
+      &.price {
+        width: 35%;
+      }
+      &.action {
+        width: 45%;
+        height: 40px;
+      }
+    }
+  }
   .vendor-filter {
-    text-align: center;
+    display: flex;
+    justify-content: center;
     margin: -20px 0 30px;
-    color: var(--text-color);
-    a {
-      margin-left: 10px;
-      color: var(--primary-color);
-      text-decoration: underline;
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 8px 8px 16px;
+      border-radius: 20px;
+      background-color: var(--secondary-color);
+      color: var(--light-dark-color);
+      button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        color: inherit;
+        font-size: 18px;
+        line-height: 1;
+        &:hover {
+          background-color: var(--white-color);
+        }
+      }
     }
   }
   .no-products {

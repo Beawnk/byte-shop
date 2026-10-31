@@ -1,5 +1,15 @@
 <template>
   <section id="product-page" class="container">
+    <!-- Outside the transition: "out-in" would make the product wait for this to fade out. -->
+    <div class="product-skeleton" v-if="loading" aria-hidden="true">
+      <div class="image skeleton-block"></div>
+      <div class="details">
+        <div class="line title skeleton-block"></div>
+        <div class="line skeleton-block"></div>
+        <div class="line skeleton-block"></div>
+        <div class="line action skeleton-block"></div>
+      </div>
+    </div>
     <transition name="down" mode="out-in" appear>
       <div class="product" v-if="product">
         <div class="images">
@@ -19,8 +29,15 @@
             <h2>{{ product.name }}</h2>
             <p>{{ formatCurrency(product.price) }}</p>
             <p>{{ product.description }}</p>
+            <p class="own-product" v-if="isOwnProduct">
+              Este produto é seu.
+              <router-link :to="{ name: 'user-products' }">Gerenciar meus produtos</router-link>
+            </p>
             <div class="actions">
-              <router-link :to="{name: 'buy', params: {id: product.id}}" class="btn primary buy-now" v-if="product.sold === false">Comprar</router-link>
+              <template v-if="!product.sold && !isOwnProduct">
+                <router-link :to="{name: 'buy', params: {id: product.id}}" class="btn primary buy-now">Comprar</router-link>
+                <AddToCartButton :productId="product.id" />
+              </template>
               <button class="btn primary" disabled v-if="product.sold === true">Vendido</button>
               <FavoriteButton :productId="product.id" />
             </div>
@@ -34,13 +51,12 @@
         <router-link :to="{ name: 'products' }" class="btn primary">Ver produtos</router-link>
       </div>
     </transition>
-    <Loader v-if="loading"/>
     <VendorReviews v-if="vendor" v-show="modalReviews" @emit-close-modal="onEmitCloseReviews" :vendor="vendor" :class="{open: modalReviews}"/>
   </section>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { supabase } from '@/lib/supabaseClient'
 import { formatCurrency } from '@/composables/formatCurrency';
 import { fetchVendor } from '@/composables/fetchVendor';
@@ -48,6 +64,8 @@ import { useAlertStore } from '@/stores/alertStore';
 import VendorReviews from '@/components/VendorReviews.vue';
 import VendorInfo from '@/components/VendorInfo.vue';
 import FavoriteButton from '@/components/FavoriteButton.vue';
+import AddToCartButton from '@/components/AddToCartButton.vue';
+import { useUserStore } from '@/stores/UserState';
 
 const props = defineProps({
   id: {
@@ -57,6 +75,7 @@ const props = defineProps({
 })
 
 const alertStore = useAlertStore()
+const userStore = useUserStore()
 
 const product = ref(null)
 const vendor = ref(null)
@@ -96,6 +115,9 @@ const fetchProduct = async () => {
     loading.value = false
   }
 }
+
+// Buying your own product is blocked in the database too; here it just isn't offered.
+const isOwnProduct = computed(() => product.value?.vendor_id === userStore.user.id)
 
 const selectImage = (image) => {
   selectedImage.value = image;
@@ -223,9 +245,39 @@ watch(() => props.id, fetchProduct, { immediate: true })
               }
               .actions {
                   display: flex;
+                  flex-wrap: wrap;
                   gap: 10px;
               }
             }
+        }
+    }
+}
+
+#product-page .product-skeleton {
+    display: flex;
+    gap: 40px;
+    @include m.media(xl) {
+        flex-direction: column;
+    }
+    .image {
+        flex: 1;
+        min-height: 400px;
+    }
+    .details {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .line {
+        height: 20px;
+        &.title {
+            width: 60%;
+            height: 36px;
+        }
+        &.action {
+            width: 150px;
+            height: 44px;
         }
     }
 }
@@ -238,6 +290,17 @@ watch(() => props.id, fetchProduct, { immediate: true })
     padding: var(--section) 0;
     text-align: center;
     color: var(--text-color);
+}
+
+#product-page .own-product {
+    padding: 12px 15px;
+    border-radius: var(--border-radius);
+    background-color: var(--background-color);
+    color: var(--text-color);
+    a {
+        color: var(--primary-color);
+        text-decoration: underline;
+    }
 }
 
 #product-page .thumb-button {

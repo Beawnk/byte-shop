@@ -261,12 +261,13 @@ input::placeholder {
 }
 .pagination {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
+  gap: 8px;
   margin-top: 40px;
   button {
-    padding: 10px 20px;
-    margin: 0 10px;
+    padding: 10px 16px;
     border: 1px solid var(--gray-color);
     border-radius: var(--border-radius);
     background-color: var(--white-color);
@@ -284,6 +285,11 @@ input::placeholder {
         background-color: var(--white-color);
         color: var(--text-color);
       }
+    }
+    &.current {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      color: var(--white-color);
     }
   }
   span {

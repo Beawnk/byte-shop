@@ -1,6 +1,6 @@
 <template>
   <footer>
-    <p>&copy; {{ year }} Byte Shop. Todos os direitos reservados.</p>
+    <p>&copy; {{ year }} Byte Shop. <router-link :to="{ name: 'about' }">Sobre o projeto</router-link></p>
   </footer>
 </template>
 
@@ -12,6 +12,10 @@ const year = new Date().getFullYear();
 @use '@/assets/style/main.scss' as m;
 
 footer {
+    a {
+        color: inherit;
+        text-decoration: underline;
+    }
     display: flex;
     justify-content: center;
     align-items: center;

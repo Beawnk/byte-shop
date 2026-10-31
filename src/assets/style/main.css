@@ -153,6 +153,25 @@ button {
     transition: var(--transition);
 }
 
+/* Placeholder shapes while content loads (ProductsView, ProductView). */
+.skeleton-block {
+    border-radius: var(--border-radius);
+    background-color: var(--gray-color);
+    animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .skeleton-block {
+        animation: none;
+    }
+}
+
 /* Keyboard focus only (not on mouse click): the resets above remove the browser's outline. */
 a:focus-visible,
 button:focus-visible,

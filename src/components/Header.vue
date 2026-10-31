@@ -9,6 +9,10 @@
             <router-link to="/produtos">Produtos</router-link>
         </nav>
         <div class="user">
+            <router-link :to="{ name: 'cart' }" class="cart-link" :aria-label="`Carrinho, ${cart.count} ${cart.count === 1 ? 'item' : 'itens'}`">
+                <CartIcon :size="26" />
+                <span class="count" v-if="cart.count">{{ cart.count }}</span>
+            </router-link>
             <router-link to="/usuario" v-if="!isLogged" class="btn primary">Login</router-link>
             <router-link to="/usuario" v-else class="username">{{ userName }}</router-link>
         </div>
@@ -19,8 +23,11 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useUserStore } from '@/stores/UserState';
+import { useCartStore } from '@/stores/cartStore';
+import CartIcon from '@/components/CartIcon.vue';
 
 const userStore = useUserStore();
+const cart = useCartStore();
 const route = useRoute();
 const logoWhite = new URL('@/assets/img/logo-white.png', import.meta.url).href;
 const logoDefault = new URL('@/assets/img/logo.png', import.meta.url).href;
@@ -65,6 +72,9 @@ header {
             font-size: var(--subtitle-big);
             position: relative;
             padding-bottom: 3px;
+            @include m.media(xxs) {
+                font-size: 0;
+            }
             .gradient & {
                 color: var(--white-color);
             }
@@ -109,6 +119,9 @@ header {
                 @include m.media(xs) {
                     width: 30px;
                 }
+                @include m.media(xxs) {
+                    margin-right: 0;
+                }
             }
         }
     }
@@ -122,6 +135,11 @@ header {
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
+        // On small phones the header holds logo, nav and cart side by side instead of centering the nav.
+        @include m.media(xxs) {
+            position: static;
+            transform: none;
+        }
         a {
             margin-right: 10px;
             font-family: var(--ff-primary);
@@ -146,6 +164,40 @@ header {
         }
     }
     .user {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        @include m.media(xs) {
+            gap: 8px;
+        }
+        .cart-link {
+            position: relative;
+            display: flex;
+            color: var(--primary-color);
+            transition: var(--transition);
+            .gradient & {
+                color: var(--white-color);
+            }
+            &:hover {
+                color: var(--secondary-color);
+            }
+            .count {
+                position: absolute;
+                top: -8px;
+                right: -8px;
+                min-width: 18px;
+                height: 18px;
+                padding: 0 4px;
+                border-radius: 9px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: var(--secondary-color);
+                color: var(--white-color);
+                font-family: var(--ff-primary-semiBold);
+                font-size: 12px;
+            }
+        }
         .username {
             color: var(--primary-color);
             font-size: var(--text-medium);

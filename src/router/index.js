@@ -31,6 +31,25 @@ const router = createRouter({
       meta: { title: 'Finalizar compra', requiresAuth: true },
     },
     {
+      path: '/sobre',
+      name: 'about',
+      component: () => import('@/views/AboutView.vue'),
+      meta: { title: 'Sobre o projeto' },
+    },
+    {
+      path: '/carrinho',
+      name: 'cart',
+      component: () => import('@/views/CartView.vue'),
+      meta: { title: 'Carrinho' },
+    },
+    {
+      // Same view as /comprar/:id, buying everything in the cart.
+      path: '/finalizar',
+      name: 'checkout',
+      component: () => import('@/views/BuyView.vue'),
+      meta: { title: 'Finalizar compra', requiresAuth: true },
+    },
+    {
       // Target of the password reset email link (supabase-js turns the link into a session).
       path: '/usuario/alterar-senha',
       name: 'change-password',

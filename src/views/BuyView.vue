@@ -23,19 +23,20 @@
 				</div>
 				<div class="product-info">
 					<Loader v-if="loading || buying" />
-					<div class="product" v-if="product">
+					<div class="product" v-for="product in products" :key="product.id">
 						<div class="img">
 							<img :src="product.image_url?.[0]" :alt="product.name" />
 						</div>
 						<div class="info">
 							<h4>{{ product.name }}</h4>
-							<p>{{ product.description }}</p>
+							<p>{{ truncate(product.description, 80, product.description?.length > 80 ? '...' : '') }}</p>
 							<p class="price">{{ formatCurrency(product.price) }}</p>
 						</div>
 					</div>
+					<p class="total" v-if="products.length > 1">Total: <strong>{{ formatCurrency(total) }}</strong></p>
 					<p class="unavailable" v-if="unavailableReason">{{ unavailableReason }}</p>
 					<div class="action">
-						<button class="btn primary buy-now" @click.prevent="completeBuy" :disabled="!product || !!unavailableReason || buying">Finalizar</button>
+						<button class="btn primary buy-now" @click.prevent="completeBuy" :disabled="!products.length || !!unavailableReason || buying">Finalizar</button>
 					</div>
 				</div>
 			</div>
@@ -49,6 +50,8 @@ import UserData from '@/components/UserData.vue';
 import { useUserStore } from '@/stores/UserState';
 import { useAlertStore } from '@/stores/alertStore';
 import { formatCurrency } from '@/composables/formatCurrency';
+import { truncate } from '@/utils/truncate';
+import { useCartStore } from '@/stores/cartStore';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'vue-router';
 
@@ -56,41 +59,52 @@ const props = defineProps(['id']);
 
 const userStore = useUserStore();
 const alertStore = useAlertStore();
+const cart = useCartStore();
 const router = useRouter();
 
 const editAddress = ref(false);
-const product = ref(null);
+const products = ref([]);
 const buying = ref(false);
 const loading = ref(false);
 
 // The database checks all of this again (supabase/02-purchase-rpc.sql); here it's just so the
 // button doesn't offer a purchase that will fail.
 const unavailableReason = computed(() => {
-	if (!product.value) return '';
-	if (product.value.sold) return 'Este produto já foi vendido.';
-	if (product.value.vendor_id === userStore.user.id) return 'Você não pode comprar o seu próprio produto.';
+	if (products.value.some((product) => product.sold)) return 'Um dos produtos já foi vendido.';
+	if (products.value.some((product) => product.vendor_id === userStore.user.id)) {
+		return 'Você não pode comprar o seu próprio produto.';
+	}
 	return '';
 });
+
+const total = computed(() => products.value.reduce((sum, product) => sum + Number(product.price), 0));
+
+// No id in the route = buying the cart.
+const productIds = computed(() => (props.id ? [props.id] : cart.ids));
 
 const onEditAddress = () => {
 	editAddress.value = !editAddress.value;
 };
 
-const fetchProduct = async () => {
+const fetchProducts = async () => {
+	if (!productIds.value.length) {
+		router.replace({ name: 'cart' });
+		return;
+	}
+
 	loading.value = true;
 	const { data, error } = await supabase
 		.from('products')
 		.select('*')
-		.eq('id', props.id)
-		.maybeSingle();
+		.in('id', productIds.value);
 	loading.value = false;
 
 	if (error) {
-		alertStore.addGlobalError('Erro ao carregar o produto.', error);
-	} else if (!data) {
+		alertStore.addGlobalError('Erro ao carregar os produtos.', error);
+	} else if (!data.length) {
 		alertStore.addGlobalError('Produto não encontrado.');
 	} else {
-		product.value = data;
+		products.value = data;
 	}
 };
 
@@ -100,22 +114,24 @@ const completeBuy = async () => {
 	buying.value = true;
 	alertStore.clearNotifications();
 
-	const { error } = await supabase.rpc('purchase_products', { p_product_ids: [product.value.id] });
+	const purchasedIds = products.value.map((product) => product.id);
+	const { error } = await supabase.rpc('purchase_products', { p_product_ids: purchasedIds });
 
 	buying.value = false;
 	if (error) {
 		// The function raises messages written for the buyer (unavailable product, missing address).
 		alertStore.addGlobalError(error.code === 'P0001' || error.code === '22023' ? error.message : 'Erro ao finalizar a compra.');
-		await fetchProduct();
+		await fetchProducts();
 		return;
 	}
 
+	cart.removeMany(purchasedIds);
 	alertStore.addGlobalSuccess('Compra finalizada com sucesso.');
 	router.push({ name: 'orders' });
 };
 
 // The router guard already sends logged-out users to the login page.
-onMounted(fetchProduct);
+onMounted(fetchProducts);
 
 </script>
 
@@ -202,6 +218,14 @@ onMounted(fetchProduct);
 					font-family: var(--ff-primary-Medium);
 				}
 			}
+		}
+		.product + .product {
+			margin-top: 10px;
+		}
+		.total {
+			margin-top: 20px;
+			text-align: right;
+			color: var(--text-color);
 		}
 		.unavailable {
 			margin-top: 20px;
