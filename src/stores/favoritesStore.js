@@ -52,8 +52,6 @@ export const useFavoritesStore = defineStore('favorites', () => {
 
 	const isFavorite = (productId) => favorites.value.includes(productId);
 
-	// One fetch per login instead of one per FavoriteButton; logout empties the list,
-	// so the next person on the same browser never sees the previous user's favorites.
 	watch(
 		() => userStore.user.id,
 		(id) => {

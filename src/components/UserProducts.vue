@@ -3,7 +3,6 @@
 		<TransitionGroup class="products-list" v-if="products.length" name="list" tag="div" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave" appear>
 			<div v-for="(product, index) in products" :key="product.id" :data-index="index" class="product" @mouseover="productHoverIndex = index" @mouseleave="productHoverIndex = null" :class="{'show-actions': productHoverIndex === index, sold: product.sold}">
 				<UserProductItem :product="product" />
-        <!-- Always in the DOM so keyboard users can reach them; CSS reveals them on hover/focus. -->
         <div class="actions">
           <button class="delete" type="button" :aria-label="`Excluir ${product.name}`" @click="deleteProduct(product)"></button>
           <button class="edit" type="button" :aria-label="`Editar ${product.name}`" @click="$emit('handleProductModeEdit', product.id, product.sold)"></button>
@@ -40,7 +39,6 @@ const load = async () => {
   try {
     products.value = [...await userStore.loadProducts()];
   } catch {
-    // The error message is shown by userStore.loadProducts
   } finally {
     loading.value = false;
   }
@@ -51,11 +49,9 @@ const deleteProduct = async (product) => {
     await userStore.deleteProduct(product.id, product.sold);
     products.value = [...userStore.userProducts];
   } catch {
-    // The error message is shown by the store
   }
 };
 
-// The parent bumps `fetchProducts` after a save; the route guard guarantees a logged-in user here.
 watch(() => props.fetchProducts, load);
 onMounted(load);
 </script>

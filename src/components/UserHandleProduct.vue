@@ -101,7 +101,6 @@ const alertStore = useAlertStore();
 const modal = ref(null);
 const imgHoverIndex = ref(null);
 const saving = ref(false);
-// Images picked but not saved yet (preview URL -> File). See useHandleImages.
 const pendingFiles = new Map();
 
 const productSchema = yup.object({
@@ -151,9 +150,6 @@ const removeImage = (index) => {
 	if (pendingFiles.delete(removed)) URL.revokeObjectURL(removed);
 };
 
-// The id is also the product URL (/produtos/:id). It's created once and never changes on edit,
-// otherwise favorites, orders and reviews pointing at it would break. The random suffix keeps
-// two products with the same name from colliding.
 const createProductId = (productName) => {
 	const slug = productName
 		.normalize('NFD')
@@ -172,7 +168,6 @@ const saveProduct = handleSubmit(async (values) => {
 
 	const uploaded = [];
 	try {
-		// One at a time, keeping the order the seller sees. What was already saved keeps its URL.
 		const imageUrls = [];
 		for (const image of values.images) {
 			const file = pendingFiles.get(image);
@@ -185,7 +180,6 @@ const saveProduct = handleSubmit(async (values) => {
 			imageUrls.push(url);
 		}
 
-		// Only the columns the seller may edit; id, vendor_id and sold are protected in the database.
 		const fields = {
 			name: values.name,
 			description: values.description,
@@ -202,15 +196,13 @@ const saveProduct = handleSubmit(async (values) => {
 				.update(fields)
 				.eq('id', props.productId);
 
-		// supabase-js returns { error } instead of throwing, and an update blocked by RLS returns
-		// no error at all, just no rows: both have to be checked.
+		// Update bloqueado pelo RLS não dá erro, só volta sem linhas: os dois casos precisam ser checados.
 		const { data, error } = await query.select('id');
 		if (error || !data.length) throw error ?? new Error('Product not saved');
 
-		// Only after the save, so a failure never leaves the product pointing at a deleted file.
 		await removeImages((editedProduct?.image_url ?? []).filter((url) => !imageUrls.includes(url)));
 	} catch (error) {
-		await removeImages(uploaded); // Otherwise they'd stay in the bucket with nothing using them.
+		await removeImages(uploaded);
 		alertStore.addGlobalError('Erro ao salvar produto.', error);
 		return;
 	} finally {
@@ -222,9 +214,6 @@ const saveProduct = handleSubmit(async (values) => {
 	emit('productSaved');
 });
 
-// The parent mounts this component fresh on every open (v-if + key), so the form is
-// filled once here. The image list is copied: editing it must not change the store's
-// product until the save succeeds.
 const editedProduct = props.mode === 'edit' ? userStore.getProduct(props.productId) : null;
 if (editedProduct) {
 	resetForm({

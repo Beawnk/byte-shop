@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { formatCurrency } from './formatCurrency'
 
-// Intl separates "R$" from the value with a non-breaking space.
 const normalize = (value) => value.replace(/\s/g, ' ')
 
 describe('formatCurrency', () => {

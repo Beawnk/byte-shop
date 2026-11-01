@@ -43,21 +43,18 @@ const router = createRouter({
       meta: { title: 'Carrinho' },
     },
     {
-      // Same view as /comprar/:id, buying everything in the cart.
       path: '/finalizar',
       name: 'checkout',
       component: () => import('@/views/BuyView.vue'),
       meta: { title: 'Finalizar compra', requiresAuth: true },
     },
     {
-      // Target of the password reset email link (supabase-js turns the link into a session).
       path: '/usuario/alterar-senha',
       name: 'change-password',
       component: () => import('@/views/AccountView.vue'),
       meta: { title: 'Alterar senha' },
     },
     {
-      // Logged out, this page shows login / sign up / forgot password; logged in, the account area.
       path: '/usuario',
       name: 'user',
       component: () => import('@/views/AccountView.vue'),
@@ -66,7 +63,6 @@ const router = createRouter({
         {
           path: '',
           name: 'data',
-          // No title of its own: logged out this same URL is the login page ("Minha conta" fits both).
           component: () => import('@/views/user/UserDataEditView.vue'),
         },
         {
@@ -108,7 +104,6 @@ const router = createRouter({
       meta: { title: 'Página não encontrada' },
     },
   ],
-  // Back/forward restores the position; a new page starts at the top.
   scrollBehavior(to, from, savedPosition) {
     return savedPosition ?? { top: 0 }
   },
@@ -116,7 +111,6 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const userStore = useUserStore()
-  // Wait for the session to be restored, otherwise a reload on a private page always goes to login.
   await userStore.ready
 
   if (to.meta.requiresAuth && !userStore.logged) {

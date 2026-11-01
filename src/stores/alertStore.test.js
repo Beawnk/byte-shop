@@ -28,7 +28,7 @@ describe('alertStore', () => {
 
 		store.clearNotifications()
 		store.addGlobalError('Novo')
-		vi.advanceTimersByTime(2000) // the old message's timer fires now
+		vi.advanceTimersByTime(2000)
 
 		expect(store.globalErrors.map((m) => m.text)).toEqual(['Novo'])
 	})

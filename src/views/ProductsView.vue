@@ -21,7 +21,6 @@
         <div class="grid" v-else-if="products.length">
           <TransitionGroup name="grid" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave">
             <div class="product" v-for="(product, index) in products" :key="product.id" :data-index="index">
-              <!-- The actions sit outside the card link: a link or button inside another link is invalid HTML. -->
               <router-link :to="{name: 'product', params: {id: product.id}}" class="product-link">
                 <div class="img">
                   <img :src="product.image_url?.[0]" :alt="product.name" loading="lazy" decoding="async" />
@@ -76,10 +75,8 @@ import AddToCartButton from '@/components/AddToCartButton.vue';
 import { useUserStore } from '@/stores/UserState';
 import { useListAnimation } from '@/composables/useListAnimation';
 
-// Divides evenly into the 5 columns of a 1920px screen and the 3 of a 1366px one.
 const PAGE_SIZE = 15
 
-// ?ordem= value -> column and direction
 const SORT_OPTIONS = {
   recentes: { column: 'created_date', ascending: false },
   menor: { column: 'price', ascending: true },
@@ -97,8 +94,6 @@ const vendorName = ref('')
 const loading = ref(false)
 const loadError = ref(false)
 
-// Search, filters, page and vendor live in the URL, so reload, back/forward and shared links
-// show the same list.
 const search = computed(() => (route.query.busca ?? '').toString())
 const page = computed(() => Math.max(1, parseInt(route.query.pagina, 10) || 1))
 const vendorId = computed(() => (route.query.vendedor ?? '').toString())
@@ -119,7 +114,6 @@ const emptyMessage = computed(() => {
   return 'Nenhum produto encontrado'
 })
 
-// % and _ are wildcards in LIKE; typed by the user they should match literally.
 const escapeLike = (value) => value.replace(/[\\%_]/g, (char) => `\\${char}`)
 
 let latestRequest = 0
@@ -148,7 +142,6 @@ const fetchProducts = async () => {
 
   const [{ data, error, count }, { data: vendor }] = await Promise.all([query, vendorQuery])
 
-  // A slower, older request (e.g. the previous page) must not overwrite a newer one.
   if (request !== latestRequest) return
   loading.value = false
 
@@ -173,7 +166,6 @@ const updateQuery = (changes) => {
 }
 
 const onSearchProducts = (term) => {
-  // A new search starts back at page 1.
   updateQuery({ busca: term.trim(), pagina: undefined })
 }
 
@@ -193,7 +185,6 @@ const goToPage = (target) => {
 
 const { onBeforeEnter, onEnter, onLeave } = useListAnimation({ axis: 'y', enterFrom: 20, enterDuration: 0.3, enterStagger: 0.04, leaveDuration: 0 });
 
-// Refetch whenever the list's query changes; ignore the route change that leaves this page.
 watch(
   () => (route.name === 'products' ? route.fullPath : null),
   (path) => { if (path) fetchProducts() },

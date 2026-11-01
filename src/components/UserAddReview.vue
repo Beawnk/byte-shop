@@ -94,7 +94,6 @@ const sendReview = async () => {
 	sending.value = false;
 
 	if (error) {
-		// 23505 = unique violation: one review per product (supabase/04-constraints-defaults.sql).
 		alertStore.addGlobalError(error.code === '23505' ? 'Você já avaliou este produto.' : 'Erro ao enviar avaliação.', error);
 	} else {
 		alertStore.addGlobalSuccess('Avaliação enviada com sucesso.');

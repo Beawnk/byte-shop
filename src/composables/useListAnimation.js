@@ -3,10 +3,6 @@ import { gsap } from 'gsap';
 
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Staggered enter/leave hooks for a <TransitionGroup :css="false">. Each item needs
-// :data-index="index". Tweens run in a gsap.context so leaving the page stops them.
-// leaveDuration: 0 removes the old items at once, for lists that are replaced as a whole
-// (pagination): old items still leaving would keep their grid cells and push the new ones down.
 export function useListAnimation({
 	axis = 'x',
 	enterFrom = -30,

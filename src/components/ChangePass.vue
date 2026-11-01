@@ -62,7 +62,6 @@ const changePass = handleSubmit(async (values) => {
 		await userStore.resetPassword(values.newPass);
 		emit('emitLoginPage');
 	} catch {
-		// The error message is shown by userStore.resetPassword
 	} finally {
 		loading.value = false;
 	}

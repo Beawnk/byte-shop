@@ -5,7 +5,6 @@ import { useUserStore } from '@/stores/UserState';
 const GUEST = 'guest';
 const keyFor = (owner) => `cart:${owner}`;
 
-// localStorage can be full or blocked (private mode): the cart then just lasts for this visit.
 const read = (owner) => {
 	try {
 		const ids = JSON.parse(localStorage.getItem(keyFor(owner)));
@@ -19,12 +18,9 @@ const write = (owner, ids) => {
 	try {
 		localStorage.setItem(keyFor(owner), JSON.stringify(ids));
 	} catch {
-		// Keep working with the in-memory cart.
 	}
 };
 
-// Only product ids are stored. Each product is unique (one unit, sold once) so there is no
-// quantity, and price/availability always come from the database when the cart is shown.
 export const useCartStore = defineStore('cart', () => {
 	const userStore = useUserStore();
 	const ids = ref([]);
@@ -56,7 +52,6 @@ export const useCartStore = defineStore('cart', () => {
 		persist();
 	};
 
-	// Each account has its own cart. What was added before logging in moves into it.
 	watch(
 		owner,
 		(current) => {

@@ -1,5 +1,4 @@
 <template>
-    <!-- A real form: Enter and the button both submit once (before, Enter fired the search twice). -->
     <form class="search-products" role="search" @submit.prevent="searchProducts">
         <input type="text" id="search" name="search" placeholder="Pesquisar produtos" aria-label="Pesquisar produtos" v-model="search"/>
         <input class="btn primary hover search-btn" type="submit" value="" aria-label="Buscar"/>
@@ -25,7 +24,6 @@ const clearSearch = () => {
     emit('emitSearchProducts', search.value);
 }
 
-// Keeps the field in sync with ?busca= (back/forward, links).
 watch(() => props.searchValue, (value) => {
     search.value = value ?? '';
 }, { immediate: true });

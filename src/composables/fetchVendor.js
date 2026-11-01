@@ -1,7 +1,5 @@
 import { supabase } from '@/lib/supabaseClient';
 
-// Public vendor card data: profile from public_profiles plus the rating from their reviews.
-// Returns null when the vendor doesn't exist; throws on query errors.
 export async function fetchVendor(vendorId) {
   const [profileResult, ratingsResult] = await Promise.all([
     supabase.from('public_profiles').select('id, name, avatar').eq('id', vendorId).maybeSingle(),

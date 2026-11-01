@@ -34,7 +34,6 @@ const closeModal = () => {
 
 useClickOutside(modal, closeModal)
 
-// Reload when the same component is reused for another vendor (e.g. navigating between products).
 watch(() => props.vendor.id, (id) => load({ vendorId: id }), { immediate: true })
 </script>
 

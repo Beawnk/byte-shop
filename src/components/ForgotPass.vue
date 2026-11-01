@@ -53,8 +53,7 @@ const { value: email, validate: validateField } = useField('email', undefined, {
   validateOnValueUpdate: false
 });
 
-// The same message whether or not the email has an account: saying "no account with this
-// email" would let anyone check who is registered.
+// Mesma mensagem com ou sem conta: dizer que o email não existe revelaria quem é cadastrado.
 const sendEmail = handleSubmit(async (values) => {
 	loading.value = true;
 	alertStore.clearNotifications();
@@ -63,7 +62,6 @@ const sendEmail = handleSubmit(async (values) => {
 		alertStore.addGlobalSuccess('Se existir uma conta com esse email, você vai receber um link para redefinir a senha.');
 		emit('emitLoginPage');
 	} catch {
-		// The error message is shown by userStore.sendPasswordResetEmail
 	} finally {
 		loading.value = false;
 	}

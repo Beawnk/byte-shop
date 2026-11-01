@@ -1,6 +1,5 @@
 @use 'sass:map';
 
-// Same values the layouts already used, now named in one place.
 $breakpoints: (
   xxs: 480px,
   xs: 540px,
@@ -11,7 +10,6 @@ $breakpoints: (
   xxl: 1450px,
 );
 
-// Usage: @include m.media(sm) { ... } applies at that width and below.
 @mixin media($size) {
   @if not map.has-key($breakpoints, $size) {
     @error "Unknown breakpoint: #{$size}";

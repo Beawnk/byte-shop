@@ -53,14 +53,12 @@ const loading = ref(false);
 
 const period = ref('12m');
 
-// All sales are already loaded, so changing the period needs no new query.
 const periods = computed(() => periodOptions(sales.value));
 const summary = computed(() => summarizeSales(sales.value, { period: period.value }));
 
 const fetchSales = async () => {
 	loading.value = true;
 	try {
-		// Products of this vendor, then the orders for them (RLS lets the vendor read those orders).
 		const { data: products, error: productsError } = await supabase
 			.from('products')
 			.select('id')
@@ -79,7 +77,6 @@ const fetchSales = async () => {
 			.order('created_at', { ascending: false });
 		if (ordersError) throw ordersError;
 
-		// All buyers' public names in one query.
 		const buyerIds = [...new Set(orders.map((order) => order.buyer_id))];
 		const { data: buyers, error: buyersError } = buyerIds.length
 			? await supabase.from('public_profiles').select('id, name').in('id', buyerIds)
@@ -100,7 +97,6 @@ const fetchSales = async () => {
 
 onMounted(() => {
 	fetchSales();
-	// The rating is a nice-to-have on the dashboard: without it the other figures still show.
 	fetchVendor(userStore.user.id).then((data) => { vendor.value = data; }).catch(() => {});
 });
 

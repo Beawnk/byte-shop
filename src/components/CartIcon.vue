@@ -13,7 +13,6 @@ defineProps({
     type: Number,
     default: 24
   },
-  // The check mark shows "already in the cart" without relying on color alone.
   checked: {
     type: Boolean,
     default: false

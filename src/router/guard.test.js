@@ -1,8 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 
-// supabase-js keeps its own fetch reference, so the client module itself is replaced
-// (stubbing window.fetch would not intercept anything).
 const auth = {
 	getSession: vi.fn(),
 	onAuthStateChange: vi.fn(),
@@ -28,7 +26,6 @@ describe('router guard', () => {
 		setActivePinia(createPinia())
 		auth.getSession.mockResolvedValue({ data: { session: null } })
 		await router.replace('/')
-		// A fresh Pinia = a fresh user store, so each test's session mock is the one restored.
 		setActivePinia(createPinia())
 	})
 

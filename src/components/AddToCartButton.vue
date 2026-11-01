@@ -1,5 +1,4 @@
 <template>
-  <!-- compact: icon only, for the product cards. -->
   <button
     type="button"
     class="btn add-to-cart"
@@ -52,12 +51,10 @@ const toggle = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  // 8px + 24px icon + the .btn border = same 44px height as the favorite button.
   padding: 8px;
   svg {
     display: block;
   }
-  // Inverted so "in the cart" doesn't look like the hover state of the green button.
   &.in-cart {
     background-color: var(--white-color);
     border-color: var(--primary-color);

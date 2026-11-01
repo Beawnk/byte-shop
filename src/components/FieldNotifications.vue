@@ -10,12 +10,10 @@ import { computed } from 'vue';
 import { useFieldError } from 'vee-validate';
 import { useAlertStore } from '@/stores/alertStore';
 
-const props = defineProps(['field']); // The name of the field passed as a prop
+const props = defineProps(['field']);
 
 const alertStore = useAlertStore();
 
-// Reads the error of the field the parent form registered. (useField here would register a
-// second field with the same name in the form.)
 const alertMessage = useFieldError(props.field);
 const alertMessageStore = computed(() => alertStore.fieldErrors[props.field]);
 </script>

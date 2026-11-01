@@ -4,12 +4,10 @@
 @font-face { font-family:'Quicksand-SemiBold'; src: url('@/assets/fonts/Quicksand-SemiBold.ttf') format('truetype'); font-display: swap; }
 
 :root {
-    /* colors  */
     --primary-color: #50c19f;
     --secondary-color: #f5b4b0;
     --background-color: #edf3ff;
     --text-color: #5f5380;
-    /* --highlight-color: #ff3da8; */
     --success-color: #2ce27e;
     --info-color: #667dff;
     --warning-color: #FAC975;
@@ -23,13 +21,11 @@
 
     --shadow: 0px 2px 10px 0px var(--shadow-color);
 
-    /* Fonts  */
     --ff-primary: 'Quicksand-Regular', system-ui, sans-serif;
     --ff-primary-light: 'Quicksand-Light', system-ui, sans-serif;
     --ff-primary-Medium: 'Quicksand-Medium', system-ui, sans-serif;
     --ff-primary-semiBold: 'Quicksand-SemiBold', system-ui, sans-serif;
 
-    /* font sizes */
     --title-super: 48px;
     --title-big: 36px;
     --title-medium: 32px;
@@ -69,7 +65,6 @@ body:has(.modal.open) {
     overflow: hidden;
 }
 
-/* Typography */
 h1, h2, h3 {
     font-family: var(--ff-primary-semiBold);
     margin: 0;
@@ -153,7 +148,6 @@ button {
     transition: var(--transition);
 }
 
-/* Placeholder shapes while content loads (ProductsView, ProductView). */
 .skeleton-block {
     border-radius: var(--border-radius);
     background-color: var(--gray-color);
@@ -172,7 +166,6 @@ button {
     }
 }
 
-/* Keyboard focus only (not on mouse click): the resets above remove the browser's outline. */
 a:focus-visible,
 button:focus-visible,
 input[type="submit"]:focus-visible,
@@ -181,18 +174,15 @@ input[type="submit"]:focus-visible,
     outline-offset: 2px;
 }
 
-/* width */
 ::-webkit-scrollbar {
   width: 10px;
 }
 
-/* Track */
 ::-webkit-scrollbar-track {
   background: var(--gray-color);
   border-radius: var(--border-radius);
 }
 
-/* Handle */
 ::-webkit-scrollbar-thumb {
   background: var(--primary-color);
   border-radius: var(--border-radius);
@@ -200,7 +190,6 @@ input[type="submit"]:focus-visible,
   border: 2px solid var(--gray-color);
 }
 
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: var(--secondary-color);
 }
@@ -227,7 +216,6 @@ input[type="submit"]:focus-visible,
         --header-height: 80px;
         --side: 30px;
 
-        /* font sizes */
         --title-super: 38px;
         --title-big: 24px;
         --title-medium: 22px;
@@ -245,7 +233,6 @@ input[type="submit"]:focus-visible,
 
 @media only screen and (max-width: 400px) {
     :root {
-        /* font sizes */
         --title-super: 38px;
         --title-big: 24px;
         --title-medium: 22px;

@@ -96,7 +96,6 @@ onMounted(fetchFavoriteProducts);
 					}
 				}
 			}
-			// Hidden until hover or keyboard focus; always visible on touch screens (no hover there).
 			.remove {
 				position: absolute;
 				top: 0;

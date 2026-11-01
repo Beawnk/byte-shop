@@ -1,7 +1,6 @@
 <template>
   <figure class="sales-chart">
     <figcaption>Vendas por mês</figcaption>
-    <!-- Scrolls sideways on phones: 12 months squeezed into 300px would be unreadable. -->
     <div class="plot">
     <svg :viewBox="`0 0 ${WIDTH} ${HEIGHT}`" role="group" aria-label="Valor vendido nos últimos meses">
       <line class="baseline" :x1="PADDING" :x2="WIDTH - PADDING" :y1="BASELINE" :y2="BASELINE" />
@@ -9,7 +8,6 @@
         <path v-if="bar.height" class="bar" :class="{ active: active === index }" :d="bar.path" />
         <text v-if="showValue(index)" class="value" :x="bar.center" :y="BASELINE - bar.height - 8">{{ formatCurrency(bar.total) }}</text>
         <text class="month" :x="bar.center" :y="BASELINE + 20">{{ bar.label }}</text>
-        <!-- Bigger than the bar: the whole column reacts to hover and keyboard focus. -->
         <rect
           class="hit-area"
           :x="bar.center - slot / 2"
@@ -60,7 +58,7 @@ const WIDTH = 600;
 const HEIGHT = 220;
 const PADDING = 10;
 const BASELINE = 190;
-const TOP = 30; // Room for the value label above the tallest bar.
+const TOP = 30;
 const BAR_WIDTH = 24;
 const RADIUS = 4;
 
@@ -69,7 +67,6 @@ const active = ref(null);
 const slot = computed(() => (WIDTH - PADDING * 2) / props.monthly.length);
 const maxTotal = computed(() => Math.max(...props.monthly.map((month) => month.total)));
 
-// Rounded at the data end, square at the baseline.
 const barPath = (center, height) => {
   const left = center - BAR_WIDTH / 2;
   const right = center + BAR_WIDTH / 2;
@@ -88,7 +85,6 @@ const bars = computed(() =>
 
 const peakIndex = computed(() => props.monthly.findIndex((month) => month.total === maxTotal.value));
 
-// Labels are selective: the best month, plus whichever column is being read.
 const showValue = (index) => (active.value === null ? maxTotal.value > 0 && index === peakIndex.value : active.value === index);
 
 const salesLabel = (count) => `${count} ${count === 1 ? 'venda' : 'vendas'}`;

@@ -15,7 +15,6 @@ const userStore = useUserStore();
 
 const isFavorite = computed(() => favoritesStore.isFavorite(props.productId));
 
-// Ignore clicks while a toggle is in flight, so a double click doesn't add/remove twice.
 const pending = ref(false);
 
 const toggleFavorite = async () => {

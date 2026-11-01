@@ -55,7 +55,6 @@ const clearFilters = () => {
   emit('applyFilters', { min: '', max: '', sort: 'recentes' });
 };
 
-// Keeps the fields in sync with the URL (back/forward, shared links).
 watch(
   () => [props.minPrice, props.maxPrice, props.sortBy],
   ([minPrice, maxPrice, sortBy]) => {

@@ -49,7 +49,7 @@ const fillForm = async (wrapper) => {
 
 const submit = async (wrapper) => {
 	await wrapper.find('form').trigger('submit')
-	// vee-validate debounces validation with a real timer, so flushing promises isn't enough.
+	// O vee-validate valida com debounce em timer real, então flushPromises não basta.
 	await new Promise((resolve) => setTimeout(resolve, 50))
 	await flushPromises()
 }

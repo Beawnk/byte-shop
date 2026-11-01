@@ -50,7 +50,6 @@ describe('summarizeSales', () => {
 	})
 
 	it('uses Brazil time to pick the month', () => {
-		// 02:00 UTC on Nov 1st is still Oct 31st in São Paulo.
 		const { monthly } = summarizeSales([{ total: 10, created_at: '2026-11-01T02:00:00Z' }], { now, period: '6m' })
 
 		expect(monthly[5].key).toBe('2026-10')

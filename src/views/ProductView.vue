@@ -1,6 +1,5 @@
 <template>
   <section id="product-page" class="container">
-    <!-- Outside the transition: "out-in" would make the product wait for this to fade out. -->
     <div class="product-skeleton" v-if="loading" aria-hidden="true">
       <div class="image skeleton-block"></div>
       <div class="details">
@@ -107,7 +106,6 @@ const fetchProduct = async () => {
     product.value = data
     document.title = `${data.name} | Byte Shop`
     selectedImage.value = data.image_url?.[0] ?? '';
-    // The vendor card is secondary: if it fails, the product still shows.
     vendor.value = await fetchVendor(data.vendor_id).catch(() => null)
   } catch (error) {
     alertStore.addGlobalError('Erro ao carregar o produto.', error)
@@ -116,7 +114,6 @@ const fetchProduct = async () => {
   }
 }
 
-// Buying your own product is blocked in the database too; here it just isn't offered.
 const isOwnProduct = computed(() => product.value?.vendor_id === userStore.user.id)
 
 const selectImage = (image) => {
@@ -131,7 +128,6 @@ const onEmitCloseReviews = () => {
   modalReviews.value = false
 }
 
-// The same component is reused between /produtos/a and /produtos/b, so refetch when the id changes.
 watch(() => props.id, fetchProduct, { immediate: true })
 </script>
 

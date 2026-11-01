@@ -2,7 +2,6 @@
 	<div class="user-products">
 		<h2>Seus produtos</h2>
 		<button class="btn primary add" v-if="!showHandleProduct" @click="addNewProduct">Adicionar produto</button>
-		<!-- v-if (not v-show): the form mounts fresh on every open, so it never shows stale values. -->
 		<transition name="down" mode="out-in" appear><UserHandleProduct v-if="showHandleProduct" :key="editedProduct ?? 'new'" :productId="editedProduct" :mode="handleProductMode" @hide-product-modal="showHandleProduct = false" @product-saved="fetchProducts++" :class="[{open: showHandleProduct}, handleProductMode]"/></transition>
 		<UserProducts :fetchProducts="fetchProducts" @handle-product-mode-edit="editProduct" />
 	</div>

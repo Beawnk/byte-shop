@@ -60,7 +60,6 @@ const fetchCart = async () => {
     return;
   }
 
-  // Someone else may have bought an item since it was added, or the seller deleted it.
   const available = data.filter((product) => !product.sold && product.vendor_id !== userStore.user.id);
   const availableIds = available.map((product) => product.id);
   const removed = cart.ids.filter((id) => !availableIds.includes(id));

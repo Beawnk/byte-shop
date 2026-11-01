@@ -130,7 +130,6 @@
       </div>
     </div>
     <div class="action">
-      <!-- The parent passes a type="submit" button; the form handles submit (button click or Enter). -->
       <slot :saving="loading"></slot>
     </div>
   </form>
@@ -145,7 +144,6 @@ import { useAlertStore } from '@/stores/alertStore';
 import { useGetAddress } from '@/composables/getAddress';
 import { useRouter } from 'vue-router';
 
-// mode: 'create' (sign up), 'edit' (profile) or 'address' (checkout: only the address part)
 const props = defineProps(['mode']);
 const emit = defineEmits(['saved']);
 const userStore = useUserStore();
@@ -153,13 +151,11 @@ const alertStore = useAlertStore();
 const router = useRouter();
 const loading = ref(false);
 
-// Initialize form with validation schema
 const { handleSubmit } = useForm({
   validationSchema: computed(() => getUserSchema(props.mode)),
   validateOnMount: false,
 });
 
-// Setup fields with validation
 const { value: email, validate: validateEmail } = useField('email', undefined, {
   validateOnValueUpdate: false
 });
@@ -202,7 +198,6 @@ const { value: country, validate: validateCountry } = useField('country', undefi
 
 const profilePicUrl = ref(DEFAULT_AVATAR);
 
-// Validate single field
 const validateField = (fieldName) => {
   const validateMap = {
     email: validateEmail,
@@ -223,7 +218,6 @@ const validateField = (fieldName) => {
 };
 
 onMounted(() => {
-  // The saved CEP already matches the saved address: don't look it up and overwrite it.
   lastCepLookup = (userStore.user.address_cep ?? '').replace(/\D/g, '');
   email.value = userStore.user.email;
   name.value = userStore.user.name;
@@ -237,7 +231,6 @@ onMounted(() => {
   country.value = userStore.user.address_country;
 });
 
-// The photo only goes to Storage when the form is saved: until then it's just a preview.
 let avatarFile = null;
 
 const revokePreview = () => {
@@ -255,8 +248,6 @@ const onFileChange = (event) => {
 
 onBeforeUnmount(revokePreview);
 
-// Look the address up once per new 8-digit CEP (not on every keyup), and only fill the
-// fields when ViaCEP actually found it.
 let lastCepLookup = '';
 watch(cep, async (value) => {
   const cepValue = (value ?? '').replace(/\D/g, '');
@@ -288,13 +279,11 @@ const changePass = async () => {
     await userStore.logout();
     alertStore.addGlobalSuccess('Enviamos um link para o seu email para cadastrar a nova senha.');
   } catch {
-    // The error message is shown by the store
   } finally {
     loading.value = false;
   }
 };
 
-// The store only changes after the save succeeds, so a failed save never shows unsaved data as saved.
 const updateUserStore = handleSubmit(async (values) => {
   loading.value = true;
 
@@ -319,7 +308,7 @@ const updateUserStore = handleSubmit(async (values) => {
       if (avatarFile) {
         await userStore.saveAvatar(avatarFile);
         revokePreview();
-        avatarFile = null; // Saving again without a new photo must not upload it twice.
+        avatarFile = null;
         profilePicUrl.value = userStore.user.avatar;
       }
       await userStore.updateAccount({ ...profile, email: values.email });
@@ -334,7 +323,6 @@ const updateUserStore = handleSubmit(async (values) => {
       router.replace(needsConfirmation ? { name: 'user', query: { page: 'login' } } : { name: 'data' });
     }
   } catch {
-    // Errors are shown by the store (UserState.js)
   } finally {
     loading.value = false;
   }

@@ -30,7 +30,6 @@ const userStore = useUserStore();
 const route = useRoute()
 const router = useRouter()
 
-// What this page shows comes from the route and the session, so back/forward and reloads keep it.
 const view = computed(() => {
     if (route.name === 'change-password') return 'change-pass';
     if (userStore.logged) return 'user';
@@ -39,7 +38,6 @@ const view = computed(() => {
     return 'login';
 });
 
-// Keeps ?redirect= so the user still lands where they were going after logging in.
 const goTo = (page) => {
     router.replace({ name: 'user', query: { ...route.query, page } });
 };

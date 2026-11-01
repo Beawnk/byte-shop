@@ -37,7 +37,6 @@ defineProps({
     type: Boolean,
     default: false
   },
-  // Off in "Avaliações enviadas": the author is the user reading the list.
   showAuthor: {
     type: Boolean,
     default: true

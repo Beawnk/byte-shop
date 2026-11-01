@@ -4,7 +4,6 @@ import { useAlertStore } from '@/stores/alertStore';
 import { DEFAULT_AVATAR } from '@/stores/UserState';
 import { formatDate } from '@/utils/formatDate';
 
-// One query with the author and product joined, instead of one extra query per review.
 const REVIEW_COLUMNS = '*, author:public_profiles(name, avatar), product:products(name)';
 
 const toReviewItem = (review) => ({
@@ -18,7 +17,6 @@ const toReviewItem = (review) => ({
 	productName: review.product?.name ?? 'Produto removido',
 });
 
-// load({ vendorId }) = reviews a vendor received; load({ userId }) = reviews a user wrote.
 export function useReviews() {
 	const alertStore = useAlertStore();
 	const reviews = ref([]);
@@ -38,7 +36,6 @@ export function useReviews() {
 
 		const { data, error } = await query;
 
-		// A slower, older request (e.g. the previous tab) must not overwrite a newer one.
 		if (request !== latestRequest) return;
 		loading.value = false;
 

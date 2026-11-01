@@ -67,13 +67,11 @@ const loginSchema = yup.object({
     .required('Digite sua senha')
 });
 
-// Initialize form with validation schema
 const { handleSubmit } = useForm({
   validationSchema: loginSchema,
   validateOnMount: false
 });
 
-// Setup fields with validation
 const { value: email, validate: validateEmail } = useField('email', undefined, {
   validateOnValueUpdate: false
 });
@@ -81,7 +79,6 @@ const { value: password, validate: validatePassword } = useField('password', und
   validateOnValueUpdate: false
 });
 
-// Validate single field on blur
 const validateField = (fieldName) => {
   if (fieldName === 'email') {
     validateEmail();
@@ -90,7 +87,6 @@ const validateField = (fieldName) => {
   }
 };
 
-// Handle form submission
 const onSubmit = handleSubmit(async (values) => {
   try {
     loading.value = true;
@@ -98,7 +94,6 @@ const onSubmit = handleSubmit(async (values) => {
     const redirect = safeRedirect(route.query.redirect);
     router.replace(redirect ?? { name: 'data' });
   } catch (error) {
-    // Error handling is already done in userStore
   } finally {
     loading.value = false;
   }

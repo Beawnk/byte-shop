@@ -24,7 +24,6 @@ const router = useRouter();
 const userStore = useUserStore();
 const alertStore = useAlertStore();
 
-// When the session ends (logout, expired, signed out in another tab), leave private pages.
 watch(
   () => userStore.logged,
   (logged) => {
@@ -299,7 +298,4 @@ input::placeholder {
   }
 }
 
-// transition-property: overlay, display, opacity, transform;
-// transition-duration: 0.3s;
-// transition-behavior: allow-discrete;
 </style>

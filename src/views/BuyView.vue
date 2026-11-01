@@ -67,8 +67,6 @@ const products = ref([]);
 const buying = ref(false);
 const loading = ref(false);
 
-// The database checks all of this again (supabase/02-purchase-rpc.sql); here it's just so the
-// button doesn't offer a purchase that will fail.
 const unavailableReason = computed(() => {
 	if (products.value.some((product) => product.sold)) return 'Um dos produtos já foi vendido.';
 	if (products.value.some((product) => product.vendor_id === userStore.user.id)) {
@@ -79,7 +77,6 @@ const unavailableReason = computed(() => {
 
 const total = computed(() => products.value.reduce((sum, product) => sum + Number(product.price), 0));
 
-// No id in the route = buying the cart.
 const productIds = computed(() => (props.id ? [props.id] : cart.ids));
 
 const onEditAddress = () => {
@@ -108,7 +105,6 @@ const fetchProducts = async () => {
 	}
 };
 
-// One transaction in the database: price, buyer and address come from there, not from the browser.
 const completeBuy = async () => {
 	if (buying.value) return;
 	buying.value = true;
@@ -119,7 +115,6 @@ const completeBuy = async () => {
 
 	buying.value = false;
 	if (error) {
-		// The function raises messages written for the buyer (unavailable product, missing address).
 		alertStore.addGlobalError(error.code === 'P0001' || error.code === '22023' ? error.message : 'Erro ao finalizar a compra.');
 		await fetchProducts();
 		return;
@@ -130,7 +125,6 @@ const completeBuy = async () => {
 	router.push({ name: 'orders' });
 };
 
-// The router guard already sends logged-out users to the login page.
 onMounted(fetchProducts);
 
 </script>

@@ -7,7 +7,6 @@ export default [
   { ignores: ['dist/**', 'coverage/**'] },
 
   js.configs.recommended,
-  // "essential" = rules that catch bugs; formatting is Prettier's job (eslint-config-prettier below).
   ...pluginVue.configs['flat/essential'],
 
   {
@@ -17,9 +16,9 @@ export default [
       globals: { ...globals.browser },
     },
     rules: {
-      // Single-word names (Header, Login, User...) are part of the existing structure.
       'vue/multi-word-component-names': 'off',
       'no-unused-vars': ['error', { argsIgnorePattern: '^_', caughtErrors: 'none' }],
+      'no-empty': ['error', { allowEmptyCatch: true }],
     },
   },
 

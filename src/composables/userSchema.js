@@ -14,7 +14,6 @@ const addressSchema = {
   country: yup.string().required('Digite seu país'),
 };
 
-// mode: 'create' (sign up), 'edit' (profile) or 'address' (checkout: only the address is shown and validated)
 export const getUserSchema = (mode) => {
   if (mode === 'address') return yup.object(addressSchema);
 
@@ -30,7 +29,6 @@ export const getUserSchema = (mode) => {
     ...addressSchema,
   };
 
-  // Add password validation only in "create" mode
   if (mode === 'create') {
     schema.password = yup
       .string()

@@ -1,7 +1,6 @@
 <template>
     <header>
         <div class="logo">
-            <!-- alt="" because the visible text "byte" already names the link. -->
             <router-link to="/" aria-label="Byte Shop, página inicial"><img :src="logo" alt="" />byte</router-link>
         </div>
         <nav aria-label="Principal">
@@ -35,8 +34,6 @@ const logoDefault = new URL('@/assets/img/logo.png', import.meta.url).href;
 const isLogged = computed(() => userStore.logged);
 const userName = computed(() => (userStore.user.name ?? '').replace(/ .*/, ''));
 
-// White logo over the gradient pages (home and account). Computed from the route, so the
-// header renders right away instead of waiting for mount to pick a logo.
 const logo = computed(() =>
     route.path === '/' || route.path.startsWith('/usuario') ? logoWhite : logoDefault
 );
@@ -79,7 +76,6 @@ header {
                 color: var(--white-color);
             }
             &::after {
-                //gradient border bottom
                 content: '';
                 display: none;
                 position: absolute;
@@ -135,7 +131,6 @@ header {
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
-        // On small phones the header holds logo, nav and cart side by side instead of centering the nav.
         @include m.media(xxs) {
             position: static;
             transform: none;
