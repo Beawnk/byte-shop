@@ -1,14 +1,5 @@
-// Migração única: copia as imagens base64 e as fotos do Unsplash de products, users e orders
-// pro bucket `images` e troca cada uma pela URL pública.
-//
-// Sem --apply só mostra o que faria, sem gravar nada. O nome do arquivo vem do conteúdo da
-// imagem, então rodar de novo não duplica nada e continua de onde parou.
-//
-// Usa a chave secret porque precisa alterar linhas de todos os usuários. Ela fica só na
-// variável do terminal: nunca no .env, que o Vite lê, nem no código.
-//
-//   node --env-file=.env scripts/migrate-images.mjs
-//   node --env-file=.env scripts/migrate-images.mjs --apply
+// Migração única das imagens pro bucket `images`. Sem --apply não grava nada.
+// A chave secret fica só na variável do terminal, nunca no .env, que o Vite lê.
 
 import { createHash } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
@@ -26,13 +17,14 @@ if (!url || !secretKey) {
 }
 
 const supabase = createClient(url, secretKey, { auth: { persistSession: false } });
+const defaultAvatar = supabase.storage.from('byte').getPublicUrl('avatars/profile-default.png').data.publicUrl;
 
 const isBase64 = (image) => typeof image === 'string' && image.startsWith('data:');
 const isUnsplash = (image) => typeof image === 'string' && image.startsWith(UNSPLASH);
+const isSvg = (image) => image.startsWith('data:image/svg+xml');
 const needsMove = (image) => isBase64(image) || isUnsplash(image);
 
 const stats = { arquivos: 0, mb: 0 };
-// A product and its orders hold the same image: this keeps them pointing at a single file.
 const moved = new Map();
 
 const unwrap = ({ data, error }) => {
@@ -77,7 +69,6 @@ const moveImage = async (image, ownerId) => {
       upsert: true,
     }));
 
-    // The row only changes after the file is confirmed to be reachable.
     const response = await fetch(publicUrl);
     if (!response.ok) throw new Error(`Arquivo não encontrado depois do envio: ${publicUrl}`);
   }
@@ -110,7 +101,8 @@ for (const product of products) {
 for (const user of users) {
   if (!needsMove(user.avatar)) continue;
   console.log(`users ${user.id}`);
-  const avatar = await moveImage(user.avatar, user.id);
+  if (isSvg(user.avatar)) console.log('  SVG -> avatar padrão');
+  const avatar = isSvg(user.avatar) ? defaultAvatar : await moveImage(user.avatar, user.id);
   if (apply) unwrap(await supabase.from('users').update({ avatar }).eq('id', user.id));
 }
 
