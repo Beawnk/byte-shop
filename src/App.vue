@@ -8,6 +8,7 @@
     <router-view/>
   </main>
   <Footer />
+  <BackToTop />
 </template>
 
 <script setup>
@@ -17,6 +18,7 @@ import { useUserStore } from '@/stores/UserState';
 import Header from '@/components/Header.vue';
 import Footer from '@/components/Footer.vue';
 import Notifications from '@/components/Notifications.vue';
+import BackToTop from '@/components/BackToTop.vue';
 import { useAlertStore } from '@/stores/alertStore';
 
 const route = useRoute();

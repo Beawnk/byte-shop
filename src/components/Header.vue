@@ -97,15 +97,20 @@ header {
                 background-color: var(--white-color);
                 background-image: none;
             }
-            &:hover {
-                &::after {
-                    display: block;
-                    width: 55px;
-                    @include m.media(xs) {
-                        width: 45px;
-                    }
-                    @starting-style {
-                        width: 0;
+            @media (hover: hover) {
+                &:hover {
+                    &::after {
+                        display: block;
+                        width: 55px;
+                        @include m.media(xs) {
+                            width: 45px;
+                        }
+                        @include m.media(xxs) {
+                            display: none;
+                        }
+                        @starting-style {
+                            width: 0;
+                        }
                     }
                 }
             }

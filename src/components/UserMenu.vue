@@ -1,5 +1,5 @@
 <template>
-	<div class="user-menu" :class="{ open: menuOpen }">
+	<div class="user-menu" :class="{ open: menuOpen }" ref="menu">
 		<ul>
 			<li><router-link :to="{name: 'data'}">Dados</router-link></li>
 			<li><router-link :to="{name: 'favorites'}">Favoritos</router-link></li>
@@ -23,15 +23,21 @@
 import { ref, watch } from 'vue';
 import { useUserStore } from '@/stores/UserState';
 import { useRoute } from 'vue-router';
+import { useClickOutside } from '@/composables/clickOutside';
 
 const userStore = useUserStore();
 const route = useRoute();
+
+const menu = ref(null);
+const menuOpen = ref(false);
 
 watch(route, () => {
 	menuOpen.value = false;
 });
 
-const menuOpen = ref(false);
+useClickOutside(menu, () => {
+	menuOpen.value = false;
+});
 </script>
 
 <style lang="scss" scoped>
@@ -40,16 +46,16 @@ const menuOpen = ref(false);
 .user-menu {
 	width: 200px;
 	@include m.media(md) {
-		position: absolute;
-		top: calc(var(--section) + 10px);
-		left: calc(var(--side) * -1 - 200px);
-		z-index: 10;
+		position: fixed;
+		top: calc(var(--header-height) + 10px);
+		left: -200px;
+		z-index: 20;
 		transition: var(--transition);
 	}
-	
+
 	&.open {
 		@include m.media(md) {
-			left: calc(var(--side) * -1 + 10px);
+			left: 10px;
 		}
 	}
 
@@ -64,6 +70,8 @@ const menuOpen = ref(false);
 			box-shadow: var(--shadow);
 			z-index: 12;
 			position: relative;
+			max-height: calc(100dvh - var(--header-height) - 20px);
+			overflow-y: auto;
 		}
 		li {
 			background-color: var(--background-color);
