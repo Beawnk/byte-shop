@@ -47,6 +47,7 @@ const dateTimeFormatted = computed(() => formatDate(props.order.created_at));
 
 .id-date {
 	display: flex;
+	flex-wrap: wrap;
 	gap: 10px;
 	margin-bottom: 20px;
 	border-bottom: 1px solid var(--gray-color);

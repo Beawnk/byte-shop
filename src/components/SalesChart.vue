@@ -1,7 +1,7 @@
 <template>
   <figure class="sales-chart">
     <figcaption>Vendas por mês</figcaption>
-    <div class="plot">
+    <div class="plot" ref="plot">
     <svg :viewBox="`0 0 ${WIDTH} ${HEIGHT}`" role="group" aria-label="Valor vendido nos últimos meses">
       <line class="baseline" :x1="PADDING" :x2="WIDTH - PADDING" :y1="BASELINE" :y2="BASELINE" />
       <g v-for="(bar, index) in bars" :key="bar.key">
@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { formatCurrency } from '@/composables/formatCurrency';
 
 const props = defineProps({
@@ -88,6 +88,15 @@ const peakIndex = computed(() => props.monthly.findIndex((month) => month.total 
 const showValue = (index) => (active.value === null ? maxTotal.value > 0 && index === peakIndex.value : active.value === index);
 
 const salesLabel = (count) => `${count} ${count === 1 ? 'venda' : 'vendas'}`;
+
+const plot = ref(null);
+
+const showLatestMonth = () => {
+  plot.value.scrollLeft = plot.value.scrollWidth;
+};
+
+onMounted(showLatestMonth);
+watch(() => props.monthly, showLatestMonth, { flush: 'post' });
 </script>
 
 <style lang="scss" scoped>

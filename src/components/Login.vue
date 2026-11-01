@@ -112,7 +112,7 @@ const onSubmit = handleSubmit(async (values) => {
         .link-button {
             background: none;
             border: none;
-            padding: 0;
+            padding: 8px 0;
             font: inherit;
             cursor: pointer;
             color: var(--primary-color);

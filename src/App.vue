@@ -145,6 +145,12 @@ input, textarea {
   }
 }
 
+input, textarea, select {
+  @include m.media(xs) {
+    font-size: 16px;
+  }
+}
+
 input:focus, textarea:focus {
   border-color: var(--primary-color);
 }
@@ -231,8 +237,9 @@ input::placeholder {
     @include m.media(sm) {
       padding: 20px;
       padding-top: 40px;
-      max-height: 100vh;
-      min-height: 100vh;
+      max-height: 100dvh;
+      min-height: 100dvh;
+      border-radius: 0;
       overflow-y: auto !important;
     }
 
@@ -258,44 +265,8 @@ input::placeholder {
     }
   }
 }
-.pagination {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
-  margin-top: 40px;
-  button {
-    padding: 10px 16px;
-    border: 1px solid var(--gray-color);
-    border-radius: var(--border-radius);
-    background-color: var(--white-color);
-    color: var(--text-color);
-    font-family: var(--ff-primary);
-    cursor: pointer;
-    transition: var(--transition);
-    &:hover {
-      background-color: var(--gray-color);
-      color: var(--white-color);
-    }
-    &:disabled {
-      opacity: 0.5;
-      &:hover {
-        background-color: var(--white-color);
-        color: var(--text-color);
-      }
-    }
-    &.current {
-      background-color: var(--primary-color);
-      border-color: var(--primary-color);
-      color: var(--white-color);
-    }
-  }
-  span {
-    font-family: var(--ff-primary);
-    font-size: var(--text-medium);
-    color: var(--text-color);
-  }
-}
 
+.paged-list {
+  scroll-margin-top: 20px;
+}
 </style>

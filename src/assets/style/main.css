@@ -214,7 +214,7 @@ input[type="submit"]:focus-visible,
 @media only screen and (max-width: 540px) {
     :root {
         --header-height: 80px;
-        --side: 30px;
+        --side: 20px;
 
         --title-super: 38px;
         --title-big: 24px;
@@ -228,22 +228,5 @@ input[type="submit"]:focus-visible,
         --text-big: 16px;
         --text-medium: 14px;
         --text-small: 12px;
-    }
-}
-
-@media only screen and (max-width: 400px) {
-    :root {
-        --title-super: 38px;
-        --title-big: 24px;
-        --title-medium: 22px;
-        --title-small: 20px;
-
-        --subtitle-big: 18px;
-        --subtitle-medium: 14px;
-        --subtitle-small: 12px;
-
-        --text-big: 14px;
-        --text-medium: 12px;
-        --text-small: 11px;
     }
 }

@@ -83,7 +83,7 @@ const goTo = (page) => {
             transition: max-width 0.5s ease;
 
             @include m.media(sm) {
-                padding: 30px;
+                padding: 20px;
                 max-width: 100%;
             }
         }

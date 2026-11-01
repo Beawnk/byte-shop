@@ -1,8 +1,8 @@
 <template>
   	<div class="user-favorites">
   		<h2>Seus favoritos</h2>
-  		<div class="favorites" v-if="favoriteProducts.length">
-  		  <div v-for="product in favoriteProducts" :key="product.id" class="favorite">
+  		<div class="favorites paged-list" ref="listTop" v-if="favoriteProducts.length">
+  		  <div v-for="product in visibleItems" :key="product.id" class="favorite">
   		    <UserProductItem :product="product" />
 			<button class="btn remove" type="button" :aria-label="`Remover ${product.name} dos favoritos`" @click="removeProduct(product.id)"></button>
   		  </div>
@@ -10,6 +10,7 @@
 		<div class="no-favorites" v-else-if="favoriteProducts.length === 0 && !loading">
   		  <h5>Você não tem nenhum produto nos favoritos</h5>
 		</div>
+		<ListPagination :page="page" :total-pages="totalPages" label="Páginas dos seus favoritos" @change="goToPage" />
 		<Loader v-if="loading" />
 	</div>
 </template>
@@ -18,7 +19,9 @@
 import { ref, onMounted } from 'vue';
 import { useFavoritesStore } from '@/stores/favoritesStore';
 import { useAlertStore } from '@/stores/alertStore';
+import { usePagination } from '@/composables/usePagination';
 import UserProductItem from '@/components/UserProductItem.vue';
+import ListPagination from '@/components/ListPagination.vue';
 import { supabase } from '@/lib/supabaseClient';
 
 const favoritesStore = useFavoritesStore();
@@ -26,6 +29,8 @@ const alertStore = useAlertStore();
 
 const favoriteProducts = ref([]);
 const loading = ref(false);
+
+const { page, totalPages, visibleItems, listTop, goToPage } = usePagination(favoriteProducts, 12);
 
 const fetchFavoriteProducts = async () => {
   loading.value = true;
@@ -65,15 +70,27 @@ onMounted(fetchFavoriteProducts);
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
 		gap: 1rem;
+		@include m.media(sm) {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			gap: 10px;
+		}
 		.favorite {
 			position: relative;
 			:deep(.product-link) {
 				flex-direction: column;
 				align-items: center;
 				min-height: 250px;
+				height: 100%;
+				@include m.media(sm) {
+					min-height: 0;
+					padding-bottom: 0;
+				}
 				.product-image {
 					width: 100%;
 					height: 150px;
+					@include m.media(xs) {
+						height: 120px;
+					}
 					img {
 						width: 100%;
 						height: 100%;

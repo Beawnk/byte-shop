@@ -16,9 +16,9 @@
 			</dl>
 			<SalesChart :monthly="summary.monthly" />
 		</section>
-		<div class="sales">
+		<div class="sales paged-list" ref="listTop">
 			<TransitionGroup class="sales-list" v-if="summary.orders.length" name="list" tag="div" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave" appear>
-				<div v-for="(sale, index) in summary.orders" :key="sale.id" :data-index="index" class="sale">
+				<div v-for="(sale, index) in visibleItems" :key="sale.id" :data-index="index" class="sale">
 					<UserOrderItem :order="sale">
 						<p v-if="sale.buyer" class="buyer"><strong>Comprador:</strong> {{ sale.buyer.name }}</p>
 					</UserOrderItem>
@@ -27,6 +27,7 @@
 			<div class="no-sales" v-else-if="!loading">
 				<h5>{{ sales.length ? 'Nenhuma venda nesse período' : 'Nenhuma venda encontrada' }}</h5>
 			</div>
+			<ListPagination :page="page" :total-pages="totalPages" label="Páginas das suas vendas" @change="goToPage" />
 			<Loader v-if="loading"/>
 		</div>
 	</div>
@@ -34,9 +35,11 @@
 
 <script setup>
 import { useListAnimation } from '@/composables/useListAnimation';
-import { computed, ref, onMounted } from 'vue';
+import { usePagination } from '@/composables/usePagination';
+import { computed, ref, onMounted, watch } from 'vue';
 import UserOrderItem from '@/components/UserOrderItem.vue';
 import SalesChart from '@/components/SalesChart.vue';
+import ListPagination from '@/components/ListPagination.vue';
 import { formatCurrency } from '@/composables/formatCurrency';
 import { fetchVendor } from '@/composables/fetchVendor';
 import { periodOptions, summarizeSales } from '@/utils/salesSummary';
@@ -55,6 +58,10 @@ const period = ref('12m');
 
 const periods = computed(() => periodOptions(sales.value));
 const summary = computed(() => summarizeSales(sales.value, { period: period.value }));
+
+const { page, totalPages, visibleItems, listTop, goToPage } = usePagination(() => summary.value.orders);
+
+watch(period, () => { page.value = 1; });
 
 const fetchSales = async () => {
 	loading.value = true;
@@ -100,7 +107,7 @@ onMounted(() => {
 	fetchVendor(userStore.user.id).then((data) => { vendor.value = data; }).catch(() => {});
 });
 
-const { onBeforeEnter, onEnter, onLeave } = useListAnimation();
+const { onBeforeEnter, onEnter, onLeave } = useListAnimation({ enterDuration: 0.3, enterStagger: 0.04, leaveDuration: 0 });
 </script>
 
 <style lang="scss" scoped>

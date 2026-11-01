@@ -71,6 +71,7 @@ const openReviews = () => {
 .open-reviews {
     display: block;
     margin: 0 auto;
+    padding: 8px 0;
     color: inherit;
     font-family: inherit;
 }

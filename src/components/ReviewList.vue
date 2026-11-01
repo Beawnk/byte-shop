@@ -1,24 +1,27 @@
 <template>
-  <div class="reviews" v-if="reviews.length">
-    <div class="review" v-for="review in reviews" :key="review.id">
-      <div class="user" :class="{ 'no-author': !showAuthor }">
-        <div class="avatar" v-if="showAuthor">
-          <img :src="review.authorAvatar" :alt="review.authorName" />
-        </div>
-        <div class="user-info">
-          <div class="name-date">
-            <h5 v-if="showAuthor">{{ shortName(review.authorName) }}</h5>
-            <span class="date">{{ review.date }}</span>
+  <div class="review-list paged-list" ref="listTop" v-if="reviews.length">
+    <div class="reviews" :key="page">
+      <div class="review" v-for="review in visibleItems" :key="review.id">
+        <div class="user" :class="{ 'no-author': !showAuthor }">
+          <div class="avatar" v-if="showAuthor">
+            <img :src="review.authorAvatar" :alt="review.authorName" />
           </div>
-          <StarRating :rating="review.stars" />
+          <div class="user-info">
+            <div class="name-date">
+              <h5 v-if="showAuthor">{{ shortName(review.authorName) }}</h5>
+              <span class="date">{{ review.date }}</span>
+            </div>
+            <StarRating :rating="review.stars" />
+          </div>
         </div>
-      </div>
-      <div class="text">
-        <p class="product"><strong>Produto avaliado: </strong>{{ review.productName }}</p>
-        <h6 class="title">"{{ review.title }}"</h6>
-        <p class="review-text">{{ review.review }}</p>
+        <div class="text">
+          <p class="product"><strong>Produto avaliado: </strong>{{ review.productName }}</p>
+          <h6 class="title">"{{ review.title }}"</h6>
+          <p class="review-text">{{ review.review }}</p>
+        </div>
       </div>
     </div>
+    <ListPagination :page="page" :total-pages="totalPages" label="Páginas das avaliações" @change="goToPage" />
   </div>
   <div class="no-reviews" v-else-if="!loading">
     <h4>Nenhuma avaliação encontrada</h4>
@@ -26,9 +29,12 @@
 </template>
 
 <script setup>
+import { watch } from 'vue'
 import StarRating from '@/components/StarRating.vue'
+import ListPagination from '@/components/ListPagination.vue'
+import { usePagination } from '@/composables/usePagination'
 
-defineProps({
+const props = defineProps({
   reviews: {
     type: Array,
     required: true
@@ -43,15 +49,37 @@ defineProps({
   }
 })
 
+const { page, totalPages, visibleItems, listTop, goToPage } = usePagination(() => props.reviews)
+
+watch(() => props.reviews, () => { page.value = 1 })
+
 const shortName = (name) => name.split(' ').slice(0, 2).join(' ')
 </script>
 
 <style lang="scss" scoped>
+@use '@/assets/style/main.scss' as m;
+
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+  @include m.media(sm) {
+    flex: none;
+  }
+  .pagination {
+    margin-top: 0;
+  }
+}
 .reviews {
   display: flex;
   flex-direction: column;
   gap: 20px;
   overflow-y: auto;
+  @include m.media(sm) {
+    overflow-y: visible;
+  }
   .review {
     background-color: var(--white-color);
     padding: 20px;
@@ -82,6 +110,10 @@ const shortName = (name) => name.split(' ').slice(0, 2).join(' ')
           align-items: center;
           justify-content: space-between;
           gap: 5px;
+          @include m.media(xs) {
+            flex-direction: column;
+            align-items: flex-start;
+          }
           h5 {
             color: var(--text-color);
           }

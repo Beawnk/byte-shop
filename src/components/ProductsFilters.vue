@@ -8,7 +8,7 @@
       <label for="price-max">Preço máximo</label>
       <input id="price-max" type="number" min="0" step="0.01" inputmode="decimal" placeholder="Sem limite" v-model="max" />
     </div>
-    <div class="field">
+    <div class="field sort">
       <label for="sort">Ordenar por</label>
       <select id="sort" v-model="sort" @change="apply">
         <option value="recentes">Mais recentes</option>
@@ -87,6 +87,9 @@ watch(
     width: 170px;
     @include m.media(xs) {
       width: calc(50% - 5px);
+      &.sort {
+        flex: 1;
+      }
     }
   }
   label {

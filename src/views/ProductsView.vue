@@ -39,21 +39,7 @@
           <h4>{{ emptyMessage }}</h4>
           <button v-if="loadError" class="btn primary" type="button" @click="fetchProducts">Tentar de novo</button>
         </div>
-        <nav class="pagination" aria-label="Páginas de produtos" v-if="totalPages > 1 && !loading">
-          <button type="button" @click="goToPage(page - 1)" :disabled="page === 1">Anterior</button>
-          <template v-for="(item, index) in pageItems" :key="index">
-            <span v-if="item === null" aria-hidden="true">&hellip;</span>
-            <button
-              v-else
-              type="button"
-              :class="{ current: item === page }"
-              :aria-label="`Página ${item}`"
-              :aria-current="item === page ? 'page' : undefined"
-              @click="goToPage(item)"
-            >{{ item }}</button>
-          </template>
-          <button type="button" @click="goToPage(page + 1)" :disabled="page === totalPages">Próxima</button>
-        </nav>
+        <ListPagination v-if="!loading" :page="page" :total-pages="totalPages" label="Páginas de produtos" @change="goToPage" />
         <Loader v-if="loading && products.length" />
       </div>
     </transition>
@@ -68,8 +54,8 @@ import ProductsFilters from '@/components/ProductsFilters.vue';
 import { supabase } from '@/lib/supabaseClient'
 import { formatCurrency } from '@/composables/formatCurrency';
 import { truncate } from '@/utils/truncate';
-import { pageRange } from '@/utils/pageRange';
 import { useAlertStore } from '@/stores/alertStore';
+import ListPagination from '@/components/ListPagination.vue';
 import FavoriteButton from '@/components/FavoriteButton.vue';
 import AddToCartButton from '@/components/AddToCartButton.vue';
 import { useUserStore } from '@/stores/UserState';
@@ -105,7 +91,6 @@ const minPrice = computed(() => priceParam(route.query.preco_min))
 const maxPrice = computed(() => priceParam(route.query.preco_max))
 const sortBy = computed(() => (SORT_OPTIONS[route.query.ordem] ? route.query.ordem : 'recentes'))
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / PAGE_SIZE)))
-const pageItems = computed(() => pageRange(page.value, totalPages.value))
 
 const emptyMessage = computed(() => {
   if (loadError.value) return 'Não foi possível carregar os produtos.'
@@ -202,7 +187,7 @@ watch(
   }
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
     gap: 20px;
     .product {
       display: flex;
@@ -288,6 +273,9 @@ watch(
     display: flex;
     justify-content: center;
     margin: -20px 0 30px;
+    @include m.media(xs) {
+      margin: 0 0 20px;
+    }
     .chip {
       display: inline-flex;
       align-items: center;

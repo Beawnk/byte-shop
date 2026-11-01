@@ -1,7 +1,13 @@
 <template>
-	<div class="products">
+	<div class="products paged-list" ref="listTop">
+		<div class="sort" v-if="products.length > 1">
+			<label for="products-sort">Ordenar por</label>
+			<select id="products-sort" v-model="sort">
+				<option v-for="option in PRODUCT_SORTS" :key="option.value" :value="option.value">{{ option.label }}</option>
+			</select>
+		</div>
 		<TransitionGroup class="products-list" v-if="products.length" name="list" tag="div" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave" appear>
-			<div v-for="(product, index) in products" :key="product.id" :data-index="index" class="product" @mouseover="productHoverIndex = index" @mouseleave="productHoverIndex = null" :class="{'show-actions': productHoverIndex === index, sold: product.sold}">
+			<div v-for="(product, index) in visibleItems" :key="product.id" :data-index="index" class="product" @mouseover="productHoverIndex = index" @mouseleave="productHoverIndex = null" :class="{'show-actions': productHoverIndex === index, sold: product.sold}">
 				<UserProductItem :product="product" />
         <div class="actions">
           <button class="delete" type="button" :aria-label="`Excluir ${product.name}`" @click="deleteProduct(product)"></button>
@@ -12,15 +18,19 @@
 		<div class="no-products" v-else-if="products.length === 0 && !loading">
 			<p>Você não tem nenhum produto à venda</p>
 		</div>
+		<ListPagination :page="page" :total-pages="totalPages" label="Páginas dos seus produtos" @change="goToPage" />
     <Loader v-if="loading"/>
 	</div>
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { useUserStore } from '@/stores/UserState';
 import UserProductItem from '@/components/UserProductItem.vue';
+import ListPagination from '@/components/ListPagination.vue';
 import { useListAnimation } from '@/composables/useListAnimation';
+import { usePagination } from '@/composables/usePagination';
+import { PRODUCT_SORTS, sortProducts } from '@/utils/sortProducts';
 
 const props = defineProps(["fetchProducts"]);
 
@@ -29,15 +39,21 @@ defineEmits(["handleProductModeEdit"]);
 const userStore = useUserStore();
 const products = ref([]);
 const loading = ref(false);
+const sort = ref('recentes');
 
 const productHoverIndex = ref(null);
 
-const { onBeforeEnter, onEnter, onLeave } = useListAnimation();
+const sortedProducts = computed(() => sortProducts(products.value, sort.value));
+const { page, totalPages, visibleItems, listTop, goToPage } = usePagination(sortedProducts);
+
+const { onBeforeEnter, onEnter, onLeave } = useListAnimation({ enterDuration: 0.3, enterStagger: 0.04, leaveDuration: 0 });
 
 const load = async () => {
+  const previousCount = products.value.length;
   loading.value = true;
   try {
     products.value = [...await userStore.loadProducts()];
+    if (products.value.length > previousCount) page.value = 1;
   } catch {
   } finally {
     loading.value = false;
@@ -53,6 +69,7 @@ const deleteProduct = async (product) => {
 };
 
 watch(() => props.fetchProducts, load);
+watch(sort, () => { page.value = 1; });
 onMounted(load);
 </script>
 
@@ -62,6 +79,31 @@ onMounted(load);
 .products {
   position: relative;
   min-height: 300px;
+  .sort {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    color: var(--text-color);
+    label {
+      white-space: nowrap;
+    }
+    select {
+      min-width: 0;
+      padding: 10px 12px;
+      border: 1px solid transparent;
+      border-radius: var(--border-radius);
+      background-color: var(--white-color);
+      box-shadow: var(--shadow);
+      color: var(--text-color);
+      font-family: var(--ff-primary);
+      &:focus {
+        border-color: var(--primary-color);
+        outline: none;
+      }
+    }
+  }
 	.products-list {
     margin-top: 20px;
 		.product {

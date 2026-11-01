@@ -1,9 +1,9 @@
 <template>
 	<div class="user-orders">
 		<h2>Seus pedidos</h2>
-		<div class="orders">
+		<div class="orders paged-list" ref="listTop">
 			<TransitionGroup class="orders-list" v-if="orders.length" name="list" tag="div" :css="false" @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave" appear>
-				<div v-for="(order, index) in orders" :key="order.id" :data-index="index" class="order">
+				<div v-for="(order, index) in visibleItems" :key="order.id" :data-index="index" class="order">
 					<UserOrderItem :order="order">
 						<button class="btn primary" @click.prevent="openReviewModal(order)" :disabled="isReviewed(order)">Avaliar</button>
 					</UserOrderItem>
@@ -12,6 +12,7 @@
 			<div class="no-orders" v-else-if="orders.length === 0 && !loading">
 				<h5>Nenhum pedido encontrado</h5>
 			</div>
+			<ListPagination :page="page" :total-pages="totalPages" label="Páginas dos seus pedidos" @change="goToPage" />
 			<Loader v-if="loading"/>
 		</div>
 	</div>
@@ -20,9 +21,11 @@
 
 <script setup>
 import { useListAnimation } from '@/composables/useListAnimation';
+import { usePagination } from '@/composables/usePagination';
 import { ref, onMounted } from 'vue';
 import UserOrderItem from '@/components/UserOrderItem.vue';
 import UserAddReview from "@/components/UserAddReview.vue";
+import ListPagination from '@/components/ListPagination.vue';
 import { useUserStore } from '@/stores/UserState';
 import { useAlertStore } from '@/stores/alertStore';
 import { supabase } from '@/lib/supabaseClient';
@@ -35,6 +38,8 @@ const showAddReviewModal = ref(false);
 const selectedOrder = ref(null);
 const userReviews = ref([]);
 const loading = ref(false);
+
+const { page, totalPages, visibleItems, listTop, goToPage } = usePagination(orders);
 
 const fetchOrders = async () => {
 	loading.value = true;
@@ -83,7 +88,7 @@ onMounted(() => {
 	fetchUserReviews();
 });
 
-const { onBeforeEnter, onEnter, onLeave } = useListAnimation();
+const { onBeforeEnter, onEnter, onLeave } = useListAnimation({ enterDuration: 0.3, enterStagger: 0.04, leaveDuration: 0 });
 </script>
 
 <style lang="scss" scoped>

@@ -144,7 +144,10 @@ header {
             padding: 10px;
             border-radius: 30px;
             @include m.media(xs) {
-                padding: 6px;
+                padding: 10px 6px;
+            }
+            @include m.media(xxs) {
+                margin-right: 2px;
             }
             &:last-child {
                 margin-right: 0;
@@ -168,6 +171,8 @@ header {
         .cart-link {
             position: relative;
             display: flex;
+            padding: 8px;
+            margin: -8px;
             color: var(--primary-color);
             transition: var(--transition);
             .gradient & {
@@ -178,8 +183,8 @@ header {
             }
             .count {
                 position: absolute;
-                top: -8px;
-                right: -8px;
+                top: 0;
+                right: 0;
                 min-width: 18px;
                 height: 18px;
                 padding: 0 4px;
@@ -200,6 +205,12 @@ header {
             border-radius: 30px;
             background-color: var(--white-color);
             transition: var(--transition);
+            @include m.media(xxs) {
+                max-width: 90px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
             &:hover {
                 background-color: var(--secondary-color);
                 color: var(--white-color);

@@ -13,6 +13,8 @@ const year = new Date().getFullYear();
 
 footer {
     a {
+        display: inline-block;
+        padding: 8px 0;
         color: inherit;
         text-decoration: underline;
     }
